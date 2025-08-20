@@ -1,0 +1,37 @@
+PokeCoin = "<:PokeCoin:1349767346641698866>"
+
+
+class RarityEmojis:
+    Common = "<:Common:1348638314634412134>"
+    Uncommon = "<:Uncommon:1348638327464661145>"
+    Rare = "<:Rare:1348638342715281511>"
+    SuperRare = "<:SuperRare:1348638356732641365>"
+    Legendary = "<:Legendary:1348638375376322684>"
+    Shiny = "<:Shiny:1348638393554178129>"
+    Mega = "<:Mega:1348638409345859637>"
+    ShinyMega = "<:ShinyMega:1348638422553722930>"
+    GoldenMega = "<:GoldenMega:1348638438605324349>"
+    Gigantamax = "<:Gigantamax:1348638452035620964>"
+    Golden = "<:GOLDEN:1348638531102441585>"
+    shinygmax = "<:shinygmax:1407473864430063837>"
+
+
+class TYPE_EMOJI:
+    dark = "<:darktype:1229731181508034641>"
+    dragon = "<:dragontype:1229731185433776159>"
+    electric = "<:electrictype:1229731190530117702>"
+    fairy = "<:fairytype:1229731195235864596>"
+    flying = "<:flyingtype:1229731199573037160>"
+    fire = "<:firetype:1229731203922526289>"
+    ground = "<:groundtype:1229731207911313428>"
+    ice = "<:icetype:1229731213242011690>"
+    grass = "<:grasstype:1229731217830576158>"
+    steel = "<:steeltype:1229731223186964480>"
+    bug = "<:bugtype:1229731227133546567>"
+    water = "<:watertype:1229731232120701018>"
+    poison = "<:poisontype:1229731235849441321>"
+    psychic = "<:psychictype:1229731241377402930>"
+    fighting = "<:fightingtype:1229731245823492167>"
+    ghost = "<:ghosttype:1229731249950556191>"
+    normal = "<:normaltype:1229731254845575178>"
+    rock = "<:rocktype:1229731259295465522>"

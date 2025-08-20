@@ -1,0 +1,95 @@
+# 🟣────────────────────────────────────────────
+#           💜 Message Create Listener Cog 💜
+# ─────────────────────────────────────────────
+
+import asyncio
+
+import discord
+from discord.ext import commands
+
+from config.current_setup import (
+    ACTIVE_GUILD_ID,
+    POKEMEOW_APPLICATION_ID,
+    STAFF_SERVER_GUILD_ID,
+)
+from config.staffmons_constants import STAFFMONS_CATEGORIES
+from utils.listener_func.as_ping import as_rare_ping
+from utils.listener_func.market_alert import process_market_alert_message
+
+# from utils.listener_func.mh_debug_listener import debug_market_category_message
+from utils.listener_func.mr_weakness import mr_weakness_chart
+from utils.loggers.espeon_log import espeon_log
+
+
+class MessageCreateListener(commands.Cog):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+
+    # 💜 Helper: Retry Discord calls on 503
+    async def retry_discord_call(self, func, *args, retries=3, delay=2, **kwargs):
+        for attempt in range(1, retries + 1):
+            try:
+                return await func(*args, **kwargs)
+            except discord.HTTPException as e:
+                if e.status == 503:
+                    espeon_log(
+                        "warn",
+                        f"HTTP 503 error on attempt {attempt}. Retrying in {delay}s...",
+                        source="MessageCreateListener",
+                    )
+                    if attempt < retries:
+                        await asyncio.sleep(delay)
+                        continue
+                    else:
+                        raise
+                else:
+                    raise
+
+    # 💜────────────────────────────────────────────
+    #           👂 Message Listener Event
+    # 💜────────────────────────────────────────────
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        try:
+            # 🚫 Ignore bots except PokéMeow, but allow webhooks
+            if (
+                message.author.bot
+                and message.author.id != POKEMEOW_APPLICATION_ID
+                and not message.webhook_id
+            ):
+                return
+
+            """# 💜 Debug: Print all messages in market category
+            if message.channel.category_id == ONLYFRIENDS_CATEGORIES.MARKET_FEEDS:
+                await debug_market_category_message(
+                    bot=self.bot,
+                    message=message,
+                    market_category_id=ONLYFRIENDS_CATEGORIES.MARKET_FEEDS,
+                )"""
+
+            # --- Active Guild: Weakness chart processing ---
+            if message.guild and message.guild.id == ACTIVE_GUILD_ID:
+                await mr_weakness_chart(message)
+
+            # --- Staff Guild: Market alert processing ---
+            elif message.guild and message.guild.id == STAFF_SERVER_GUILD_ID:
+                await process_market_alert_message(
+                    self.bot, message, STAFFMONS_CATEGORIES.MARKET_FEEDS
+                )
+                await as_rare_ping(bot=self.bot, message=message)
+
+        except Exception as e:
+            espeon_log(
+                "critical",
+                f"Unhandled exception in on_message: {e}",
+                include_trace=True,
+                source="MessageCreateListener",
+            )
+
+
+# 💜────────────────────────────────────────────
+#        🛠️ Setup function to add cog to bot
+# 💜────────────────────────────────────────────
+async def setup(bot: commands.Bot):
+    await bot.add_cog(MessageCreateListener(bot))
+    espeon_log("ready", "MessageCreateListener cog loaded successfully!")
