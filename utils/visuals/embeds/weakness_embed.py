@@ -88,7 +88,6 @@ def parse_normal_pokemon(dex_int: int, first_index: str, dex_count: int):
 FORM_BASE_DEX_OFFSET = 7001
 FORM_VARIANTS = ["regular", "shiny", "golden"]
 
-
 def parse_form_pokemon(dex_int: int):
     """Handles special forms (7001+)"""
     if dex_int < FORM_BASE_DEX_OFFSET:

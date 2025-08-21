@@ -118,11 +118,11 @@ async def remove_market_alert(bot, user_id: int, pokemon: str):
                 dex_number,
             )
         else:
-            pokemon_name = pokemon.lower()
+            # pokemon_name = pokemon.lower()
             result = await conn.execute(
                 "DELETE FROM market_alerts WHERE user_id=$1 AND pokemon=$2",
                 user_id,
-                pokemon_name,
+                pokemon,
             )
     return int(result.split()[-1])
 
@@ -162,7 +162,7 @@ async def toggle_market_alert_notify(
                     "UPDATE market_alerts SET notify=$1 WHERE user_id=$2 AND pokemon=$3",
                     notify,
                     user_id,
-                    pokemon_name,
+                    pokemon,
                 )
         else:
             # toggle all alerts for the user

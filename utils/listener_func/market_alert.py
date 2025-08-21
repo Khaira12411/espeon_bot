@@ -106,9 +106,15 @@ async def process_market_alert_message(
 
                 # Add Buy Command field at the top
                 new_embed.add_field(
-                    name="Buy Command", value=f"`;m b {original_id}`", inline=False
+                    name="Buy Command (Iphone)",
+                    value=f"`;m b {original_id}`",
+                    inline=False,
                 )
-
+                new_embed.add_field(
+                    name="Buy Command (Android)",
+                    value=f";m b {original_id}",
+                    inline=False,
+                )
                 # Replace custom emojis in other fields
                 for name, value in fields.items():
                     value_cleaned = re.sub(r"<a?:\w+:\d+>", PokeCoin, value)
