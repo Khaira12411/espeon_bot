@@ -105,18 +105,19 @@ class MarketAlerts(commands.Cog):
         name="mine", description="View all your active market alerts"
     )
     async def mine_alerts(self, interaction: discord.Interaction):
-        try:
-            embed = await mine_market_alerts_func(
-                bot=self.bot, user_id=interaction.user.id
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+        # ✅ defer immediately to prevent "Unknown interaction"
+        await interaction.response.defer(ephemeral=True)
 
-        except Exception as e:
-            await interaction.response.send_message(
-                f"❌ An unexpected error occurred while fetching alerts: {e}",
-                ephemeral=True,
-            )
 
+        embeds = await build_market_alert_embeds(interaction.client, interaction.user.id)
+
+        # ✅ send paginated or single
+        if len(embeds) == 1:
+            await interaction.followup.send(embed=embeds[0], ephemeral=True)
+        else:
+            # Send first page with buttons
+            view = MarketAlertPaginator(embeds)
+            await interaction.followup.send(embed=embeds[0], view=view, ephemeral=True)
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert toggle 💜
     # 🟣────────────────────────────────────────────
