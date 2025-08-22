@@ -94,6 +94,40 @@ def normalize_mega_input(name: str) -> str:
     return name
 
 
+def parse_special_mega_input(name: str) -> int:
+    """
+    Parses input for Pokémon, handling Shiny/Golden prefixes and Mega forms.
+    Always returns the integer dex number.
+    """
+    name = name.strip().lower()
+    prefix = None
+
+    # Detect shiny/golden prefix
+    for p in ["shiny", "golden"]:
+        if name.startswith(p):
+            prefix = p
+            name = name[len(p) :].strip()
+            break
+
+    # Normalize mega forms
+    if name.startswith("mega"):
+        name = name.replace(" ", "-")
+
+    # Lookup dex number
+    dex_number = weakness_chart[name]["dex"]
+    dex_number_int = int(dex_number)
+
+    # Apply shiny/golden offset
+    if prefix == "shiny":
+        final_dex = dex_number_int + 1
+    elif prefix == "golden":
+        final_dex = dex_number_int + 2
+    else:
+        final_dex = dex_number_int
+
+    return final_dex
+
+
 def format_mega_pokemon_name(name: str) -> str:
     """
     If the Pokémon is a Mega form (input or chart name contains 'mega-'),
