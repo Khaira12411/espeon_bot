@@ -41,3 +41,4 @@ async def load_market_alert_cache(bot):
     )
 
     return market_alert_cache
+ 

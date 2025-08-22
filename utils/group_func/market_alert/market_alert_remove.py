@@ -6,7 +6,6 @@ import discord
 
 from config.emojis import PokeCoin  # your coin emoji
 from config.weakness_chart import weakness_chart
-from utils.cache.market_alert_cache import load_market_alert_cache
 from utils.group_func.market_alert.db_func.market_alert_db_func import (
     remove_all_market_alerts,
     remove_market_alert,
@@ -24,6 +23,8 @@ async def remove_market_alert_func(bot, user_id: int, pokemon: str) -> discord.E
     - If 'all' is passed, removes all alerts for the user.
     Returns a confirmation embed.
     """
+    from utils.cache.market_alert_cache import load_market_alert_cache
+
     # ── Handle "all" ──
     if pokemon.lower() == "all":
         removed_count = await remove_all_market_alerts(bot, user_id)
@@ -61,7 +62,7 @@ async def remove_market_alert_func(bot, user_id: int, pokemon: str) -> discord.E
     if removed_count > 0:
         embed = discord.Embed(
             title="💜 Market Alert Removed!",
-            description=f"Removed {removed_count} alert(s) for **{target_name}**.",
+            description=f"Removed {removed_count} alert(s) for **{target_name.title()}**.",
             color=0xFF99FF,
         )
         embed.set_footer(text="You will no longer receive alerts for this Pokémon 💜")

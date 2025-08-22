@@ -6,7 +6,6 @@ import discord
 
 from config.emojis import PokeCoin  # your coin emoji
 from config.weakness_chart import weakness_chart
-from utils.cache.market_alert_cache import load_market_alert_cache
 from utils.group_func.market_alert.db_func.market_alert_db_func import (
     insert_dex_alert,
     insert_name_alert,
@@ -49,6 +48,8 @@ async def add_market_alert_func(
     await insert_dex_alert(
         bot, user_id, pokemon_name, dex_number, max_price, channel_id, role_id, notify
     )
+    from utils.cache.market_alert_cache import load_market_alert_cache
+
     await load_market_alert_cache(bot)
 
     # ── Build confirmation embed ──
@@ -60,7 +61,7 @@ async def add_market_alert_func(
     )
     embed.add_field(
         name="Pokémon",
-        value=f"{pokemon_name} (Dex #{dex_number})",
+        value=f"{pokemon_name.title()} (Dex #{dex_number})",
         inline=False,
     )
     embed.add_field(name="Max Price", value=f"{PokeCoin} {max_price:,}", inline=False)

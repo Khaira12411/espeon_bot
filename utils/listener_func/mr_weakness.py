@@ -1,22 +1,39 @@
 import re
 
 import discord
+from discord.ext import commands
 
-_last_enemy_seen = []  # Tracks the order of enemies we’ve sent embeds for
-_last_wave_number = None
+from utils.cache.mr_weakness_cache import mr_weakness_user_cache
+from utils.loggers.espeon_log import EspeonContext, espeon_log
+from utils.visuals.embeds.weakness_embed import build_user_weakness_embed
 
-from utils.visuals.embeds.weakness_embed import build_weakness_embed_from_input
+# ─────────────────────────────────────────────
+# Track last seen enemies **per user**
+# ─────────────────────────────────────────────
+_user_states: dict[int, dict] = {}  # user_id -> {"last_seen": [], "last_wave": None}
+_user_active_enemy: dict[int, str] = {}  # user_id -> current active enemy
 
 
-async def mr_weakness_chart(message: discord.Message):
+async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
     """
-    Sends weakness embeds sequentially for current enemies:
-    - Only send an enemy once the previous one has fainted.
-    - Tracks sent enemies per wave; resets on new wave or battle restart.
+    Sends weakness embed only to the user who triggered/replied:
+      - Only send an enemy once previous enemy has fainted.
+      - Tracks sent enemies per wave and per user.
+      - Respects user's cache: off/truncated/full.
     """
-    global _last_enemy_seen, _last_wave_number
-
+    # Only respond to the boss bot message
     if not message.author.bot or message.author.id != 664508672713424926:
+        return
+
+    # Must be a reply to a user
+    if not message.reference or not message.reference.resolved:
+        return
+    target_user = message.reference.resolved.author
+    user_id = target_user.id
+
+    # Skip if user has Mr. Weakness off
+    display_type = mr_weakness_user_cache.get(user_id, "full")
+    if display_type == "off":
         return
 
     if not message.embeds:
@@ -29,12 +46,6 @@ async def mr_weakness_chart(message: discord.Message):
     wave_match = re.search(r"wave\s*(\d+)", title, flags=re.IGNORECASE)
     current_wave = int(wave_match.group(1)) if wave_match else None
 
-    # Reset on new wave or battle restart
-    if current_wave != _last_wave_number or current_wave is None:
-        _last_enemy_seen.clear()
-        _last_wave_number = current_wave
-        print(f"[🫐 DEBUG] New wave or battle reset detected. Clearing sent enemies.")
-
     # Determine challenge type
     challenge_type = "normal"
     if "elite challenge" in title.lower():
@@ -44,7 +55,6 @@ async def mr_weakness_chart(message: discord.Message):
 
     # Gather all alive enemies in order
     alive_enemies = []
-
     for field in embed.fields:
         if "enemy" in field.name.lower() or "challenge" in field.name.lower():
             for line in field.value.splitlines():
@@ -52,11 +62,10 @@ async def mr_weakness_chart(message: discord.Message):
                 if not line or "~~" in line:  # Skip fainted
                     continue
 
+                candidate_enemy = line
                 if challenge_type in ["elite", "death"]:
                     bold_match = re.search(r"\*\*(.+?)\*\*", line)
                     candidate_enemy = bold_match.group(1) if bold_match else line
-                else:
-                    candidate_enemy = line
 
                 # Clean name
                 candidate_enemy_clean = re.sub(
@@ -70,41 +79,75 @@ async def mr_weakness_chart(message: discord.Message):
                     alive_enemies.append(candidate_enemy_clean)
 
     if not alive_enemies:
-        print("[🫐 DEBUG] No alive enemies found.")
+        espeon_log(
+            tag="warn",
+            message=f"No alive enemies found in embed '{title}'",
+            context=EspeonContext.STRAYMONS,
+        )
         return
 
-    # Decide which enemy to send next
-    next_enemy_to_send = None
+    # ─────────────────────────────────────────────
+    # Initialize per-user state
+    # ─────────────────────────────────────────────
+    if user_id not in _user_states:
+        _user_states[user_id] = {"last_seen": [], "last_wave": None}
 
-    if not _last_enemy_seen:
-        # First enemy: send first in list
-        next_enemy_to_send = alive_enemies[0]
+    user_state = _user_states[user_id]
+
+    # Reset on new wave
+    if current_wave != user_state["last_wave"]:
+        user_state["last_seen"].clear()
+        user_state["last_wave"] = current_wave
+        _user_active_enemy.pop(user_id, None)  # Reset active enemy
+        espeon_log(
+            tag="ready",
+            message=f"User {user_id}: New wave detected ({current_wave}), cleared last_seen",
+            context=EspeonContext.STRAYMONS,
+        )
+
+    # ─────────────────────────────────────────────
+    # Determine current active enemy
+    # ─────────────────────────────────────────────
+    current_enemy = _user_active_enemy.get(user_id)
+    if current_enemy not in alive_enemies:
+        # Previous enemy fainted or first enemy
+        current_enemy = alive_enemies[0]
+        _user_active_enemy[user_id] = current_enemy
+        espeon_log(
+            tag="ready",
+            message=f"User {user_id}: Now facing {current_enemy}",
+            context=EspeonContext.STRAYMONS,
+        )
     else:
-        # Send next only if previous enemy has fainted
-        for i, enemy in enumerate(_last_enemy_seen):
-            if enemy in alive_enemies:
-                # Previous enemy still alive: wait
-                next_enemy_to_send = None
-                break
-        else:
-            # Previous enemies have all fainted, send first unsent alive
-            for enemy in alive_enemies:
-                if enemy not in _last_enemy_seen:
-                    next_enemy_to_send = enemy
-                    break
-
-    if not next_enemy_to_send:
-        print("[🫐 DEBUG] No new enemy ready to send yet (previous not fainted).")
+        # Still facing the same enemy; do not advance
+        espeon_log(
+            tag="skip",
+            message=f"User {user_id}: Still facing {current_enemy}, embed not sent until it faints",
+            context=EspeonContext.STRAYMONS,
+        )
         return
 
-    _last_enemy_seen.append(next_enemy_to_send)
-    print(f"[🫐 DEBUG] Sending weakness embed for: {next_enemy_to_send}")
-
+    # Build and send embed in the same channel
     try:
-        embed_to_send = build_weakness_embed_from_input(next_enemy_to_send)
+        embed_to_send = build_user_weakness_embed(
+            current_enemy, user_id, mr_weakness_user_cache
+        )
         if embed_to_send:
             await message.channel.send(embed=embed_to_send)
+            espeon_log(
+                tag="sent",
+                message=f"User {user_id}: Sent weakness embed for {current_enemy}",
+                context=EspeonContext.STRAYMONS,
+            )
         else:
-            print(f"[💣 ERROR] Could not build embed for {next_enemy_to_send}")
+            espeon_log(
+                tag="warn",
+                message=f"User {user_id}: Could not build embed for {current_enemy}",
+                context=EspeonContext.STRAYMONS,
+            )
     except Exception as e:
-        print(f"[💣 ERROR] Failed to send weakness embed: {e}")
+        espeon_log(
+            tag="error",
+            message=f"Failed to send Mr. Weakness embed to user {user_id} for {current_enemy}: {e}",
+            context=EspeonContext.STRAYMONS,
+        )

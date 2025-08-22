@@ -2,7 +2,6 @@ import discord
 
 from config.emojis import PokeCoin  # your coin emoji
 from config.weakness_chart import weakness_chart
-from utils.cache.market_alert_cache import load_market_alert_cache
 from utils.group_func.market_alert.db_func.market_alert_db_func import (
     toggle_market_alert_notify,
 )
@@ -19,6 +18,8 @@ async def toggle_market_alert_func(
     """
     Toggle 'notify' on/off for a specific Pokémon/Dex alert or all alerts.
     """
+    from utils.cache.market_alert_cache import load_market_alert_cache
+
     # ── Handle ALL case ──
     if pokemon.lower() == "all":
         updated_count = await toggle_market_alert_notify(bot, user_id, value, "all")

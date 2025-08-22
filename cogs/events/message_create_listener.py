@@ -15,8 +15,6 @@ from config.current_setup import (
 from config.staffmons_constants import STAFFMONS_CATEGORIES
 from utils.listener_func.as_ping import as_rare_ping
 from utils.listener_func.market_alert import process_market_alert_message
-
-# from utils.listener_func.mh_debug_listener import debug_market_category_message
 from utils.listener_func.mr_weakness import mr_weakness_chart
 from utils.loggers.espeon_log import espeon_log
 
@@ -59,20 +57,15 @@ class MessageCreateListener(commands.Cog):
             ):
                 return
 
-            """# 💜 Debug: Print all messages in market category
-            if message.channel.category_id == ONLYFRIENDS_CATEGORIES.MARKET_FEEDS:
-                await debug_market_category_message(
-                    bot=self.bot,
-                    message=message,
-                    market_category_id=ONLYFRIENDS_CATEGORIES.MARKET_FEEDS,
-                )"""
+            # --- Weakness chart processing (Active + Staff Guilds) ---
+            if message.guild and message.guild.id in (
+                ACTIVE_GUILD_ID,
+                STAFF_SERVER_GUILD_ID,
+            ):
+                await mr_weakness_chart(bot=self.bot, message=message)
 
-            # --- Active Guild: Weakness chart processing ---
-            if message.guild and message.guild.id == ACTIVE_GUILD_ID:
-                await mr_weakness_chart(message)
-
-            # --- Staff Guild: Market alert processing ---
-            elif message.guild and message.guild.id == STAFF_SERVER_GUILD_ID:
+            # --- Market alert processing only in staff guild ---
+            if message.guild and message.guild.id == STAFF_SERVER_GUILD_ID:
                 await process_market_alert_message(
                     self.bot, message, STAFFMONS_CATEGORIES.MARKET_FEEDS
                 )

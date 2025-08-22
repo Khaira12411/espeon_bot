@@ -49,7 +49,7 @@ TYPE_COLOR = {
     "normal": 9739428,
 }
 
-WOOPER_EMOJI = "💜"
+
 FORM_BASE_DEX_OFFSET = 7000
 
 
@@ -179,7 +179,7 @@ def build_weakness_embed_from_input(pokemon_input: str) -> discord.Embed | None:
     title_name = f"{variant_name.title()}"
     if shiny_golden_tag:
         title_name = f"{shiny_golden_tag} {title_name}"
-    embed_title = f"{title_name} {type_emojis_str} {WOOPER_EMOJI}"
+    embed_title = f"{title_name} {type_emojis_str}"
 
     embed_color = TYPE_COLOR.get(types[0], 0x74CEC0) if types else 0x74CEC0
 
@@ -208,6 +208,7 @@ def format_weakness_description(weaknesses: dict, mode: str = "full") -> str:
     mult_order = {
         "ultra": ["4x"],
         "super": ["4x", "2x"],
+        "truncated": ["4x", "2x"],  # alias for clarity
         "full": ["4x", "2x", "1x", "1/2x", "1/4x", "0x"],
     }
 
@@ -226,3 +227,48 @@ def format_weakness_description(weaknesses: dict, mode: str = "full") -> str:
         if description_lines
         else "No matching weaknesses."
     )
+
+
+# -------------------- User Weakness Embed --------------------
+def build_user_weakness_embed(
+    pokemon_input: str,
+    user_id: int,
+    user_cache: dict[int, str],  # <-- pass the cache here
+) -> discord.Embed | None:
+    variant_name, shiny_golden_tag, base_dex = get_pokemon_from_input(pokemon_input)
+    if not variant_name:
+        return None
+
+    weaknesses = weakness_chart.get(variant_name)
+    if not weaknesses:
+        espeon_log(
+            "warn",
+            f"No weaknesses found for {variant_name}",
+            context=EspeonContext.ESPEON,
+        )
+        return None
+
+    types = weaknesses.get("types", [])
+    type_emojis_str = "".join(type_emojis.get(t, "") for t in types)
+
+    title_name = f"{variant_name.title()}"
+    if shiny_golden_tag:
+        title_name = f"{shiny_golden_tag} {title_name}"
+    embed_title = f"{title_name} {type_emojis_str}"
+
+    embed_color = TYPE_COLOR.get(types[0], 0x74CEC0) if types else 0x74CEC0
+
+    # 🔹 Fetch from passed cache with safe fallback
+    raw_display_type = user_cache.get(user_id, "full")
+    display_type = (
+        raw_display_type if raw_display_type in ("truncated", "full") else "full"
+    )
+
+    description = format_weakness_description(weaknesses, mode=display_type)
+
+    embed = discord.Embed(
+        title=embed_title,
+        description=description,
+        color=embed_color,
+    )
+    return embed

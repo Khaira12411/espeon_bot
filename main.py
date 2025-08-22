@@ -11,6 +11,7 @@ from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
 from config.current_setup import *
+from utils.cache.centralized_cache_loader import load_all_caches
 from utils.cache.market_alert_cache import load_market_alert_cache
 from utils.essentials.get_pg_pool import get_pg_pool
 from utils.loggers.espeon_log import espeon_log  # Using Espeon logs
@@ -100,11 +101,20 @@ async def status_rotator():
     )
 
 
-# 💜 Market Alert Cache Refresh Task
+"""# 💜 Market Alert Cache Refresh Task
 @tasks.loop(hours=1)
 async def refresh_market_alert_cache():
     await load_market_alert_cache(bot)
     espeon_log("ready", "🔄 Market alert cache refreshed")
+"""
+
+# ────────────────────────────────────────────
+#       💜 Hourly Cache Refresh Loop 💜
+# ─────────────────────────────────────────────
+@tasks.loop(hours=1)
+async def refresh_all_caches():
+    await load_all_caches(bot)
+    espeon_log("ready", "🔄 All caches refreshed (Market Alerts + Mr. Weakness)")
 
 
 # 💜 Global Error Handler
@@ -144,11 +154,16 @@ async def on_ready():
         activity=discord.Activity(type=activity_type, name=message)
     )
 
-    # Load market alert cache
-    await load_market_alert_cache(bot)
-    espeon_log("ready", "✅ Market alert cache loaded")
+    # 💜 Load all caches on startup (Market Alerts + Mr. Weakness)
+    refresh_all_caches.start()
+    
+    """try:
+        await load_all_caches(bot)
+        espeon_log("ready", "✅ All caches loaded (Market Alerts + Mr. Weakness)")
+    except Exception as e:
+        espeon_log("error", f"Failed to load caches: {e}", include_trace=True)"""
 
-    refresh_market_alert_cache.start()
+    #
 
 
 # 💜 Loading Cogs & Database

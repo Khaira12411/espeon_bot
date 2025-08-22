@@ -172,3 +172,99 @@ async def toggle_market_alert_notify(
                 user_id,
             )
     return int(result.split()[-1])
+
+# 🔮────────────────────────────────────────────
+#           📝 Update Functions
+# 🔮────────────────────────────────────────────
+
+
+async def update_market_alert(
+    bot,
+    user_id: int,
+    pokemon: str = None,
+    dex_number: int = None,
+    **updates,
+):
+    """
+    Update one or more columns in market_alerts.
+
+    Example:
+        await update_market_alert(
+            bot,
+            user_id=123,
+            pokemon="Pikachu",
+            max_price=5000,
+            notify=False
+        )
+    """
+    if not updates:
+        raise ValueError("No update values provided.")
+
+    # Build SET clause dynamically
+    set_clause = ", ".join([f"{col} = ${i+3}" for i, col in enumerate(updates.keys())])
+    values = list(updates.values())
+
+    async with bot.pg_pool.acquire() as conn:
+        if dex_number is not None:
+            query = f"""
+                UPDATE market_alerts
+                SET {set_clause}
+                WHERE user_id=$1 AND dex_number=$2
+            """
+            result = await conn.execute(query, user_id, dex_number, *values)
+
+        elif pokemon is not None:
+            query = f"""
+                UPDATE market_alerts
+                SET {set_clause}
+                WHERE user_id=$1 AND pokemon=$2
+            """
+            result = await conn.execute(query, user_id, pokemon, *values)
+
+        else:
+            raise ValueError(
+                "Must provide either pokemon or dex_number for targeting row."
+            )
+
+    return int(result.split()[-1])  # returns number of rows updated
+
+
+# 🔮────────────────────────────────────────────
+#           📝 Bulk Update Role/Channel
+# 🔮────────────────────────────────────────────
+
+
+async def update_user_alerts_channel_or_role(
+    bot,
+    user_id: int,
+    channel_id: int = None,
+    role_id: int = None,
+):
+    """
+    Bulk update all alerts for a user to a new channel or role.
+
+    Only one or both of channel_id / role_id can be provided.
+
+    Returns the number of alerts updated.
+    """
+    if channel_id is None and role_id is None:
+        raise ValueError("Must provide at least channel_id or role_id to update.")
+
+    set_clauses = []
+    values = []
+
+    if channel_id is not None:
+        set_clauses.append("channel_id = $1")
+        values.append(channel_id)
+    if role_id is not None:
+        set_clauses.append("role_id = $" + str(len(values) + 1))
+        values.append(role_id)
+
+    set_sql = ", ".join(set_clauses)
+    query = f"UPDATE market_alerts SET {set_sql} WHERE user_id=$" + str(len(values) + 1)
+    values.append(user_id)
+
+    async with bot.pg_pool.acquire() as conn:
+        result = await conn.execute(query, *values)
+
+    return int(result.split()[-1])  # number of rows updated
