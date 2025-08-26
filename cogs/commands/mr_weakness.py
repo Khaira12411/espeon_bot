@@ -21,7 +21,7 @@ class MrWeaknessCog(commands.Cog):
     # 🛠️────────────────────────────────────────────
     @app_commands.command(
         name="mr-weakness-toggle",
-        description="Choose how Meworogue Weakness displays Pokémon weaknesses: Off, Truncated, or Full.",
+        description="Choose how Meworogue Weakness displays Pokemon weaknesses: Off, Truncated, or Full.",
     )
     @app_commands.choices(
         settings=[
@@ -69,7 +69,7 @@ class MrWeaknessCog(commands.Cog):
             f"User {user_id} set Mr. Weakness alerts to {choice}",
             context=EspeonContext.STRAYMONS,
         )
-    mr_weakness_toggle.extras = {"force_true": True, "category": "Public"}
+    mr_weakness_toggle.extras = {"category": "Public"}
 
     # 🕵️────────────────────────────────────────────
     #            /mr-weakness-view
@@ -96,7 +96,7 @@ class MrWeaknessCog(commands.Cog):
             f"User {user_id} viewed their Mr. Weakness setting: {current}",
             context=EspeonContext.STRAYMONS,
         )
-    mr_weakness_view.extras = {"force_true": True, "category": "Public"}
+    mr_weakness_view.extras = {"category": "Public"}
 
 
 async def setup(bot: commands.Bot):

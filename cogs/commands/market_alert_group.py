@@ -56,7 +56,7 @@ class MarketAlerts(commands.Cog):
             role=role,
         )
 
-    add_alert.extras = {"force_true": True, "category": "Public"}
+    add_alert.extras = {"category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert remove 💜
@@ -80,7 +80,7 @@ class MarketAlerts(commands.Cog):
             pokemon=pokemon,
         )
 
-    remove_alert.extras = {"force_true": True, "category": "Public"}
+    remove_alert.extras = {"category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert mine 💜
@@ -99,7 +99,7 @@ class MarketAlerts(commands.Cog):
             command_func=mine_market_alerts_func,
         )
 
-    mine_alerts.extras = {"force_true": True, "category": "Public"}
+    mine_alerts.extras = {"category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert toggle 💜
@@ -127,7 +127,7 @@ class MarketAlerts(commands.Cog):
             value=value,
         )
 
-    toggle_alert.extras = {"force_true": True, "category": "Public"}
+    toggle_alert.extras = {"category": "Public"}
     #
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert update 💜
@@ -173,7 +173,7 @@ class MarketAlerts(commands.Cog):
             notify=notify,
         )
 
-    update_market_alert.extras = {"force_true": True, "category": "Public"}
+    update_market_alert.extras = {"category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert bulk-update 💜
@@ -204,7 +204,7 @@ class MarketAlerts(commands.Cog):
             role=role,
         )
 
-    update_market_alert_bulk.extras = {"force_true": True, "category": "Public"}
+    update_market_alert_bulk.extras = {"category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert register 💜
@@ -223,7 +223,7 @@ class MarketAlerts(commands.Cog):
             command_func=market_alert_register_func,
         )
 
-    market_alert_register.extras = {"force_true": True, "category": "Public"}
+    market_alert_register.extras = {"category": "Public"}
 
 #    add_market_alert.extras = {"force_true": True, "category": "Staff"}
 
