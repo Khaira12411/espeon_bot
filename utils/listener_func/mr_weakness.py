@@ -77,11 +77,6 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
                     alive_enemies.append(candidate_enemy_clean)
 
     if not alive_enemies:
-        espeon_log(
-            tag="warn",
-            message=f"No alive enemies found in embed '{title}'",
-            context=EspeonContext.STRAYMONS,
-        )
         return
 
     # Initialize per-user state

@@ -9,7 +9,7 @@ from discord.ext import commands
 
 from config.straymons_constants import STRAYMONS__TEXT_CHANNELS
 
-# 💌 Set this to your bot log channel ID
+# 💌 Bot log channel
 ESPEON_BOTLOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.bot_logs
 
 
@@ -19,7 +19,7 @@ class EspeonContext(Enum):
     STRAYMONS = "straymons"
 
 
-# 💜 Purple/Pink themed tags (🚨 red for critical)
+# 💜 Tags
 ESPEON_TAGS = {
     "db": "🪻  DB INFO",
     "cmd": "🫐 COMMAND",
@@ -34,7 +34,7 @@ ESPEON_TAGS = {
 
 
 def espeon_log(
-    tag: str,
+    tag: Optional[str],
     message: str,
     *,
     label: Optional[str] = None,
@@ -46,7 +46,7 @@ def espeon_log(
 ):
     """Prints a styled log with timestamp and sends error/critical logs to Discord."""
 
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.now().strftime("%H:%M:%S")
 
     # Determine context string
     if isinstance(context, commands.Cog):
@@ -57,20 +57,31 @@ def espeon_log(
         context_str = ""
 
     label_str = f"[{label}]" if label else ""
-    prefix = ESPEON_TAGS.get(tag, "💜 NOTE")
+
+    # Determine prefix (empty if tag is None or "")
+    prefix = ESPEON_TAGS.get(tag, "") if tag else ""
 
     # Compose header
-    header = f"[{prefix} : {source}]" if source else f"[{prefix}]"
-
-    # Compose traceback if needed
-    trace_text = ""
-    if include_trace and exc:
-        trace_text = f"\n```py\n{''.join(traceback.format_exception(type(exc), exc, exc.__traceback__))}```"
-
-    # Print log locally
-    log_message = (
-        f"[{now}] {header} {context_str}{label_str} {message}{trace_text}".strip()
+    header = (
+        f"[{prefix} : {source}]"
+        if prefix and source
+        else f"[{prefix}]" if prefix else f"[{source}]" if source else ""
     )
+
+    # Compose final log message cleanly
+    parts = [f"[{now}]"]
+    if header:
+        parts.append(header)
+    if label_str:
+        parts.append(label_str)
+    parts.append(message)
+
+    log_message = " ".join(parts)
+
+    # Add traceback if needed
+    if include_trace and exc:
+        log_message += f"\n```py\n{''.join(traceback.format_exception(type(exc), exc, exc.__traceback__))}```"
+
     print(log_message)
 
     # 🚨 Send error/critical logs to bot log channel
@@ -78,9 +89,7 @@ def espeon_log(
         try:
             channel = bot.get_channel(ESPEON_BOTLOG_CHANNEL_ID)
             if channel:
-                full_message = (
-                    f"`{prefix}` {context_str}{label_str} {message}{trace_text}"
-                )
+                full_message = f"`{prefix}` {context_str}{label_str} {message}"
                 if len(full_message) > 2000:
                     full_message = full_message[:1997] + "..."
                 bot.loop.create_task(channel.send(full_message))

@@ -35,10 +35,10 @@ async def load_market_alert_cache(bot):
 
     # Log number of alerts loaded using espeon_log
     espeon_log(
-        tag="ready",
+        tag="",
+        label="🦄 MARKET ALERT CACHE",
         message=f"Loaded {len(market_alert_cache)} market alerts into cache",
         context=EspeonContext.STRAYMONS,
     )
 
     return market_alert_cache
- 

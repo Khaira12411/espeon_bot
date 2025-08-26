@@ -3,8 +3,11 @@
 #       🎀 Calls all individual caches 🎀
 # ─────────────────────────────────────────────
 
-from utils.cache.market_alert_cache import load_market_alert_cache
-from utils.cache.mr_weakness_cache import load_mr_weakness_user_cache
+from utils.cache.market_alert_cache import load_market_alert_cache, market_alert_cache
+from utils.cache.mr_weakness_cache import (
+    load_mr_weakness_user_cache,
+    mr_weakness_user_cache,
+)
 from utils.loggers.espeon_log import espeon_log, EspeonContext
 
 
@@ -14,28 +17,19 @@ from utils.loggers.espeon_log import espeon_log, EspeonContext
 async def load_all_caches(bot):
     """
     Centralized function to load all caches.
-    Calls each cache loader in order and logs each step.
+    Calls each cache loader in order and logs once at the end.
     """
 
     # 🌸 Load Market Alerts into memory
     await load_market_alert_cache(bot)
-    espeon_log(
-        "ready",
-        "✅ Market alert cache loaded 🌸",
-        context=EspeonContext.STRAYMONS,
-    )
 
     # 🌟 Load Mr. Weakness user settings into memory
     await load_mr_weakness_user_cache(bot)
-    espeon_log(
-        "ready",
-        "✅ Mr. Weakness user cache loaded 🌟",
-        context=EspeonContext.STRAYMONS,
-    )
 
-    # 🎀 All caches done
+    # 🎀 Unified single-line log
     espeon_log(
-        "ready",
-        "🎀 All caches refreshed successfully! 💜",
+        tag="",
+        label="🦋 CENTRAL CACHE",
+        message=f"All caches refreshed and loaded (Market Alerts: {len(market_alert_cache)} + MR Weakness: {len(mr_weakness_user_cache)})",
         context=EspeonContext.STRAYMONS,
     )

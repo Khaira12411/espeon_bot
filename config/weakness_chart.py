@@ -9064,7 +9064,7 @@ weakness_chart = {'abomasnow': {'1/2x': ['water', 'electric', 'grass', 'ground']
               '2x': ['poison', 'ghost', 'steel'],
               'dex': '0122',
               'types': ['psychic', 'fairy']},
- 'mr. rime': {'1/2x': ['ice', 'psychic'],
+ 'mrrime': {'1/2x': ['ice', 'psychic'],
               '1x': ['normal',
                      'water',
                      'electric',

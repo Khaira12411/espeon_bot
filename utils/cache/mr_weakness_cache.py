@@ -22,8 +22,9 @@ async def load_mr_weakness_user_cache(bot):
         mr_weakness_user_cache[row["user_id"]] = row["display_type"]
 
     espeon_log(
-        "ready",
-        f"Loaded {len(mr_weakness_user_cache)} Mr. Weakness user settings into cache",
+        tag="",
+        label="🌸 MR WEAKNESS CACHE",
+        message=f"Loaded {len(mr_weakness_user_cache)} Mr. Weakness user settings into cache",
         context=EspeonContext.STRAYMONS,
     )
 

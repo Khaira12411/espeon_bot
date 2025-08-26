@@ -1,0 +1,106 @@
+{
+  "market-alert add": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "market-alert",
+    "subgroup": null,
+    "name": "add"
+  },
+  "market-alert remove": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "market-alert",
+    "subgroup": null,
+    "name": "remove"
+  },
+  "market-alert mine": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "market-alert",
+    "subgroup": null,
+    "name": "mine"
+  },
+  "market-alert toggle": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "market-alert",
+    "subgroup": null,
+    "name": "toggle"
+  },
+  "market-alert update": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "market-alert",
+    "subgroup": null,
+    "name": "update"
+  },
+  "market-alert bulk-update": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "market-alert",
+    "subgroup": null,
+    "name": "bulk-update"
+  },
+  "market-alert register": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "market-alert",
+    "subgroup": null,
+    "name": "register"
+  },
+  "list-emojis": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Owner",
+    "group": null,
+    "subgroup": null,
+    "name": "list-emojis"
+  },
+  "list-server": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Owner",
+    "group": null,
+    "subgroup": null,
+    "name": "list-server"
+  },
+  "list-contents": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Public",
+    "group": null,
+    "subgroup": null,
+    "name": "list-contents"
+  },
+  "mr-weakness-toggle": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Public",
+    "group": null,
+    "subgroup": null,
+    "name": "mr-weakness-toggle"
+  },
+  "mr-weakness-view": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Public",
+    "group": null,
+    "subgroup": null,
+    "name": "mr-weakness-view"
+  },
+  "test-weakness": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Public",
+    "group": null,
+    "subgroup": null,
+    "name": "test-weakness"
+  }
+}

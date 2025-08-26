@@ -69,6 +69,7 @@ class MrWeaknessCog(commands.Cog):
             f"User {user_id} set Mr. Weakness alerts to {choice}",
             context=EspeonContext.STRAYMONS,
         )
+    mr_weakness_toggle.extras = {"force_true": True, "category": "Public"}
 
     # 🕵️────────────────────────────────────────────
     #            /mr-weakness-view
@@ -95,6 +96,7 @@ class MrWeaknessCog(commands.Cog):
             f"User {user_id} viewed their Mr. Weakness setting: {current}",
             context=EspeonContext.STRAYMONS,
         )
+    mr_weakness_view.extras = {"force_true": True, "category": "Public"}
 
 
 async def setup(bot: commands.Bot):

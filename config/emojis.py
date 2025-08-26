@@ -35,3 +35,5 @@ class TYPE_EMOJI:
     ghost = "<:ghosttype:1229731249950556191>"
     normal = "<:normaltype:1229731254845575178>"
     rock = "<:rocktype:1229731259295465522>"
+
+

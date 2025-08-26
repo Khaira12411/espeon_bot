@@ -5,6 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from utils.essentials.command_group_counter import *
 from utils.essentials.command_safe import run_command_safe
 from utils.group_func.market_alert import *
 
@@ -28,7 +29,7 @@ class MarketAlerts(commands.Cog):
     # 🟣────────────────────────────────────────────
     @market_alerts_group.command(name="add", description="Set a new market alert")
     @app_commands.describe(
-        pokemon="Pokémon name or Dex number",
+        pokemon="Pokemon name or Dex number",
         max_price="Maximum price in PokeCoin",
         channel="Channel to send alerts",
         role="Optional role to ping",
@@ -55,17 +56,17 @@ class MarketAlerts(commands.Cog):
             role=role,
         )
 
-    add_alert.extras = {"category": "Public"}
+    add_alert.extras = {"force_true": True, "category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert remove 💜
     # 🟣────────────────────────────────────────────
     @market_alerts_group.command(
         name="remove",
-        description="Remove a market alert for a Pokémon, Dex number, or all",
+        description="Remove a market alert for a Pokemon, Dex number, or all",
     )
     @app_commands.describe(
-        pokemon="Pokémon name, Dex number, or 'all' to remove all alerts"
+        pokemon="Pokemon name, Dex number, or 'all' to remove all alerts"
     )
     async def remove_alert(self, interaction: discord.Interaction, pokemon: str):
 
@@ -79,7 +80,7 @@ class MarketAlerts(commands.Cog):
             pokemon=pokemon,
         )
 
-    remove_alert.extras = {"category": "Public"}
+    remove_alert.extras = {"force_true": True, "category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert mine 💜
@@ -98,7 +99,7 @@ class MarketAlerts(commands.Cog):
             command_func=mine_market_alerts_func,
         )
 
-    mine_alerts.extras = {"category": "Public"}
+    mine_alerts.extras = {"force_true": True, "category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert toggle 💜
@@ -108,7 +109,7 @@ class MarketAlerts(commands.Cog):
         description="Toggle whether a market alert notifies you (on/off)",
     )
     @app_commands.describe(
-        pokemon="Pokémon name, Dex number, or 'all' to toggle all alerts",
+        pokemon="Pokemon name, Dex number, or 'all' to toggle all alerts",
         value="true = enable notifications, false = disable notifications",
     )
     async def toggle_alert(
@@ -126,7 +127,7 @@ class MarketAlerts(commands.Cog):
             value=value,
         )
 
-    toggle_alert.extras = {"category": "Public"}
+    toggle_alert.extras = {"force_true": True, "category": "Public"}
     #
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert update 💜
@@ -134,10 +135,10 @@ class MarketAlerts(commands.Cog):
 
     @market_alerts_group.command(
         name="update",
-        description="Updates a market alert for a Pokémon",
+        description="Updates a market alert for a Pokemon",
     )
     @app_commands.describe(
-        pokemon="Pokémon name or Dex number",
+        pokemon="Pokemon name or Dex number",
         max_price="Maximum price in PokeCoin",
         channel="Channel to send alerts",
         role="Role to ping",
@@ -172,7 +173,7 @@ class MarketAlerts(commands.Cog):
             notify=notify,
         )
 
-    update_market_alert.extras = {"category": "Public"}
+    update_market_alert.extras = {"force_true": True, "category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert bulk-update 💜
@@ -203,7 +204,8 @@ class MarketAlerts(commands.Cog):
             role=role,
         )
 
-    update_market_alert_bulk.extras = {"category": "Public"}
+    update_market_alert_bulk.extras = {"force_true": True, "category": "Public"}
+
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert register 💜
     # 🟣────────────────────────────────────────────
@@ -221,10 +223,17 @@ class MarketAlerts(commands.Cog):
             command_func=market_alert_register_func,
         )
 
-    market_alert_register.extras = {"category": "Public"}
+    market_alert_register.extras = {"force_true": True, "category": "Public"}
+
+#    add_market_alert.extras = {"force_true": True, "category": "Staff"}
 
 # 🟣────────────────────────────────────────────
 #           💜 Cog Setup Function 💜
 # ─────────────────────────────────────────────
 async def setup(bot: commands.Bot):
-    await bot.add_cog(MarketAlerts(bot))
+    cog = MarketAlerts(bot)
+    await bot.add_cog(cog)
+    market_alerts_group = (
+        MarketAlerts.market_alerts_group
+    )  # top-level app_commands.Group
+    await log_command_group_full_paths_to_cache(bot=bot, group=market_alerts_group)

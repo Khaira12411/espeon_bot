@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from config.current_setup import *
 from utils.cache.centralized_cache_loader import load_all_caches
 from utils.cache.market_alert_cache import load_market_alert_cache
+from utils.essentials.command_tracker import auto_log_new_commands
 from utils.essentials.get_pg_pool import get_pg_pool
 from utils.loggers.espeon_log import EspeonContext, espeon_log  # Using Espeon logs
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
@@ -191,7 +192,34 @@ async def status_rotator():
 @tasks.loop(hours=1)
 async def refresh_all_caches():
     await load_all_caches(bot)
-    espeon_log("ready", "🔄 All caches refreshed (Market Alerts + Mr. Weakness)")
+    #espeon_log("ready", "🔄 All caches refreshed (Market Alerts + Mr. Weakness)")
+
+
+# ====================
+# ▶️ Startup-only Tasks
+# ====================
+@tasks.loop(count=1)
+async def startup_tasks():
+    await bot.wait_until_ready()  # ensures bot is fully logged in
+    # 🔹 Load all caches first and wait for completion
+    await load_all_caches(
+        bot
+    )  # <-- this ensures market alerts + Mr. Weakness are ready
+    await auto_log_new_commands(bot, dry_run=False)
+    from utils.loggers.espeon_log import EspeonContext, espeon_log
+
+    espeon_log(
+        tag="",
+        message="Command tracker finished!",
+        context=EspeonContext.STRAYMONS,
+        label="🐦 STARTUP TASK",
+    )
+
+    # Run the checklist at the very end
+    await startup_checklist(bot)
+    # Start caches and startup tasks
+    if not refresh_all_caches.is_running():
+        refresh_all_caches.start()
 
 
 # 💜 Global Error Handler
@@ -207,40 +235,74 @@ async def on_command_error(ctx, error):
     )
 
 
+# 💜 Startup Checklist
+# 💜 Startup Checklist
+async def startup_checklist(bot: commands.Bot):
+    """Print a checklist for loaded components, caches, tasks, and slash commands with clean dividers and checks."""
+
+    checklist = []
+
+    # Divider
+    divider = "★━━━━━━━━━━━━━━━━━━━━★"
+    checklist.append(divider)
+
+    # 🎀 Cogs loaded
+    loaded_cogs_count = len(bot.cogs)
+    checklist.append(f"✅ {loaded_cogs_count} 🌼 Cogs Loaded")
+
+    # 🟣 Market alerts
+    from utils.cache.market_alert_cache import market_alert_cache
+
+    checklist.append(f"✅ {len(market_alert_cache)} 🦄 Market Alerts Loaded")
+
+    # 🌸 Mr. Weakness cache
+    from utils.cache.mr_weakness_cache import mr_weakness_user_cache
+
+    checklist.append(f"✅ {len(mr_weakness_user_cache)} 🌸 MR Weakness Users")
+
+    # 💛 Status rotator
+    checklist.append(f"✅ {status_rotator.is_running()} ✨ Status Rotator Running")
+
+    # 🔴 Startup tasks
+    checklist.append(f"✅ {startup_tasks.is_running()} 🖌️ Startup Tasks Running")
+
+    # 🟡 PostgreSQL pool
+    pg_status = "Ready" if hasattr(bot, "pg_pool") else "Not Ready"
+    checklist.append(f"✅ {pg_status} 🪻  PostgreSQL Pool")
+
+    # ⚡ Slash commands synced
+    total_slash_commands = sum(1 for _ in bot.tree.walk_commands())
+    checklist.append(f"✅ {total_slash_commands} ⚡ Slash Commands Synced")
+
+    # Ending divider
+    checklist.append(divider)
+
+    # Print checklist
+    print()  # blank line before
+    for item in checklist:
+        print(item)
+    print()  # blank line after
+
+
 # 💜 on_ready Event
 @bot.event
 async def on_ready():
     espeon_log("ready", f"EspeonBot awake as {bot.user}")
 
-    # 💜 Syncing slash commands
+    # Sync slash commands
     await bot.tree.sync()
-    espeon_log("ready", "Slash commands synced with Discord successfully!")
+    #espeon_log("ready", "Slash commands synced with Discord successfully!")
 
-    if hasattr(bot, "pg_pool"):
-        espeon_log("db", "PostgreSQL connection pool is ready!")
-    else:
-        espeon_log("warn", "pg_pool is not attached!")
-
+    # Status rotator
     if not status_rotator.is_running():
-        espeon_log("ready", "Starting EspeonBot status loop...")
         status_rotator.start()
-
-    # Set initial status
     activity_type, message = pick_status_tuple()
     await bot.change_presence(
         activity=discord.Activity(type=activity_type, name=message)
     )
 
-    # 💜 Load all caches on startup (Market Alerts + Mr. Weakness)
-    refresh_all_caches.start()
-
-    """try:
-        await load_all_caches(bot)
-        espeon_log("ready", "✅ All caches loaded (Market Alerts + Mr. Weakness)")
-    except Exception as e:
-        espeon_log("error", f"Failed to load caches: {e}", include_trace=True)"""
-
-    #
+    if not startup_tasks.is_running():
+        startup_tasks.start()
 
 
 # 💜 Loading Cogs & Database
@@ -267,7 +329,7 @@ async def setup_hook():
         except Exception as e:
             espeon_log("error", f"Failed to load {cog_name}: {e}", include_trace=True)
 
-    espeon_log("ready", f"All cogs loaded successfully: {loaded_count}")
+    #espeon_log("ready", f"All cogs loaded successfully: {loaded_count}")
 
     # 💜 Syncing guild slash commands
     try:
