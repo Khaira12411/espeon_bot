@@ -7,7 +7,10 @@ from typing import Optional, Union
 import discord
 from discord.ext import commands
 
-from config.current_setup import ACTIVE_LOG_CHANNEL
+from config.straymons_constants import STRAYMONS__TEXT_CHANNELS
+
+# 💌 Set this to your bot log channel ID
+ESPEON_BOTLOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.bot_logs
 
 
 # 🩰 Espeon server context
@@ -29,9 +32,6 @@ ESPEON_TAGS = {
     "schedule_success": "🌸 SCHEDULE",
 }
 
-# 💌 Optional critical log channel
-ESPEON_CRITICAL_CHANNEL_ID = ACTIVE_LOG_CHANNEL
-
 
 def espeon_log(
     tag: str,
@@ -44,7 +44,7 @@ def espeon_log(
     exc: Optional[BaseException] = None,
     context: Optional[Union[EspeonContext, commands.Cog]] = None,
 ):
-    """Prints a styled log with timestamp and optionally sends critical logs to Discord."""
+    """Prints a styled log with timestamp and sends error/critical logs to Discord."""
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -67,23 +67,23 @@ def espeon_log(
     if include_trace and exc:
         trace_text = f"\n```py\n{''.join(traceback.format_exception(type(exc), exc, exc.__traceback__))}```"
 
-    # Print log
+    # Print log locally
     log_message = (
         f"[{now}] {header} {context_str}{label_str} {message}{trace_text}".strip()
     )
     print(log_message)
 
-    # 🚨 Send critical logs to Discord
-    if tag == "critical" and bot:
+    # 🚨 Send error/critical logs to bot log channel
+    if tag in ("error", "critical") and bot and ESPEON_BOTLOG_CHANNEL_ID:
         try:
-            channel = bot.get_channel(ESPEON_CRITICAL_CHANNEL_ID)
+            channel = bot.get_channel(ESPEON_BOTLOG_CHANNEL_ID)
             if channel:
-                full_message = f"`{prefix}` {context_str}{label_str} {message}"
-                if trace_text:
-                    full_message += trace_text
+                full_message = (
+                    f"`{prefix}` {context_str}{label_str} {message}{trace_text}"
+                )
                 if len(full_message) > 2000:
                     full_message = full_message[:1997] + "..."
                 bot.loop.create_task(channel.send(full_message))
         except Exception:
-            print(f"[{now}] [🚨 ERROR] Failed to send critical log to Discord:")
+            print(f"[{now}] [🚨 ERROR] Failed to send error/critical log to Discord:")
             traceback.print_exc()

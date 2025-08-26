@@ -5,6 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from utils.essentials.command_safe import run_command_safe
 from utils.group_func.market_alert import *
 
 
@@ -40,39 +41,21 @@ class MarketAlerts(commands.Cog):
         channel: discord.TextChannel,
         role: discord.Role | None = None,
     ):
-        try:
-            # Validate role
-            role_id = None
-            if role:
-                if role.guild.id != interaction.guild.id:
-                    await interaction.response.send_message(
-                        "❌ The role you specified is not in this server.",
-                        ephemeral=True,
-                    )
-                    return
-                role_id = role.id
 
-            confirmation_embed = await add_market_alert_func(
-                bot=self.bot,
-                user_id=interaction.user.id,
-                pokemon=pokemon,
-                max_price=max_price,
-                channel_id=channel.id,
-                role_id=role_id,
-            )
+        slash_cmd_name = "market-alert add"
 
-            await interaction.response.send_message(
-                embed=confirmation_embed, ephemeral=True
-            )
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=add_market_alert_func,
+            pokemon=pokemon,
+            max_price=max_price,
+            channel=channel,
+            role=role,
+        )
 
-        except ValueError as e:
-            await interaction.response.send_message(
-                f"❌ Failed to add market alert: {e}", ephemeral=True
-            )
-        except Exception as e:
-            await interaction.response.send_message(
-                f"❌ An unexpected error occurred: {e}", ephemeral=True
-            )
+    add_alert.extras = {"category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert remove 💜
@@ -85,18 +68,18 @@ class MarketAlerts(commands.Cog):
         pokemon="Pokémon name, Dex number, or 'all' to remove all alerts"
     )
     async def remove_alert(self, interaction: discord.Interaction, pokemon: str):
-        try:
-            embed = await remove_market_alert_func(
-                bot=self.bot, user_id=interaction.user.id, pokemon=pokemon
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        except ValueError as e:
-            await interaction.response.send_message(f"❌ {e}", ephemeral=True)
-        except Exception as e:
-            await interaction.response.send_message(
-                f"❌ An unexpected error occurred: {e}", ephemeral=True
-            )
+        slash_cmd_name = "market-alert remove"
+
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=remove_market_alert_func,
+            pokemon=pokemon,
+        )
+
+    remove_alert.extras = {"category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert mine 💜
@@ -105,19 +88,18 @@ class MarketAlerts(commands.Cog):
         name="mine", description="View all your active market alerts"
     )
     async def mine_alerts(self, interaction: discord.Interaction):
-        # ✅ defer immediately to prevent "Unknown interaction"
-        await interaction.response.defer(ephemeral=True)
 
+        slash_cmd_name = "market-alert mine"
 
-        embeds = await build_market_alert_embeds(interaction.client, interaction.user.id)
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=mine_market_alerts_func,
+        )
 
-        # ✅ send paginated or single
-        if len(embeds) == 1:
-            await interaction.followup.send(embed=embeds[0], ephemeral=True)
-        else:
-            # Send first page with buttons
-            view = MarketAlertPaginator(embeds)
-            await interaction.followup.send(embed=embeds[0], view=view, ephemeral=True)
+    mine_alerts.extras = {"category": "Public"}
+
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert toggle 💜
     # 🟣────────────────────────────────────────────
@@ -132,19 +114,19 @@ class MarketAlerts(commands.Cog):
     async def toggle_alert(
         self, interaction: discord.Interaction, pokemon: str, value: bool
     ):
-        try:
-            embed = await toggle_market_alert_func(
-                bot=self.bot, user_id=interaction.user.id, pokemon=pokemon, value=value
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        except ValueError as e:
-            await interaction.response.send_message(f"❌ {e}", ephemeral=True)
-        except Exception as e:
-            await interaction.response.send_message(
-                f"❌ An unexpected error occurred: {e}", ephemeral=True
-            )
+        slash_cmd_name = "market-alert toggle"
 
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=toggle_market_alert_func,
+            pokemon=pokemon,
+            value=value,
+        )
+
+    toggle_alert.extras = {"category": "Public"}
     #
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert update 💜
@@ -176,37 +158,22 @@ class MarketAlerts(commands.Cog):
         role: discord.Role | None = None,
         notify: str | None = None,  # Choice strings
     ):
-        try:
-            # Convert notify string to boolean
-            notify_bool = None
-            if notify is not None:
-                notify_bool = notify.lower() == "true"
+        slash_cmd_name = "market-alert update"
 
-            # Determine IDs safely
-            channel_id = channel.id if channel else None
-            role_id = role.id if role else None
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=update_market_alert_func,
+            pokemon=pokemon,
+            max_price=max_price,
+            channel=channel,
+            role=role,
+            notify=notify,
+        )
 
-            # Call the update function
-            embed = await update_market_alert_func(
-                bot=self.bot,
-                user_id=interaction.user.id,
-                pokemon=pokemon,
-                max_price=max_price,
-                channel_id=channel_id,
-                role_id=role_id,
-                notify=notify_bool,
-            )
+    update_market_alert.extras = {"category": "Public"}
 
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-
-        except ValueError as e:
-            await interaction.response.send_message(f"❌ {e}", ephemeral=True)
-        except Exception as e:
-            await interaction.response.send_message(
-                f"❌ An unexpected error occurred: {e}", ephemeral=True
-            )
-
-    #
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert bulk-update 💜
     # 🟣────────────────────────────────────────────
@@ -225,34 +192,36 @@ class MarketAlerts(commands.Cog):
         channel: discord.TextChannel | None = None,
         role: discord.Role | None = None,  # ✅ correct
     ):
-        try:
-            # ── Handle role removal ──
-            role_id: int | None = None
-            if isinstance(role, discord.Role):
-                role_id = role.id
-            elif isinstance(role, str) and role.lower() == "none":
-                role_id = None  # user wants to remove the role
+        slash_cmd_name = "market-alert update"
 
-            # ── Determine channel ID safely ──
-            channel_id = channel.id if channel else None
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=update_market_alert_role_channel_func,
+            channel=channel,
+            role=role,
+        )
 
-            # ── Call the update function ──
-            embed = await update_market_alert_role_channel_func(
-                bot=self.bot,
-                user_id=interaction.user.id,
-                channel_id=channel_id,
-                role_id=role_id,
-            )
+    update_market_alert_bulk.extras = {"category": "Public"}
+    # 🟣────────────────────────────────────────────
+    #           💜 /market-alert register 💜
+    # 🟣────────────────────────────────────────────
+    @market_alerts_group.command(
+        name="register", description="Registers you for market alerts based on roles"
+    )
+    async def market_alert_register(self, interaction: discord.Interaction):
 
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+        slash_cmd_name = "market-alert register"
 
-        except ValueError as e:
-            await interaction.response.send_message(f"❌ {e}", ephemeral=True)
-        except Exception as e:
-            await interaction.response.send_message(
-                f"❌ An unexpected error occurred: {e}", ephemeral=True
-            )
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=market_alert_register_func,
+        )
 
+    market_alert_register.extras = {"category": "Public"}
 
 # 🟣────────────────────────────────────────────
 #           💜 Cog Setup Function 💜

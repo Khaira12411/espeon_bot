@@ -8,7 +8,7 @@ from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.weakness_embed import build_user_weakness_embed
 
 # ─────────────────────────────────────────────
-# Track last seen enemies **per user**
+# Track last seen enemies per user
 # ─────────────────────────────────────────────
 _user_states: dict[int, dict] = {}  # user_id -> {"last_seen": [], "last_wave": None}
 _user_active_enemy: dict[int, str] = {}  # user_id -> current active enemy
@@ -17,7 +17,6 @@ _user_active_enemy: dict[int, str] = {}  # user_id -> current active enemy
 async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
     """
     Sends weakness embed only to the user who triggered/replied:
-      - Only send an enemy once previous enemy has fainted.
       - Tracks sent enemies per wave and per user.
       - Respects user's cache: off/truncated/full.
     """
@@ -53,13 +52,13 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
     elif "death challenge" in title.lower():
         challenge_type = "death"
 
-    # Gather all alive enemies in order
+    # Gather alive enemies
     alive_enemies = []
     for field in embed.fields:
         if "enemy" in field.name.lower() or "challenge" in field.name.lower():
             for line in field.value.splitlines():
                 line = line.strip()
-                if not line or "~~" in line:  # Skip fainted
+                if not line or "~~" in line:
                     continue
 
                 candidate_enemy = line
@@ -67,7 +66,6 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
                     bold_match = re.search(r"\*\*(.+?)\*\*", line)
                     candidate_enemy = bold_match.group(1) if bold_match else line
 
-                # Clean name
                 candidate_enemy_clean = re.sub(
                     r"\*\*|<:.+?:\d+>|[\U00010000-\U0010ffff]", "", candidate_enemy
                 )
@@ -86,9 +84,7 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
         )
         return
 
-    # ─────────────────────────────────────────────
     # Initialize per-user state
-    # ─────────────────────────────────────────────
     if user_id not in _user_states:
         _user_states[user_id] = {"last_seen": [], "last_wave": None}
 
@@ -98,47 +94,24 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
     if current_wave != user_state["last_wave"]:
         user_state["last_seen"].clear()
         user_state["last_wave"] = current_wave
-        _user_active_enemy.pop(user_id, None)  # Reset active enemy
-        espeon_log(
-            tag="ready",
-            message=f"User {user_id}: New wave detected ({current_wave}), cleared last_seen",
-            context=EspeonContext.STRAYMONS,
-        )
+        _user_active_enemy.pop(user_id, None)
 
-    # ─────────────────────────────────────────────
     # Determine current active enemy
-    # ─────────────────────────────────────────────
     current_enemy = _user_active_enemy.get(user_id)
     if current_enemy not in alive_enemies:
-        # Previous enemy fainted or first enemy
         current_enemy = alive_enemies[0]
         _user_active_enemy[user_id] = current_enemy
-        espeon_log(
-            tag="ready",
-            message=f"User {user_id}: Now facing {current_enemy}",
-            context=EspeonContext.STRAYMONS,
-        )
     else:
         # Still facing the same enemy; do not advance
-        espeon_log(
-            tag="skip",
-            message=f"User {user_id}: Still facing {current_enemy}, embed not sent until it faints",
-            context=EspeonContext.STRAYMONS,
-        )
         return
 
-    # Build and send embed in the same channel
+    # Build and send embed
     try:
         embed_to_send = build_user_weakness_embed(
             current_enemy, user_id, mr_weakness_user_cache
         )
         if embed_to_send:
             await message.channel.send(embed=embed_to_send)
-            espeon_log(
-                tag="sent",
-                message=f"User {user_id}: Sent weakness embed for {current_enemy}",
-                context=EspeonContext.STRAYMONS,
-            )
         else:
             espeon_log(
                 tag="warn",

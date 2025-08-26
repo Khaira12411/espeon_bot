@@ -14,7 +14,7 @@ from config.current_setup import *
 from utils.cache.centralized_cache_loader import load_all_caches
 from utils.cache.market_alert_cache import load_market_alert_cache
 from utils.essentials.get_pg_pool import get_pg_pool
-from utils.loggers.espeon_log import espeon_log  # Using Espeon logs
+from utils.loggers.espeon_log import EspeonContext, espeon_log  # Using Espeon logs
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
 
 # ——————————————————————————————————————————————————————————————
@@ -42,6 +42,90 @@ intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 setup_rate_limit_logging(bot)
+
+
+bot = commands.Bot(command_prefix="!", intents=intents)
+ALLOWED_GUILD_IDS = {
+    STRAYMONS_GUILD_ID,
+    MEOW_SUMMIT_GUILD_ID,
+    CC_GUILD_ID,
+    STAFF_SERVER_GUILD_ID,
+}  # add any other allowed guild IDs here
+
+
+@bot.event
+async def on_guild_join(guild):
+    try:
+        # Fetch Khy
+        khy_user = await bot.fetch_user(KHY_USER_ID)
+
+        # Fetch guild owner
+        guild_owner = guild.owner or await bot.fetch_user(guild.owner_id)
+        owner_name = guild_owner.name if guild_owner else "Unknown"
+        owner_id = guild_owner.id if guild_owner else "Unknown"
+
+        # ✅ DM Khy about the guild join
+        try:
+            await khy_user.send(
+                f"Espeon joined a guild:\n"
+                f"Name: {guild.name}\n"
+                f"ID: {guild.id}\n"
+                f"Owner: {owner_name} (ID: {owner_id})"
+            )
+        except Exception:
+            espeon_log(
+                "warn",
+                f"Could not DM Khy about guild join for {guild.name}.",
+                context=EspeonContext.ESPEON,
+            )
+
+        # Check if guild is authorized
+        if guild.id in ALLOWED_GUILD_IDS:
+            espeon_log(
+                "ready",
+                f"Espeon joined authorized guild:\n"
+                f"Name: {guild.name}\n"
+                f"ID: {guild.id}\n"
+                f"Owner: {owner_name} (ID: {owner_id})",
+                context=EspeonContext.ESPEON,
+            )
+        else:
+            espeon_log(
+                "warn",
+                f"Espeon joined unauthorized guild and is leaving:\n"
+                f"Name: {guild.name}\n"
+                f"ID: {guild.id}\n"
+                f"Owner: {owner_name} (ID: {owner_id})",
+                context=EspeonContext.ESPEON,
+            )
+
+            # ⚠️ DM the guild owner about restrictions
+            if guild_owner:
+                try:
+                    await guild_owner.send(
+                        f"Hello {owner_name}!\n\n"
+                        "Espeon can only function in certain servers under Khy's supervision.\n"
+                        "This server is not authorized, so Espeon will be leaving. Thank you for understanding!"
+                    )
+                except Exception:
+                    espeon_log(
+                        "warn",
+                        f"Could not DM the owner of {guild.name}.",
+                        context=EspeonContext.ESPEON,
+                    )
+
+            # Leave unauthorized guild
+            await guild.leave()
+
+    except Exception as e:
+        espeon_log(
+            "error",
+            f"Error in on_guild_join for guild {guild.name}: {e}",
+            include_trace=True,
+            exc=e,
+            context=EspeonContext.ESPEON,
+        )
+
 
 ASIA_MANILA = ZoneInfo("Asia/Manila")
 
@@ -101,13 +185,6 @@ async def status_rotator():
     )
 
 
-"""# 💜 Market Alert Cache Refresh Task
-@tasks.loop(hours=1)
-async def refresh_market_alert_cache():
-    await load_market_alert_cache(bot)
-    espeon_log("ready", "🔄 Market alert cache refreshed")
-"""
-
 # ────────────────────────────────────────────
 #       💜 Hourly Cache Refresh Loop 💜
 # ─────────────────────────────────────────────
@@ -156,7 +233,7 @@ async def on_ready():
 
     # 💜 Load all caches on startup (Market Alerts + Mr. Weakness)
     refresh_all_caches.start()
-    
+
     """try:
         await load_all_caches(bot)
         espeon_log("ready", "✅ All caches loaded (Market Alerts + Mr. Weakness)")

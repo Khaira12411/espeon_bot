@@ -1,14 +1,15 @@
 # cogs/mr_weakness.py
 import discord
-from discord.ext import commands
 from discord import app_commands
+from discord.ext import commands
 
-from utils.loggers.espeon_log import espeon_log, EspeonContext
 from utils.cache.mr_weakness_cache import mr_weakness_user_cache
+from utils.essentials.role_checks import espeon_roles_only
 from utils.group_func.mr_weakness.mr_weakness_db_func import (
     fetch_all_mr_user_settings,
     upsert_mr_user_setting,
 )
+from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 
 class MrWeaknessCog(commands.Cog):
@@ -20,7 +21,7 @@ class MrWeaknessCog(commands.Cog):
     # 🛠️────────────────────────────────────────────
     @app_commands.command(
         name="mr-weakness-toggle",
-        description="Choose how Mr. Weakness displays Pokémon weaknesses: Off, Truncated, or Full.",
+        description="Choose how Meworogue Weakness displays Pokémon weaknesses: Off, Truncated, or Full.",
     )
     @app_commands.choices(
         settings=[
@@ -29,6 +30,7 @@ class MrWeaknessCog(commands.Cog):
             app_commands.Choice(name="Full 📜", value="full"),
         ]
     )
+    @espeon_roles_only()
     async def mr_weakness_toggle(
         self, interaction: discord.Interaction, settings: app_commands.Choice[str]
     ):
@@ -73,8 +75,9 @@ class MrWeaknessCog(commands.Cog):
     # 🕵️────────────────────────────────────────────
     @app_commands.command(
         name="mr-weakness-view",
-        description="View your current Mr. Weakness display setting.",
+        description="View your current Meowrogue Weakness display setting.",
     )
+    @espeon_roles_only()
     async def mr_weakness_view(self, interaction: discord.Interaction):
         user_id = interaction.user.id
         current = mr_weakness_user_cache.get(user_id, "off")
