@@ -32,7 +32,7 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
 
     # Skip if user has Mr. Weakness off
     display_type = mr_weakness_user_cache.get(user_id, "full")
-    if display_type == "off":
+    if display_type.lower() == "off":
         return
 
     if not message.embeds:

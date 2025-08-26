@@ -2,8 +2,11 @@
 #           💜 Market Alert Brain: Remove 💜
 # ─────────────────────────────────────────────
 
+from datetime import datetime
+
 import discord
 
+from config.aesthetic import *
 from utils.group_func.market_alert.db_func.market_alert_counter import *
 from utils.group_func.market_alert.db_func.market_alert_db_func import (
     remove_all_market_alerts,
@@ -11,6 +14,7 @@ from utils.group_func.market_alert.db_func.market_alert_db_func import (
 )
 from utils.group_func.market_alert.parsers import resolve_pokemon_input
 from utils.loggers.espeon_log import espeon_log
+from utils.visuals.embeds.visual_helpers import set_embed_user_context
 
 
 async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemon: str):
@@ -66,14 +70,14 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
         ):
             target_name = pokemon_title
         else:
-            target_name, _ = resolve_pokemon_input(pokemon)
+            target_name, dex_number = resolve_pokemon_input(pokemon)
     except ValueError as e:
         await interaction.response.send_message(f"❌ {e}", ephemeral=True)
         return
 
     # 💜 Remove the alert
     try:
-        removed_count = await remove_market_alert(bot, user_id, target_name)
+        removed_count = await remove_market_alert(bot, user_id, target_name.lower())
         await load_market_alert_cache(bot)
 
         # 💜 Refund one alert
@@ -87,7 +91,9 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
                 color=0xFF99FF,
             )
             user_embed.add_field(
-                name="Pokémon", value=f"{target_name.title()}", inline=False
+                name="Pokémon",
+                value=f"{target_name.title()} #{dex_number}",
+                inline=False,
             )
             user_embed.set_footer(
                 text="You will no longer receive alerts for this Pokémon 💜"
@@ -112,17 +118,20 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
         log_channel = bot.get_channel(LOG_CHANNEL_ID)
         if log_channel:
             log_embed = discord.Embed(
-                title="💜 Market Alert Removed",
-                description=f"{user.display_name} removed alert for {target_name.title()}",
+                title=f"{Espeon_Emoji.purple_hearts_one} Market Alert Removed",
+                description=f"""- Member: {user.mention}
+- Removed Pokemon: {target_name.title()} #{dex_number}""",
                 color=0xFF99FF,
+                timestamp=datetime.now(),
             )
+            log_embed = set_embed_user_context(embed=log_embed, user=user)
         if is_staff == False:
             log_embed.add_field(
                 name="Alerts Usage",
                 value=f"Used: {status['alerts_used']} / Total: {status['total_alerts']} ({status['alerts_left']} left)",
                 inline=False,
             )
-            
+
         # 💜 Send embeds
         await interaction.response.send_message(embed=user_embed, ephemeral=True)
         espeon_log(

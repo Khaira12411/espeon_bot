@@ -3,6 +3,7 @@ from typing import List, Optional
 import discord
 from discord import app_commands
 from discord.ext import commands
+from utils.visuals.embeds.visual_helpers import set_embed_user_context
 
 from config.straymons_constants import *
 from utils.loggers.espeon_log import EspeonContext, espeon_log
@@ -16,6 +17,7 @@ ROLE_COUNTER = {
     STRAYMONS__ROLES.vip: 2,
     STRAYMONS__ROLES.bloomia: 2,
     STRAYMONS__ROLES.seedlet: 1,
+    STRAYMONS__ROLES.clan_bank: 1,
 }
 
 

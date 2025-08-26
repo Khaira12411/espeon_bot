@@ -2,8 +2,11 @@
 #           💜 Market Alert Brain 💜
 # ─────────────────────────────────────────────
 
+from datetime import datetime
+
 import discord
 
+from config.aesthetic import *
 from config.emojis import PokeCoin
 from utils.group_func.market_alert.db_func.market_alert_counter import *
 from utils.group_func.market_alert.db_func.market_alert_db_func import insert_name_alert
@@ -12,6 +15,7 @@ from utils.group_func.market_alert.parsers import (
     resolve_pokemon_input,
 )
 from utils.loggers.espeon_log import espeon_log
+from utils.visuals.embeds.visual_helpers import set_embed_user_context
 
 
 async def add_market_alert_func(
@@ -130,7 +134,7 @@ async def add_market_alert_func(
         color=0xFF99FF,
     )
     user_embed.add_field(
-        name="Pokémon", value=f"{target_name} (Dex #{dex_number})", inline=False
+        name="Pokémon", value=f"{target_name} #{dex_number}", inline=False
     )
     user_embed.add_field(
         name="Max Price", value=f"{PokeCoin} {max_price:,}", inline=False
@@ -151,22 +155,35 @@ async def add_market_alert_func(
         STRAYMONS__TEXT_CHANNELS.server_logs
     )  # replace with your log channel
     log_channel = bot.get_channel(LOG_CHANNEL_ID)
+
     if log_channel:
-        log_embed = discord.Embed(
-            title="💜 Market Alert Created",
-            description=f"{user.display_name} created a market alert for {target_name} (Dex #{dex_number})",
-            color=0xFF99FF,
-        )
-        log_embed.add_field(
-            name="Max Price", value=f"{PokeCoin} {max_price:,}", inline=False
-        )
-        log_embed.add_field(name="Channel", value=f"<#{channel.id}>", inline=False)
-        if is_staff == False:
-            log_embed.add_field(
-                name="Alerts Usage",
-                value=f"Used: {status['alerts_used']} / Total: {status['total_alerts']} ({status['alerts_left']} left)",
-                inline=False,
+        # Base description
+        desc_lines = [
+            f"- Member: {user.mention}",
+            f"- Pokemon Added: {target_name.title()} #{dex_number}",
+            f"- Max Price: {PokeCoin} {max_price:,}",
+            f"- Channel: {channel.mention}",
+        ]
+
+        # Append Alerts Usage if user is not staff
+        if not is_staff:
+            desc_lines.append(
+                f"- Alerts Usage: Used {status['alerts_used']} / Total {status['total_alerts']} ({status['alerts_left']} left)"
             )
+
+        # Join all lines
+        full_desc = "\n".join(desc_lines)
+
+        log_embed = discord.Embed(
+            title=f"{Espeon_Emoji.purple_candy} Market Alert Created",
+            description=full_desc,
+            color=0xFF99FF,
+            timestamp=datetime.now(),
+        )
+
+        log_embed = set_embed_user_context(embed=log_embed, user=user)
+
+        await log_channel.send(embed=log_embed)
 
     # 💜 Step 9: Send embeds
     try:

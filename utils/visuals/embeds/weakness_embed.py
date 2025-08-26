@@ -56,7 +56,31 @@ FORM_BASE_DEX_OFFSET = 7000
 # -------------------- Reusable Parsing Functions --------------------
 def parse_normal_pokemon(dex_int: int, first_index: str, dex_count: int):
     """Handles regular Pokémon input (1-6999, or weighted 1001/9001 style for shiny/golden)"""
-    base_dex = (dex_int - 1) % 1000 + 1
+
+    # If first digit is 7 and dex has 4 digits, use it as-is
+    if first_index == "7" and dex_count == 4:
+        base_dex = dex_int
+        # Lookup exact dex in weakness_chart
+        variant_name = next(
+            (
+                name
+                for name, data in weakness_chart.items()
+                if int(data["dex"]) == base_dex
+            ),
+            None,
+        )
+    else:
+        base_dex = (dex_int - 1) % 1000 + 1
+        # Lookup using %1000 and exclude 7xxx dex
+        variant_name = next(
+            (
+                name
+                for name, data in weakness_chart.items()
+                if int(data["dex"]) % 1000 == base_dex
+                and not data["dex"].startswith("7")
+            ),
+            None,
+        )
 
     shiny_golden_tag = ""
     if dex_count == 4:
@@ -64,15 +88,6 @@ def parse_normal_pokemon(dex_int: int, first_index: str, dex_count: int):
             shiny_golden_tag = "Shiny"
         elif first_index == "9":
             shiny_golden_tag = "Golden"
-
-    variant_name = next(
-        (
-            name
-            for name, data in weakness_chart.items()
-            if int(data["dex"]) % 1000 == base_dex and not data["dex"].startswith("7")
-        ),
-        None,
-    )
 
     if not variant_name:
         espeon_log(
@@ -88,19 +103,24 @@ def parse_normal_pokemon(dex_int: int, first_index: str, dex_count: int):
 FORM_BASE_DEX_OFFSET = 7001
 FORM_VARIANTS = ["regular", "shiny", "golden"]
 
+
 def parse_form_pokemon(dex_int: int):
     """Handles special forms (7001+)"""
+
     if dex_int < FORM_BASE_DEX_OFFSET:
+
         return None, None, None
 
     index = dex_int - FORM_BASE_DEX_OFFSET
     base_index = index // 3
     variant_offset = index % 3
 
+
     if base_index >= len(FORM_BASE_NAMES):
         espeon_log(
             "warn", f"Form dex {dex_int} is out of range.", context=EspeonContext.ESPEON
         )
+
         return None, None, None
 
     base_name = FORM_BASE_NAMES[base_index]
@@ -113,6 +133,8 @@ def parse_form_pokemon(dex_int: int):
         shiny_golden_tag = "Golden"
 
     base_dex = FORM_BASE_DEX_OFFSET + base_index * 3
+
+
     return base_name, shiny_golden_tag, base_dex
 
 
@@ -133,8 +155,6 @@ def get_pokemon_from_input(pokemon_input: str):
     # Name lookup
     if normalized_name in weakness_chart:
         dex_val = int(weakness_chart[normalized_name]["dex"])
-        if dex_val >= FORM_BASE_DEX_OFFSET:
-            return parse_form_pokemon(dex_val)
         return normalized_name, shiny_golden_tag, dex_val
 
     # Dex input
@@ -144,10 +164,7 @@ def get_pokemon_from_input(pokemon_input: str):
         dex_int = int(pokemon)
         dex_count = len(dex_str)
 
-        if dex_count == 4 and first_index == "7":
-            return parse_form_pokemon(dex_int)
-        else:
-            return parse_normal_pokemon(dex_int, first_index, dex_count)
+        return parse_normal_pokemon(dex_int, first_index, dex_count)
 
     espeon_log(
         "error",

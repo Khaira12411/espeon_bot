@@ -1,14 +1,16 @@
 # 🟣────────────────────────────────────────────
 #           💜 Market Alert Auto-Register + Embed 💜
 # 🟣────────────────────────────────────────────
+from datetime import datetime
 from typing import List, Optional
 
 import discord
-from discord import app_commands
 from discord.ext import commands
 
+from config.aesthetic import *
 from config.straymons_constants import *
-from utils.loggers.espeon_log import espeon_log
+from utils.loggers.espeon_log import EspeonContext, espeon_log
+from utils.visuals.embeds.visual_helpers import set_embed_user_context
 
 ROLE_COUNTER = {
     STRAYMONS__ROLES.top_catcher: 1,
@@ -17,20 +19,15 @@ ROLE_COUNTER = {
     STRAYMONS__ROLES.vip: 2,
     STRAYMONS__ROLES.bloomia: 2,
     STRAYMONS__ROLES.seedlet: 1,
+    STRAYMONS__ROLES.clan_bank: 1,
 }
 
 
 async def market_alert_register_func(
-    bot: commands.Bot,
-    interaction: discord.Interaction,
+    bot: commands.Bot, interaction: discord.Interaction
 ):
     """
-    Register a user for market alerts.
-    - Staff bypass: unlimited alerts, still creates/updates DB row, but does not overwrite staff total every run.
-    - Regular users: must have at least one eligible role from ROLE_COUNTER.
-    Always stores roles[] in DB.
-    Sends ephemeral embed to user and log embed to server logs.
-    Returns total alerts assigned.
+    Register a user for market alerts safely.
     """
     user = interaction.user
     user_id = user.id
@@ -44,17 +41,40 @@ async def market_alert_register_func(
             user_id,
         )
 
-        # 🌟 Staff bypass
+        # 🌟 Staff check
         is_staff = any(role.id == STRAYMONS__ROLES.clan_staff for role in user.roles)
-        user_roles = [r.id for r in user.roles]
-        server_boost_count = getattr(user, "premium_subscription_count", 0)
 
+        # ✅ Eligible roles
+        eligible_roles = [role.id for role in user.roles if role.id in ROLE_COUNTER]
+        # ❌ Reject users without staff or eligible roles BEFORE touching DB
+        if not is_staff and not eligible_roles:
+            role_list_text = ", ".join(
+                [f"<@&{role_id}>" for role_id in ROLE_COUNTER.keys()]
+            )
+            embed_fail = discord.Embed(
+                title="❌ Cannot Register",
+                description=(
+                    "You must have at least one eligible role to register for market alerts. 🌸\n\n"
+                    f"Roles that grant alerts include: {role_list_text}"
+                ),
+                color=0xFF99FF,
+            )
+            await interaction.response.send_message(embed=embed_fail, ephemeral=True)
+
+            # Log attempt
+            espeon_log(
+                tag="warn",
+                message=f"User {user_id} tried to register without staff or eligible roles.",
+                context=EspeonContext.STRAYMONS,
+            )
+            return 0
+
+        # 🔹 Staff registration (unlimited alerts)
         if is_staff:
-            total_alerts = 999  # Arbitrary large number for staff
+            total_alerts = 999
             alerts_used = 0
 
             if not row:
-                # First time staff register → create row
                 await conn.execute(
                     """
                     INSERT INTO market_alert_counter
@@ -63,21 +83,20 @@ async def market_alert_register_func(
                     """,
                     user_id,
                     user_name,
-                    user_roles,  # 🔹 Always store roles[] as int[]
-                    server_boost_count,
+                    [r.id for r in user.roles],
+                    getattr(user, "premium_subscription_count", 0),
                     total_alerts,
                     alerts_used,
                 )
             else:
-                # Update roles + boost count, but don't overwrite staff total
                 await conn.execute(
                     """
                     UPDATE market_alert_counter
                     SET roles = $1, server_boost_count = $2
                     WHERE user_id = $3
                     """,
-                    user_roles,
-                    server_boost_count,
+                    [r.id for r in user.roles],
+                    getattr(user, "premium_subscription_count", 0),
                     user_id,
                 )
 
@@ -99,27 +118,12 @@ async def market_alert_register_func(
             await log_channel.send(embed=embed_log)
             return total_alerts
 
-        # ✅ Regular users: calculate from roles
-        roles = [role.id for role in user.roles if role.id in ROLE_COUNTER]
-        if not roles:
-            embed_fail = discord.Embed(
-                title="❌ Cannot Register",
-                description="You must have at least one eligible role to register for market alerts. 🌸",
-                color=0xFF99FF,
-            )
-            embed_fail.set_footer(
-                text="Roles that grant alerts include: "
-                + ", ".join([f"<@&{role_id}>" for role_id in ROLE_COUNTER.keys()])
-            )
-            await interaction.response.send_message(embed=embed_fail, ephemeral=True)
-            return 0
-
-        total_alerts = sum(ROLE_COUNTER.get(role_id, 0) for role_id in roles)
+        # ✅ Regular users: calculate total alerts
+        server_boost_count = getattr(user, "premium_subscription_count", 0)
+        total_alerts = sum(ROLE_COUNTER.get(role_id, 0) for role_id in eligible_roles)
         total_alerts += server_boost_count
 
-        from utils.group_func.market_alert.db_func.market_alert_db_func import (
-            MAX_ALERTS,
-        )
+        MAX_ALERTS = 10
 
         total_alerts = min(total_alerts, MAX_ALERTS)
         alerts_used = 0
@@ -133,7 +137,7 @@ async def market_alert_register_func(
                 """,
                 user_id,
                 user_name,
-                roles,
+                eligible_roles,
                 server_boost_count,
                 total_alerts,
                 alerts_used,
@@ -146,28 +150,52 @@ async def market_alert_register_func(
                 WHERE user_id = $4
                 """,
                 total_alerts,
-                roles,
+                eligible_roles,
                 server_boost_count,
                 user_id,
             )
 
+        # 🔹 Build role breakdown with mentions
+        role_breakdown_lines = []
+        for role_id in eligible_roles:
+            role_obj = interaction.guild.get_role(role_id)
+            if role_obj:
+                alert_count = ROLE_COUNTER.get(role_id, 0)
+                role_breakdown_lines.append(f"> - {role_obj.mention}: +{alert_count}")
+
+        if server_boost_count > 0:
+            role_breakdown_lines.append(f"> - Server Boosts: +{server_boost_count}")
+
+        role_breakdown_text = "\n".join(role_breakdown_lines)
+
         # 🔹 Ephemeral user embed
         embed_user = discord.Embed(
-            title="💜 Market Alerts Registered!",
-            description=f"✨ You have **{total_alerts} free market alerts** available! 🌸",
+            title=f"{Espeon_Emoji.purple_hearts_one} Market Alerts Registered!",
+            description=(
+                f"✨ You have **{total_alerts} free market alerts** available! 🌸\n\n"
+                f"**Alert Breakdown:**\n{role_breakdown_text}"
+            ),
             color=0xFF99FF,
         )
+
         embed_user.set_footer(
             text="You'll be notified when a Pokémon matches your alert 💜"
         )
+
         await interaction.response.send_message(embed=embed_user, ephemeral=True)
 
         # 🔹 Log embed
         embed_log = discord.Embed(
-            title="💜 Market Alert Registration",
-            description=f"User {user_name} registered with **{total_alerts} alerts**.",
+            title=f"{Espeon_Emoji.purple_hearts_one} Market Alert Registration",
+            description=(
+                f"- Member: {user.mention}\n"
+                f"- Total Alerts: {total_alerts}\n\n"
+                f"**Alert Breakdown:**\n{role_breakdown_text}"
+            ),
             color=0xFF99FF,
+            timestamp=datetime.now(),
         )
+        embed_log = set_embed_user_context(embed=embed_log, user=user)
         await log_channel.send(embed=embed_log)
 
         return total_alerts

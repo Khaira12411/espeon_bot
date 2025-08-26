@@ -11,7 +11,7 @@ from config.current_setup import (
     ACTIVE_GUILD_ID,
     POKEMEOW_APPLICATION_ID,
     STAFF_SERVER_GUILD_ID,
-    STRAYMONS_GUILD_ID
+    STRAYMONS_GUILD_ID,
 )
 from config.staffmons_constants import STAFFMONS_CATEGORIES
 from utils.listener_func.as_ping import as_rare_ping
@@ -62,7 +62,7 @@ class MessageCreateListener(commands.Cog):
             if message.guild and message.guild.id in (
                 ACTIVE_GUILD_ID,
                 STAFF_SERVER_GUILD_ID,
-                STRAYMONS_GUILD_ID
+                STRAYMONS_GUILD_ID,
             ):
                 await mr_weakness_chart(bot=self.bot, message=message)
 
@@ -87,4 +87,4 @@ class MessageCreateListener(commands.Cog):
 # 💜────────────────────────────────────────────
 async def setup(bot: commands.Bot):
     await bot.add_cog(MessageCreateListener(bot))
-    #espeon_log("ready", "MessageCreateListener cog loaded successfully!")
+    # espeon_log("ready", "MessageCreateListener cog loaded successfully!")
