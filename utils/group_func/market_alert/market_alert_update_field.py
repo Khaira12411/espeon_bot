@@ -57,6 +57,9 @@ async def update_market_alert_func(
     if role_id is not None:
         updates["role_id"] = role_id
     if notify is not None:
+        # Ensure it's a boolean, not a string
+        if isinstance(notify, str):
+            notify = notify.lower() in ("true", "1", "t", "yes")
         updates["notify"] = notify
 
     # ── Perform the update ──
