@@ -90,7 +90,8 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
     ev_tracker_cache[user_id]["evs"] = tracked_evs
 
     # -------------------- STEP 5: Send confirmation embed with summary --------------------
-    embed = build_ev_tracker_embed(
+    embed = await build_ev_tracker_embed(
+        bot=bot,
         tracked_data=tracked_data,
         evs=tracked_evs,
         goals=tracked_data.get("goals", {}),

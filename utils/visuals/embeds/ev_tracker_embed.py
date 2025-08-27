@@ -1,7 +1,11 @@
 import discord
+from discord.ext import commands
+
+from utils.visuals.pokemon_gif import insert_pokemon_gif_embed
 
 
-def build_ev_tracker_embed(
+async def build_ev_tracker_embed(
+    bot: commands.Bot,
     tracked_data: dict,
     evs: dict,
     goals: dict = None,
@@ -63,20 +67,25 @@ def build_ev_tracker_embed(
         stats_lines.append(" |  ".join(line))  # append remaining stats
 
     # Add separator between lines
-    stats_str = f"\n{line_separator}\n".join(stats_lines)
+    stats_str = f"\n\n".join(stats_lines)
 
+    pokemon = f"{tracked_data['pokemon']} #{tracked_data.get('dex_number')}"
     # Build description with spacing
     description = (
-        f"## **{tracked_data['pokemon']} #{tracked_data.get('dex_number')}**\n"
-        f"### **Total EVs:** {display_total_current}/{max_total_evs}\n\n"
+        f"### __**Total EVs:** ({display_total_current}/{max_total_evs})__\n"
         f"{stats_str}"
     )
+    pokemon_name = tracked_data["pokemon"].lower()
+    gif_url = f"https://play.pokemonshowdown.com/sprites/xyani/{pokemon_name}.gif?quality=lossless"
 
     embed = discord.Embed(
+        title=pokemon,
         description=description,
         color=0xFF99FF,
     )
-
+    embed = await insert_pokemon_gif_embed(
+        bot=bot, input_name=pokemon_name, embed=embed, is_thumbnail=True
+    )
     # Set author with title prefix next to username
     member = guild.get_member(user_id) if guild else None
     avatar_url = member.display_avatar.url if member else None

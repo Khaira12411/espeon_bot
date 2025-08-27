@@ -6,9 +6,8 @@
 # 💦☁────────────────────────────────────────────💦☁
 class STRAYMONS__TEXT_CHANNELS:
 
-    
-# 🌊💙🤍───────────── _Ai_Systems ─────────────💙🤍🌊
-
+    # 🌊💙🤍───────────── _Ai_Systems ─────────────💙🤍🌊
+    error_logs = 1410202143570530375
     server_logs = 1182270234636320798
     role_logs = 1320577239334518854
     message_logs = 1137172628096958596
@@ -22,8 +21,8 @@ class STRAYMONS__TEXT_CHANNELS:
     bank_logs = 1299887694960267294
     straydex_logs = 1306663033162039386
     cafe_logs = 1317684614340546651
-    
-# 🌊💙🤍───────────── _Stray_Village_1_ ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Stray_Village_1_ ─────────────💙🤍🌊
 
     dragonspiral_tower = 1369194566053531748
     iu = 1321322149276946544
@@ -55,8 +54,8 @@ class STRAYMONS__TEXT_CHANNELS:
     meyura088 = 1382629970890723388
     cernbonk = 1372184127532564561
     cubilo0406 = 1383993678556692562
-    
-# 🌊💙🤍───────────── Community ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── Community ─────────────💙🤍🌊
 
     straydex = 1298882231200387083
     suggestions = 1334502972381466698
@@ -77,8 +76,8 @@ class STRAYMONS__TEXT_CHANNELS:
     flex_or_fail = 1055295393031798904
     rps = 1380444905775824926
     adult_chat = 1140763487526735963
-    
-# 🌊💙🤍───────────── Server ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── Server ─────────────💙🤍🌊
 
     worldboss_tracker = 1281866858965762129
     rarespawn_tracker = 1055058059757625354
@@ -95,8 +94,8 @@ class STRAYMONS__TEXT_CHANNELS:
     milestones = 1107274235602272307
     waterstate_tracker = 1050376063965991012
     staff_intro = 1122885909659001006
-    
-# 🌊💙🤍───────────── _Classroom ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Classroom ─────────────💙🤍🌊
 
     off_topic_ = 1280353125353394187
     the_cat_cafe = 1161974145567957052
@@ -112,8 +111,8 @@ class STRAYMONS__TEXT_CHANNELS:
     okaruns_chamber = 1307374593534595072
     khy = 1050645885844987904
     nikka = 1113851410560323654
-    
-# 🌊💙🤍───────────── Playground_ ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── Playground_ ─────────────💙🤍🌊
 
     jail = 1047856020053032962
     sofi = 1216022279839023165
@@ -126,8 +125,8 @@ class STRAYMONS__TEXT_CHANNELS:
     mudae = 1389452074869194916
     mugshots = 1402281340019409006
     owo_central = 1140939205845975102
-    
-# 🌊💙🤍───────────── _Admin_Hq ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Admin_Hq ─────────────💙🤍🌊
 
     lady_gardevoir = 1282135705723605034
     khy_basement = 1297024043467407421
@@ -137,8 +136,8 @@ class STRAYMONS__TEXT_CHANNELS:
     important_news = 1297974697329168445
     todo_list = 1299746115725426690
     admin_chat = 1300970261377454080
-    
-# 🌊💙🤍───────────── Monstreet_Exchange ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── Monstreet_Exchange ─────────────💙🤍🌊
 
     cafe = 1308977690182815834
     marketplace = 1297971699597312051
@@ -151,12 +150,12 @@ class STRAYMONS__TEXT_CHANNELS:
     collections = 1298114332583788597
     lottery = 1343775373137154068
     ⅳgolden_market_feed = 1298126860441616434
-    
-# 🌊💙🤍───────────── Galotto_Sponsorship ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── Galotto_Sponsorship ─────────────💙🤍🌊
 
     _1508_misamo = 1407081741406965820
-    
-# 🌊💙🤍───────────── _Vip_Penthouse ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Vip_Penthouse ─────────────💙🤍🌊
 
     ryuzzzei = 1143182156559036416
     hunter = 1331949364892925952
@@ -176,8 +175,8 @@ class STRAYMONS__TEXT_CHANNELS:
     stargazing = 1369877090253541517
     roach_anti = 1050319636815683615
     drag_strip = 1328738368556892161
-    
-# 🌊💙🤍───────────── _Events_Giveaways ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Events_Giveaways ─────────────💙🤍🌊
 
     carnivalesque = 1359856208961601638
     hunt = 1076441765059502233
@@ -188,16 +187,16 @@ class STRAYMONS__TEXT_CHANNELS:
     ga_submission = 1297227659406741504
     event_tracker = 1299764278034694214
     prize_claim = 1297255751353372825
-    
-# 🌊💙🤍───────────── _Golden_Lands_ ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Golden_Lands_ ─────────────💙🤍🌊
 
     isagi = 1313254621757571153
     misamo = 1381130164796260474
     typical_loops = 1397635371289804842
     libbynico = 1293261052745875537
     bunny_cave = 1335884394967207957
-    
-# 🌊💙🤍───────────── _Bronze_Meadows_ ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Bronze_Meadows_ ─────────────💙🤍🌊
 
     sinjan0537 = 1403991965057683567
     narus_garden = 1396398076750463157
@@ -212,8 +211,8 @@ class STRAYMONS__TEXT_CHANNELS:
     just_oni = 1391323045360308295
     fadedfr = 1405209290460889119
     mpyds = 1327975994606485589
-    
-# 🌊💙🤍───────────── _Straymons ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Straymons ─────────────💙🤍🌊
 
     feeling_lucky = 1140856137344892978
     goal_tracker = 1074600794923470869
@@ -225,8 +224,8 @@ class STRAYMONS__TEXT_CHANNELS:
     clan_bank = 1298166528084017253
     clan_chat = 1279801225432273048
     bumps = 1049890490931216444
-    
-# 🌊💙🤍───────────── _Staff_Lounge ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Staff_Lounge ─────────────💙🤍🌊
 
     as_rare_spawns = 1403865683657490565
     staff_commands = 1297295587271639060
@@ -239,8 +238,8 @@ class STRAYMONS__TEXT_CHANNELS:
     ms_reports = 1326751403514920960
     reports = 1299823993011961866
     clan_stats = 1143325539772403712
-    
-# 🌊💙🤍───────────── _Silver_Hills_ ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Silver_Hills_ ─────────────💙🤍🌊
 
     jecfr = 1358295641628868639
     churro = 1305173058260176987
@@ -252,50 +251,50 @@ class STRAYMONS__TEXT_CHANNELS:
     skies_of_ember = 1350759664651997335
     steffilah = 1361353346287403359
     _dengerous = 1380068767480152134
-    
-# 🌊💙🤍───────────── Help_Desk ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── Help_Desk ─────────────💙🤍🌊
 
     _1528_mynameislau2003 = 1409223880287060128
     _1526_ryuzzzei = 1408978860799819828
     gard_helpdesk = 1297042837518549034
-    
-# 🌊💙🤍───────────── _Short_Ga_Submissions ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Short_Ga_Submissions ─────────────💙🤍🌊
 
     _1530_sakikiru = 1409438150442483803
     _1529_lovely_batter = 1409310026702786651
-    
-# 🌊💙🤍───────────── _Archive_Tickets_ ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Archive_Tickets_ ─────────────💙🤍🌊
 
     dump = 1188685111483441202
-    
-# 🌊💙🤍───────────── _Probation_ ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Probation_ ─────────────💙🤍🌊
 
     sakikiru = 1409160625619206305
     mynameislau2003 = 1409140303985643553
     dump = 1395082312198258798
-    
-# 🌊💙🤍───────────── Leave_Of_Absence ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── Leave_Of_Absence ─────────────💙🤍🌊
 
     _1525_daren88 = 1408737327567736862
     _1527_xanix = 1409111803463729223
-    
-# 🌊💙🤍───────────── _Bingo_ ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Bingo_ ─────────────💙🤍🌊
 
     bingo_info = 1293403573924663346
     staff_event_chat = 1290073142815100979
-    
-# 🌊💙🤍───────────── Open_Sanctuary_ ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── Open_Sanctuary_ ─────────────💙🤍🌊
 
     hoenn_spot = 1209110434137772042
     johto_grove = 1172017556635275274
     kanto_park = 1146336853180563517
     unova_forest = 1298764697754927155
-    
-# 🌊💙🤍───────────── _Long_Ga_Submissions ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Long_Ga_Submissions ─────────────💙🤍🌊
 
     _1475_bunny_silly = 1404074396750184480
-    
-# 🌊💙🤍───────────── _Diamond_Fields_ ─────────────💙🤍🌊
+
+    # 🌊💙🤍───────────── _Diamond_Fields_ ─────────────💙🤍🌊
 
     dancraft = 1310388655117828126
     ash = 1167845743957131335
@@ -306,19 +305,19 @@ class STRAYMONS__TEXT_CHANNELS:
 # 💦☁────────────────────────────────────────────💦☁
 class STRAYMONS__VOICE_CHANNELS:
 
-    
+
 # 🌊💙🤍───────────── _Staff_Lounge ─────────────💙🤍🌊
 
     staff_vc = 1297034566850314241
-    
+
 # 🌊💙🤍───────────── Uncategorized ─────────────💙🤍🌊
 
     online_members_94 = 1299903761808101517
-    
+
 # 🌊💙🤍───────────── _Straymons ─────────────💙🤍🌊
 
     custom_vc = 1298110095405617163
-    
+
 # 🌊💙🤍───────────── Community ─────────────💙🤍🌊
 
     voice_channel = 1299902233613438996
@@ -329,7 +328,7 @@ class STRAYMONS__VOICE_CHANNELS:
 # 💦☁────────────────────────────────────────────💦☁
 class STRAYMONS__STAGE_CHANNELS:
 
-    
+
 # 🌊💙🤍───────────── Uncategorized ─────────────💙🤍🌊
 
     straymons = 1299902922779529347
@@ -340,32 +339,32 @@ class STRAYMONS__STAGE_CHANNELS:
 # 💦☁────────────────────────────────────────────💦☁
 class STRAYMONS__NEWS_CHANNELS:
 
-    
+
 # 🌊💙🤍───────────── _Admin_Hq ─────────────💙🤍🌊
 
     xeno_hdd = 1285358207446814801
     fidshop = 1313670085285642311
     khy_notebook = 1297024106772037693
-    
+
 # 🌊💙🤍───────────── Community ─────────────💙🤍🌊
 
     library = 1054706616869605436
     primrose_garden = 1337610636699369524
-    
+
 # 🌊💙🤍───────────── Server ─────────────💙🤍🌊
 
     announcement = 1297195970462744597
     os_news = 1297196674279538839
-    
+
 # 🌊💙🤍───────────── _Staff_Lounge ─────────────💙🤍🌊
 
     staff_meeting = 1304450270633394186
     staff_handbook = 1297028846524301413
-    
+
 # 🌊💙🤍───────────── _Straymons ─────────────💙🤍🌊
 
     straymon_news = 1074601415365898281
-    
+
 # 🌊💙🤍───────────── Playground_ ─────────────💙🤍🌊
 
     bot_commands = 1216228569185914890
@@ -1080,4 +1079,3 @@ class STRAYMONS__EMOJIS:
     mew_plushie = "<a:mew_plushie:1400262290074370161>"
     peepolaptophappy = "<a:peepoLaptopHappy:1404064544292077620>"
     ricedog = "<:ricedog:1404422993551032490>"
-

@@ -1,0 +1,119 @@
+import discord
+from discord.ext import commands
+from utils.loggers.espeon_log import espeon_log, EspeonContext
+from config.straymons_constants import STRAYMONS__TEXT_CHANNELS
+
+# Example fallback list
+from config.pokemon_gifs import *
+error_channel_id = STRAYMONS__TEXT_CHANNELS.error_logs
+
+
+# -------------------- Main Function (Gmax aware with Urshifu) --------------------
+# -------------------- Main Function (Gmax aware with Urshifu + Golden) --------------------
+async def insert_pokemon_gif_embed(
+    input_name: str,
+    bot: commands.Bot,
+    embed: discord.Embed,
+    is_thumbnail: bool = True,
+    context=None,
+) -> discord.Embed:
+    """
+    Adds a Pokémon GIF to the provided embed.
+    - Handles shiny, mega, gmax, alolan, galarian
+    - Uses hardcoded Gmax maps if Showdown URLs might not exist
+    - Special Gmax cases like Urshifu
+    - Detects 'golden' and uses GOLDEN_POKEMON_LIST
+    """
+    original_input = input_name
+    shiny = False
+    golden = False
+    form = "regular"
+    region_suffix = ""
+
+    # Normalize
+    name_parts = input_name.lower().replace("_", "-").split()
+
+    # Detect golden
+    if "golden" in name_parts:
+        golden = True
+        name_parts.remove("golden")
+
+    # Detect shiny
+    if "shiny" in name_parts:
+        shiny = True
+        name_parts.remove("shiny")
+
+    # Regional forms
+    if "alolan" in name_parts:
+        region_suffix = "-alola"
+        name_parts.remove("alolan")
+    elif "galarian" in name_parts:
+        region_suffix = "-galar"
+        name_parts.remove("galarian")
+
+    # Mega / Gigantamax
+    remaining_name = "-".join(name_parts)
+    if remaining_name.startswith("mega-"):
+        form = "mega"
+        remaining_name = remaining_name.replace("mega-", "")
+    elif remaining_name.startswith("gigantamax-") or remaining_name.startswith("gmax-"):
+        form = "gmax"
+        remaining_name = remaining_name.replace("gigantamax-", "").replace("gmax-", "")
+
+    base_name = remaining_name + region_suffix
+
+    # -------------------- Special Gmax Cases --------------------
+    gmax_aliases = {"urshifu-rapidstrike": "urs", "urshifu-singlestrike": "uss"}
+    if form == "gmax" and remaining_name in gmax_aliases:
+        remaining_name = gmax_aliases[remaining_name]
+
+    # -------------------- Determine GIF URL --------------------
+    gif_url = None
+
+    # 1️⃣ Golden Pokémon takes priority
+    if golden and remaining_name in GOLDEN_POKEMON_MAP:
+        gif_url = GOLDEN_POKEMON_MAP[remaining_name]
+    # 2️⃣ Check fallback list first (regular Pokémon)
+    elif base_name in REGULAR_POKEMON_MAP and form != "gmax":
+        gif_url = REGULAR_POKEMON_MAP[base_name]
+    # 3️⃣ Handle Gmax separately using hardcoded maps
+    elif form == "gmax":
+        if shiny:
+            gif_url = getattr(SHINY_GMAX_URL, remaining_name, None)
+        else:
+            gif_url = getattr(REGULAR_GMAX_URL, remaining_name, None)
+    # 4️⃣ Otherwise build Showdown URL
+    else:
+        shiny_prefix = "ani-shiny" if shiny else "xyani"
+        suffix = "" if form == "regular" else f"-{form}"
+        gif_url = f"https://play.pokemonshowdown.com/sprites/{shiny_prefix}/{base_name}{suffix}.gif?quality=lossless"
+
+    # -------------------- Log error if GIF is missing --------------------
+    if not gif_url:
+        espeon_log(
+            "error",
+            f"Cannot find Pokémon GIF for '{original_input}'",
+            bot=bot,
+            context=context or EspeonContext.STRAYMONS,
+            source="GIF Embed",
+        )
+
+    # -------------------- Add GIF to Embed --------------------
+    if gif_url:
+        if is_thumbnail:
+            embed.set_thumbnail(url=gif_url)
+        else:
+            embed.set_image(url=gif_url)
+    else:
+        # Send to error channel without breaking the embed
+        if error_channel_id:
+            try:
+                error_channel = bot.get_channel(error_channel_id)
+                if error_channel:
+                    await error_channel.send(
+                        f"⚠️ Could not find GIF for `{original_input}`."
+                    )
+            except Exception:
+                pass
+
+    return embed

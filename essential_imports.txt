@@ -19,4 +19,3 @@ Gmax
 # Shiny Gmax
     gif_url = f"https://play.pokemonshowdown.com/sprites/ani-shiny/{gif_name.lower()}-gmax.gif?quality=lossless"
 
-        gif_url = f"https://play.pokemonshowdown.com/sprites/xyani/venusaur-gmax.gif?quality=lossless"

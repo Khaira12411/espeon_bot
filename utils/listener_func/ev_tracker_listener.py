@@ -146,7 +146,8 @@ async def handle_pokemeow_battle_message(bot, message: discord.Message):
     )
 
     # -------------------- STEP 7: Send summary embed --------------------
-    embed = build_ev_tracker_embed(
+    embed = await build_ev_tracker_embed(
+        bot=bot,
         tracked_data=tracked_data,
         evs=updated_evs,
         goals=tracked_goals,
