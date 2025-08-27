@@ -15,6 +15,8 @@ from config.current_setup import (
 )
 from config.staffmons_constants import STAFFMONS_CATEGORIES
 from utils.listener_func.as_ping import as_rare_ping
+from utils.listener_func.bud_ev_listener import handle_pokemeow_embed_sync
+from utils.listener_func.ev_tracker_listener import handle_pokemeow_battle_message
 from utils.listener_func.market_alert import process_market_alert_message
 from utils.listener_func.mr_weakness import mr_weakness_chart
 from utils.loggers.espeon_log import espeon_log
@@ -65,6 +67,8 @@ class MessageCreateListener(commands.Cog):
                 STRAYMONS_GUILD_ID,
             ):
                 await mr_weakness_chart(bot=self.bot, message=message)
+                await handle_pokemeow_battle_message(bot=self.bot, message=message)
+                await handle_pokemeow_embed_sync(bot=self.bot, message=message)
 
             # --- Market alert processing only in staff guild ---
             if message.guild and message.guild.id == STAFF_SERVER_GUILD_ID:

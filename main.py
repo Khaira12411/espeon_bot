@@ -180,7 +180,7 @@ def pick_status_tuple():
 @tasks.loop(minutes=5)
 async def status_rotator():
     activity_type, message = pick_status_tuple()
-    espeon_log("ready", f"Switching status → {activity_type.name}: {message}")
+    espeon_log(tag= "", label="🌤️  STATUS ROTATOR",message=f"Switching status → {activity_type.name}: {message}")
     await bot.change_presence(
         activity=discord.Activity(type=activity_type, name=message)
     )
@@ -334,7 +334,7 @@ async def setup_hook():
     # 💜 Syncing guild slash commands
     try:
         await bot.tree.sync(guild=discord.Object(id=ACTIVE_GUILD_ID))
-        espeon_log("ready", "Slash commands synced to Active Guild!")
+        #espeon_log("ready", "Slash commands synced to Active Guild!")
     except Exception as e:
         espeon_log("error", f"Guild sync failed: {e}", include_trace=True)
 

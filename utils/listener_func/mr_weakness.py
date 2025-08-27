@@ -55,7 +55,7 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
     # Gather alive enemies
     alive_enemies = []
     for field in embed.fields:
-        if "enemy" in field.name.lower() or "challenge" in field.name.lower():
+        if "enemy" in field.name.lower() or "challenge" in field.name.lower() and not "mega" in field.name.lower():
             for line in field.value.splitlines():
                 line = line.strip()
                 if not line or "~~" in line:

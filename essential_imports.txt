@@ -1,2 +1,22 @@
 from utils.visuals.embeds.visual_helpers import set_embed_user_context
 from config.aesthetic import *
+
+    #Regular Pokemon
+    gif_url = f"https://play.pokemonshowdown.com/sprites/xyani/{gif_name.lower()}.gif?quality=lossless"
+
+    # Shiny
+    gif_url = f"https://play.pokemonshowdown.com/sprites/ani-shiny/{gif_name.lower()}.gif?quality=lossless"
+
+# Regular Mega
+    gif_url = f"https://play.pokemonshowdown.com/sprites/xyani/{gif_name.lower()}-mega.gif?quality=lossless"
+
+# Shiny Mega
+    gif_url = f"https://play.pokemonshowdown.com/sprites/ani-shiny/{gif_name.lower()}-mega.gif?quality=lossless"
+
+Gmax
+    gif_url = f"https://play.pokemonshowdown.com/sprites/xyani/{gif_name.lower()}-gmax.gif?quality=lossless"
+
+# Shiny Gmax
+    gif_url = f"https://play.pokemonshowdown.com/sprites/ani-shiny/{gif_name.lower()}-gmax.gif?quality=lossless"
+
+        gif_url = f"https://play.pokemonshowdown.com/sprites/xyani/venusaur-gmax.gif?quality=lossless"

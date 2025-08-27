@@ -1,0 +1,35 @@
+# -------------------- EV Tracker View Helper --------------------
+import discord
+from discord.ext import commands
+
+from utils.visuals.embeds.ev_tracker_embed import build_ev_tracker_embed
+
+
+async def ev_tracker_view_func(bot: commands.Bot, interaction: discord.Interaction):
+    from utils.cache.ev_tracker_cache import ev_tracker_cache
+
+    channel = interaction.channel
+    user_id = interaction.user.id
+    guild = interaction.guild
+
+    tracked_data = ev_tracker_cache.get(user_id)
+    if not tracked_data:
+        await channel.send("❌ You currently have no active EV tracker.")
+        return
+
+    tracked_evs = tracked_data.get("evs", {})
+    tracked_goals = tracked_data.get("goals", {})
+
+    # --- CALL THE REUSABLE EMBED FUNCTION ---
+    embed = build_ev_tracker_embed(
+        tracked_data=tracked_data,
+        evs=tracked_evs,
+        goals=tracked_goals,
+        guild=guild,
+        user_id=user_id,
+        title_prefix="💜 EV Tracker",
+        summary_lines=None,  # no summary for just viewing
+        use_progress_bar=False,
+    )
+
+    await interaction.response.send_message(embed=embed)

@@ -102,5 +102,29 @@
     "group": null,
     "subgroup": null,
     "name": "test-weakness"
+  },
+  "ev-tracker add": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Public",
+    "group": null,
+    "subgroup": null,
+    "name": "add"
+  },
+  "add": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Public",
+    "group": null,
+    "subgroup": null,
+    "name": "add"
+  },
+  "ev-tracker view": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Public",
+    "group": null,
+    "subgroup": null,
+    "name": "view"
   }
 }
