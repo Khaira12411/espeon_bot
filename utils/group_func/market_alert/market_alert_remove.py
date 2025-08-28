@@ -14,6 +14,7 @@ from utils.group_func.market_alert.db_func.market_alert_db_func import (
 )
 from utils.group_func.market_alert.parsers import resolve_pokemon_input
 from utils.loggers.espeon_log import espeon_log
+from utils.visuals.embeds.get_log_channel import get_log_channel
 from utils.visuals.embeds.visual_helpers import set_embed_user_context
 
 
@@ -111,11 +112,9 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
         is_staff = False
         if clan_staff in user.roles:
             is_staff = True
+
         # 💜 Log embed
-        LOG_CHANNEL_ID = (
-            STRAYMONS__TEXT_CHANNELS.server_logs
-        )  # replace with your log channel
-        log_channel = bot.get_channel(LOG_CHANNEL_ID)
+        log_channel = get_log_channel(bot=bot)
         if log_channel:
             log_embed = discord.Embed(
                 title=f"{Espeon_Emoji.purple_hearts_one} Market Alert Removed",

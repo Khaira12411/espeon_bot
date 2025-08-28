@@ -72,14 +72,14 @@ async def build_ev_tracker_embed(
     pokemon = f"{tracked_data['pokemon']} #{tracked_data.get('dex_number')}"
     # Build description with spacing
     description = (
-        f"### __**Total EVs:** ({display_total_current}/{max_total_evs})__\n"
+        f"## {pokemon}\n"
+        f"__**Total EVs:** ({display_total_current}/{max_total_evs})__\n"
         f"{stats_str}"
     )
     pokemon_name = tracked_data["pokemon"].lower()
     gif_url = f"https://play.pokemonshowdown.com/sprites/xyani/{pokemon_name}.gif?quality=lossless"
 
     embed = discord.Embed(
-        title=pokemon,
         description=description,
         color=0xFF99FF,
     )

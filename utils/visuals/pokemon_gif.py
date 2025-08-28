@@ -70,20 +70,22 @@ async def insert_pokemon_gif_embed(
     # -------------------- Determine GIF URL --------------------
     gif_url = None
 
-    # 1️⃣ Golden Pokémon takes priority
-    if golden and remaining_name in GOLDEN_POKEMON_MAP:
-        gif_url = GOLDEN_POKEMON_MAP[remaining_name]
-    # 2️⃣ Check fallback list first (regular Pokémon)
-    elif base_name in REGULAR_POKEMON_MAP and form != "gmax":
-        gif_url = REGULAR_POKEMON_MAP[base_name]
-    # 3️⃣ Handle Gmax separately using hardcoded maps
-    elif form == "gmax":
+    # 1️⃣ Try to fetch from class based on golden/regular
+    if golden:
+        normalized_name = remaining_name.replace("-", "_")
+        gif_url = getattr(GOLDEN_POKEMON_URL, normalized_name, None)
+    else:
+        gif_url = getattr(REGULAR_POKEMON_URL, remaining_name, None)
+
+    # 2️⃣ Handle Gmax separately using hardcoded maps
+    if form == "gmax":
         if shiny:
             gif_url = getattr(SHINY_GMAX_URL, remaining_name, None)
         else:
             gif_url = getattr(REGULAR_GMAX_URL, remaining_name, None)
-    # 4️⃣ Otherwise build Showdown URL
-    else:
+
+    # 3️⃣ Otherwise, fallback to building Showdown URL
+    if not gif_url:
         shiny_prefix = "ani-shiny" if shiny else "xyani"
         suffix = "" if form == "regular" else f"-{form}"
         gif_url = f"https://play.pokemonshowdown.com/sprites/{shiny_prefix}/{base_name}{suffix}.gif?quality=lossless"

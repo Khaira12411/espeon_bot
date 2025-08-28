@@ -36,13 +36,13 @@ async def load_ev_tracker_cache(bot):
         }
 
     # 💜 Debug cache dump
-    print("[💜 DEBUG] Current ev_tracker_cache contents:")
-    for uid, data in ev_tracker_cache.items():
-        print(f"  -> {uid}: {data}")
+    # print("[💜 DEBUG] Current ev_tracker_cache contents:")
+    # for uid, data in ev_tracker_cache.items():
+    # print(f"  -> {uid}: {data}")
 
     espeon_log(
         tag="",
-        label="💜 EV TRACKER CACHE",
+        label="🐼 EV TRACKER CACHE",
         message=f"Loaded {len(ev_tracker_cache)} users' EVs into cache",
         context=EspeonContext.STRAYMONS,
     )

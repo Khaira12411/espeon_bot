@@ -75,7 +75,6 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
             updated = True
 
     if not updated:
-        print("[💜 STEP4] No updates needed → exit")
         return
 
     # Save to DB and cache

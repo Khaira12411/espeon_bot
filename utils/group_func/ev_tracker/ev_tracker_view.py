@@ -14,7 +14,9 @@ async def ev_tracker_view_func(bot: commands.Bot, interaction: discord.Interacti
 
     tracked_data = ev_tracker_cache.get(user_id)
     if not tracked_data:
-        await channel.send("❌ You currently have no active EV tracker.")
+        await interaction.response.send_message(
+            "❌ You currently have no active EV tracker."
+        )
         return
 
     tracked_evs = tracked_data.get("evs", {})

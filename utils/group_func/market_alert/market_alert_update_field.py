@@ -5,6 +5,7 @@ from utils.group_func.market_alert.db_func.market_alert_db_func import (
 )
 from utils.group_func.market_alert.parsers import resolve_pokemon_input
 from utils.loggers.espeon_log import espeon_log
+from utils.visuals.embeds.get_log_channel import get_log_channel
 
 
 async def update_market_alert_func(

@@ -27,7 +27,7 @@ async def load_all_caches(bot):
     # 🌟 Load Mr. Weakness user settings into memory
     await load_mr_weakness_user_cache(bot)
 
-    # 💜 Load EV Tracker cache
+    # 🐼 Load EV Tracker cache
     await load_ev_tracker_cache(bot)
 
     # 🎀 Unified single-line log

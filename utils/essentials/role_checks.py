@@ -1,6 +1,8 @@
 from discord.ext import commands
 
+from config.current_setup import STAFF_SERVER_GUILD_ID
 from config.straymons_constants import STRAYMONS__ROLES
+
 
 # 🌸──────────────────────────────────────────────────────
 # ✨ Custom Exceptions (Sparkles & Cute!) ✨
@@ -35,7 +37,7 @@ ERROR_MESSAGES = {
         "clan_member": "🐾 Only Straymon Members can use this command. 🌸",
         "owner": "👑 This command is just for the Clan Owner, sorry! 💜",
         "owner_and_co_owner": "👑 & 🤝 Only Clan Owner and Co-Owner can use this. 🌷",
-        "espeon_roles": f"Only those with <@&{STRAYMONS__ROLES.ethereal_eclair}>, and <@&{STRAYMONS__ROLES.sunrise_scone}> can use this command!",
+        "espeon_roles": f"🌸 Access restricted: only members holding <@&{STRAYMONS__ROLES.ethereal_eclair}>, <@&{STRAYMONS__ROLES.sunrise_scone}>, or <@&{STRAYMONS__ROLES.vip}> are permitted to use this command. ✨",
     },
 }
 
@@ -100,8 +102,12 @@ def espeon_roles_only():
     async def predicate(ctx):
         user_roles = [role.id for role in ctx.author.roles]
 
-        # ✅ Bypass for Clan Staff
-        if STRAYMONS__ROLES.clan_staff in user_roles:
+        # ✅ Bypass for Clan Staff, VIP roles, or staff guild members
+        if (
+            STRAYMONS__ROLES.clan_staff in user_roles
+            or STRAYMONS__ROLES.vip in user_roles
+            or ctx.guild.id == STAFF_SERVER_GUILD_ID
+        ):
             return True
 
         # 🔒 Require Espeon roles
@@ -109,9 +115,7 @@ def espeon_roles_only():
             STRAYMONS__ROLES.sunrise_scone not in user_roles
             and STRAYMONS__ROLES.ethereal_eclair not in user_roles
         ):
-            raise OwnerCoownerCheckFailure(
-                ERROR_MESSAGES["straymons"]["owner_and_co_owner"]
-            )
+            raise OwnerCoownerCheckFailure(ERROR_MESSAGES["straymons"]["espeon_roles"])
 
         return True
 

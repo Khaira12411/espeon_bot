@@ -7,6 +7,8 @@ from utils.visuals.embeds.visual_helpers import set_embed_user_context
 
 from config.straymons_constants import *
 from utils.loggers.espeon_log import EspeonContext, espeon_log
+from config.current_setup import STAFF_SERVER_GUILD_ID
+STAFF_GUILD_ID = STAFF_SERVER_GUILD_ID  # replace with your actual staff guild ID
 
 MAX_ALERTS = 10
 
@@ -74,11 +76,14 @@ async def use_market_alert(bot, user: discord.Member):
     """
     Increment alerts_used for a user if not blocked.
     Returns updated status dict.
+    Staff guild members bypass block.
     """
     user_id = user.id
+    is_staff_guild_member = user.guild.id == STAFF_GUILD_ID
+
     status = await get_market_alert_status(bot, user)
 
-    if status["block"]:
+    if status["block"] and not is_staff_guild_member:
         return status  # Can't increment, already maxed
 
     async with bot.pg_pool.acquire() as conn:
@@ -99,8 +104,11 @@ async def refund_market_alert(bot, user: discord.Member):
     """
     Decrement alerts_used for a user (never below 0).
     Returns updated status dict.
+    Staff guild members bypass block logic (no limits applied).
     """
     user_id = user.id
+    is_staff_guild_member = user.guild.id == STAFF_GUILD_ID
+
     async with bot.pg_pool.acquire() as conn:
         await conn.execute(
             """
@@ -322,13 +330,13 @@ async def get_market_alert_status(bot, user: discord.Member):
     """
     Fetch total and used market alerts for a user.
     - Registers user in market_alert_counter if missing (roles are always saved as int[]).
-    - Clan staff: total_alerts = number of alerts currently in market_alerts table,
-      but their total_alerts in DB is NOT overwritten.
+    - Clan staff or anyone in staff guild: bypass limits.
     - Returns dict with totals, left, block flag, and message.
     """
     user_id = user.id
     user_roles_ids = [r.id for r in user.roles]
     is_clan_staff = CLAN_STAFF_ROLE_ID in user_roles_ids
+    is_staff_guild_member = user.guild.id == STAFF_GUILD_ID
 
     async with bot.pg_pool.acquire() as conn:
         # Count entries in market_alerts table
@@ -365,7 +373,11 @@ async def get_market_alert_status(bot, user: discord.Member):
             alerts_used = row["alerts_used"]
 
             # Sync total alerts for normal users if table has more alerts than DB
-            if not is_clan_staff and market_alert_rows > total_alerts:
+            if (
+                not is_clan_staff
+                and not is_staff_guild_member
+                and market_alert_rows > total_alerts
+            ):
                 total_alerts = market_alert_rows
                 await conn.execute(
                     "UPDATE market_alert_counter SET total_alerts = $1 WHERE user_id = $2",
@@ -381,7 +393,7 @@ async def get_market_alert_status(bot, user: discord.Member):
             )
 
             # For staff: ensure alerts_used reflects current rows in market_alerts
-            if is_clan_staff:
+            if is_clan_staff or is_staff_guild_member:
                 alerts_used = market_alert_rows
                 await conn.execute(
                     "UPDATE market_alert_counter SET alerts_used = $1 WHERE user_id = $2",
@@ -407,11 +419,11 @@ async def get_market_alert_status(bot, user: discord.Member):
         )
         block = False
 
-    # Staff always bypass
-    if is_clan_staff:
+    # Staff always bypass (role or guild)
+    if is_clan_staff or is_staff_guild_member:
         block = False
         message = (
-            f"✨ Clan staff magic! You currently have {alerts_used} alert(s). "
+            f"✨ Staff guild magic! You currently have {alerts_used} alert(s). "
             "You can always add more! 🌷"
         )
 

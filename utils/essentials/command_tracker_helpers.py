@@ -4,12 +4,12 @@
 import json
 import os
 from datetime import datetime
+from pathlib import Path
 from typing import Dict
 
 import discord
 from discord import app_commands
 from discord.ext import commands
-from pathlib import Path
 
 from config.aesthetic import *
 from utils.loggers.espeon_log import EspeonContext, espeon_log
@@ -194,7 +194,10 @@ async def send_changelog_embed(bot, cmd_data: dict, channel, label, extra_change
         )
 
 
-EXCLUDED_COMMAND_MODULES = ["cogs.commands.market_alert_group"]
+EXCLUDED_COMMAND_MODULES = [
+    "cogs.commands.market_alert_group",
+    "cogs.commands.ev_tracker_group",
+]
 
 KNOWN_COMMAND_CACHE_FILE = "data/known_commands.json"
 FORCE_COMMAND_CACHE_FILE = "data/force_logged_commands.json"
@@ -304,7 +307,6 @@ def collect_all_commands_from_cogs(bot: commands.Bot, label: str = "🌻 Changel
                 full_path = getattr(attr, "_full_path", attr.name)
                 key = full_path.lower()
 
-
                 if is_excluded_command(attr) or key in seen_paths:
                     continue
 
@@ -336,8 +338,6 @@ def collect_all_commands_from_cogs(bot: commands.Bot, label: str = "🌻 Changel
                     extras = getattr(subcmd, "extras", {}) or {}
                     full_path = getattr(subcmd, "_full_path", subcmd.name)
                     key = full_path.lower()
-
-
 
                     if is_excluded_command(subcmd) or key in seen_paths:
                         continue

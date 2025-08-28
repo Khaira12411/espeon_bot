@@ -5,6 +5,7 @@
 from datetime import datetime
 
 import discord
+from utils.visuals.embeds.get_log_channel import get_log_channel
 
 from config.aesthetic import *
 from config.emojis import PokeCoin
@@ -46,6 +47,7 @@ async def add_market_alert_func(
 
     # fetch current alert status
     await get_market_alert_status(bot=bot, user=user)
+    log_channel = get_log_channel(bot=bot)
 
     pokemon_title = pokemon.title()
 
@@ -147,14 +149,10 @@ async def add_market_alert_func(
     )
     clan_staff = interaction.guild.get_role(STRAYMONS__ROLES.clan_staff)
     is_staff = False
-    if clan_staff in user.roles:
+    if clan_staff in user.roles or interaction.guild.id == STAFF_SERVER_GUILD_ID:
         is_staff = True
 
     # 💜 Step 8: Build log embed
-    LOG_CHANNEL_ID = (
-        STRAYMONS__TEXT_CHANNELS.server_logs
-    )  # replace with your log channel
-    log_channel = bot.get_channel(LOG_CHANNEL_ID)
 
     if log_channel:
         # Base description
@@ -183,7 +181,6 @@ async def add_market_alert_func(
 
         log_embed = set_embed_user_context(embed=log_embed, user=user)
 
-        await log_channel.send(embed=log_embed)
 
     # 💜 Step 9: Send embeds
     try:

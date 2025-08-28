@@ -126,5 +126,21 @@
     "group": null,
     "subgroup": null,
     "name": "view"
+  },
+  "ev-tracker update": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Public",
+    "group": null,
+    "subgroup": null,
+    "name": "update"
+  },
+  "ev-tracker reset": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Public",
+    "group": null,
+    "subgroup": null,
+    "name": "reset"
   }
 }

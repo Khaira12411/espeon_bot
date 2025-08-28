@@ -32,7 +32,7 @@ class EvTrackerGroup(commands.Cog):
         name="add",
         description="Start tracking EVs for a Pokemon (one mon at a time)",
     )
-    @owner_only()
+    @espeon_roles_only()
     @app_commands.describe(
         pokemon="Name of the Pokemon you want to track (required)",
         hp="Current/goal HP EVs (e.g., 0/252) to start tracking",
@@ -69,7 +69,7 @@ class EvTrackerGroup(commands.Cog):
             spe=spe,
         )
 
-    ev_tracker_add.extras = {"category": "Public"}
+    ev_tracker_add.extras = {"force_true": True, "category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /ev-tracker view 💜
@@ -78,7 +78,7 @@ class EvTrackerGroup(commands.Cog):
         name="view",
         description="View your current EV tracker",
     )
-    @owner_only()
+    @espeon_roles_only()
     async def ev_tracker_view(
         self,
         interaction: discord.Interaction,
@@ -92,7 +92,73 @@ class EvTrackerGroup(commands.Cog):
             command_func=ev_tracker_view_func,
         )
 
-    ev_tracker_view.extras = {"category": "Public"}
+    ev_tracker_view.extras = {"force_true": True, "category": "Public"}
+
+    # 🟣────────────────────────────────────────────
+    #           💜 /ev-tracker update 💜
+    # 🟣────────────────────────────────────────────
+    @ev_tracker_group.command(
+        name="update",
+        description="Add or update EVs for your current tracked Pokémon",
+    )
+    @espeon_roles_only()
+    @app_commands.describe(
+        hp="Current/goal HP EVs (e.g., 0/252)",
+        atk="Current/goal Attack EVs (e.g., 0/252)",
+        spa="Current/goal Special Attack EVs (e.g., 0/252)",
+        def_="Current/goal Defense EVs (e.g., 0/252)",
+        spd="Current/goal Special Defense EVs (e.g., 0/252)",
+        spe="Current/goal Speed EVs (e.g., 0/252)",
+    )
+    async def ev_tracker_update(
+        self,
+        interaction: discord.Interaction,
+        hp: str = None,
+        atk: str = None,
+        spa: str = None,
+        def_: str = None,
+        spd: str = None,
+        spe: str = None,
+    ):
+        slash_cmd_name = "ev-tracker update"
+        # Pass everything to the brain function
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=ev_tracker_update_func,  # we'll create this brain function
+            hp=hp,
+            atk=atk,
+            spa=spa,
+            def_=def_,
+            spd=spd,
+            spe=spe,
+        )
+
+    ev_tracker_update.extras = {"force_true": True, "category": "Public"}
+
+    # 🟣────────────────────────────────────────────
+    #           💜 /ev-tracker reset 💜
+    # 🟣────────────────────────────────────────────
+    @ev_tracker_group.command(
+        name="reset",
+        description="Removes your current EV tracker",
+    )
+    @espeon_roles_only()
+    async def ev_tracker_reset(
+        self,
+        interaction: discord.Interaction,
+    ):
+        slash_cmd_name = "ev-tracker reset"
+
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=ev_tracker_reset_func,
+        )
+
+    ev_tracker_reset.extras = {"force_true": True, "category": "Public"}
 
 
 # 🟣────────────────────────────────────────────

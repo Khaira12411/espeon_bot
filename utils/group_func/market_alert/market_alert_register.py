@@ -11,7 +11,9 @@ from config.aesthetic import *
 from config.straymons_constants import *
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import set_embed_user_context
+from utils.visuals.embeds.get_log_channel import get_log_channel
 
+from config.current_setup import STAFF_SERVER_GUILD_ID, STRAYMONS_GUILD_ID
 ROLE_COUNTER = {
     STRAYMONS__ROLES.top_catcher: 1,
     STRAYMONS__ROLES.floriane: 3,
@@ -28,11 +30,13 @@ async def market_alert_register_func(
 ):
     """
     Register a user for market alerts safely.
+    Auto-grant unlimited alerts for anyone in the staff guild.
     """
     user = interaction.user
     user_id = user.id
     user_name = str(user)
-    log_channel = interaction.guild.get_channel(STRAYMONS__TEXT_CHANNELS.server_logs)
+
+    log_channel = get_log_channel(bot=bot)
 
     async with bot.pg_pool.acquire() as conn:
         # 🔹 Check if row exists
@@ -46,7 +50,60 @@ async def market_alert_register_func(
 
         # ✅ Eligible roles
         eligible_roles = [role.id for role in user.roles if role.id in ROLE_COUNTER]
-        # ❌ Reject users without staff or eligible roles BEFORE touching DB
+
+        # -------------------- STAFF GUILD AUTO UNLIMITED --------------------
+        if interaction.guild.id == STAFF_SERVER_GUILD_ID:
+            total_alerts = 999
+            alerts_used = 0
+
+            if not row:
+                await conn.execute(
+                    """
+                    INSERT INTO market_alert_counter
+                    (user_id, user_name, roles, server_boost_count, total_alerts, alerts_used)
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                    """,
+                    user_id,
+                    user_name,
+                    [r.id for r in user.roles],
+                    getattr(user, "premium_subscription_count", 0),
+                    total_alerts,
+                    alerts_used,
+                )
+            else:
+                await conn.execute(
+                    """
+                    UPDATE market_alert_counter
+                    SET roles = $1, server_boost_count = $2, total_alerts = $3
+                    WHERE user_id = $4
+                    """,
+                    [r.id for r in user.roles],
+                    getattr(user, "premium_subscription_count", 0),
+                    total_alerts,
+                    user_id,
+                )
+
+            # Ephemeral user embed
+            embed_user = discord.Embed(
+                title="💜 Market Alerts (Staff Guild Magic!)",
+                description="✨ You can use **as many market alerts as you want**! 🌷",
+                color=0xFF99FF,
+            )
+            embed_user.set_footer(
+                text="Staff guild members have unlimited market alerts 💜"
+            )
+            await interaction.response.send_message(embed=embed_user, ephemeral=True)
+
+            # Log embed
+            embed_log = discord.Embed(
+                title="💜 Market Alert Registration (Staff Guild)",
+                description=f"User {user_name} connected in staff guild. Total alerts = unlimited.",
+                color=0xFF99FF,
+            )
+            await log_channel.send(embed=embed_log)
+            return total_alerts
+
+        # -------------------- NON-STAFF GUILD USERS --------------------
         if not is_staff and not eligible_roles:
             role_list_text = ", ".join(
                 [f"<@&{role_id}>" for role_id in ROLE_COUNTER.keys()]
@@ -69,62 +126,12 @@ async def market_alert_register_func(
             )
             return 0
 
-        # 🔹 Staff registration (unlimited alerts)
-        if is_staff:
-            total_alerts = 999
-            alerts_used = 0
-
-            if not row:
-                await conn.execute(
-                    """
-                    INSERT INTO market_alert_counter
-                    (user_id, user_name, roles, server_boost_count, total_alerts, alerts_used)
-                    VALUES ($1, $2, $3, $4, $5, $6)
-                    """,
-                    user_id,
-                    user_name,
-                    [r.id for r in user.roles],
-                    getattr(user, "premium_subscription_count", 0),
-                    total_alerts,
-                    alerts_used,
-                )
-            else:
-                await conn.execute(
-                    """
-                    UPDATE market_alert_counter
-                    SET roles = $1, server_boost_count = $2
-                    WHERE user_id = $3
-                    """,
-                    [r.id for r in user.roles],
-                    getattr(user, "premium_subscription_count", 0),
-                    user_id,
-                )
-
-            # Ephemeral user embed
-            embed_user = discord.Embed(
-                title="💜 Market Alerts (Staff Magic!)",
-                description="✨ You can use **as many market alerts as you want**! 🌷",
-                color=0xFF99FF,
-            )
-            embed_user.set_footer(text="Staff members have unlimited market alerts 💜")
-            await interaction.response.send_message(embed=embed_user, ephemeral=True)
-
-            # Log embed
-            embed_log = discord.Embed(
-                title="💜 Market Alert Registration (Staff)",
-                description=f"Staff {user_name} connected. Total alerts = unlimited.",
-                color=0xFF99FF,
-            )
-            await log_channel.send(embed=embed_log)
-            return total_alerts
-
         # ✅ Regular users: calculate total alerts
         server_boost_count = getattr(user, "premium_subscription_count", 0)
         total_alerts = sum(ROLE_COUNTER.get(role_id, 0) for role_id in eligible_roles)
         total_alerts += server_boost_count
 
         MAX_ALERTS = 10
-
         total_alerts = min(total_alerts, MAX_ALERTS)
         alerts_used = 0
 

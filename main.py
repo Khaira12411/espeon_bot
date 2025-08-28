@@ -260,6 +260,10 @@ async def startup_checklist(bot: commands.Bot):
 
     checklist.append(f"✅ {len(mr_weakness_user_cache)} 🌸 MR Weakness Users")
 
+    # 🐼 Mr. Weakness cache
+    from utils.cache.ev_tracker_cache import ev_tracker_cache
+
+    checklist.append(f"✅ {len(ev_tracker_cache)} 🐼 EV Tracker Users")
     # 💛 Status rotator
     checklist.append(f"✅ {status_rotator.is_running()} ✨ Status Rotator Running")
 
