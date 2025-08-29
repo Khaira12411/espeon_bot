@@ -30,7 +30,7 @@
     "name": "update",
     "sent": true,
     "_full_path": "ev-tracker update",
-    "description": "Add or update EVs for your current tracked PokÃ©mon"
+    "description": "Add or update EVs for your current tracked PokÃƒÂ©mon"
   },
   "ev-tracker reset": {
     "rename_history": [],

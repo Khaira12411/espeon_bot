@@ -12516,7 +12516,7 @@ weakness_chart = {
         "dex": "0075",
         "types": ["rock", "ground"],
     },
-    "great tusk": {
+    "great-tusk": {
         "0x": ["electric"],
         "1/2x": ["poison", "bug", "dark"],
         "1/4x": ["rock"],

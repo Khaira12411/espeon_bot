@@ -15,7 +15,7 @@ from utils.cache.centralized_cache_loader import load_all_caches
 from utils.cache.market_alert_cache import load_market_alert_cache
 from utils.essentials.command_tracker import auto_log_new_commands
 from utils.essentials.get_pg_pool import get_pg_pool
-from utils.loggers.espeon_log import EspeonContext, espeon_log  # Using Espeon logs
+from utils.loggers.espeon_log import EspeonContext, espeon_log, set_espeon_bot  # Using Espeon logs
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
 
 # ——————————————————————————————————————————————————————————————
@@ -33,25 +33,32 @@ for logger_name in [
 logging.getLogger("discord.client").setLevel(logging.CRITICAL)
 
 # ——————————————————————————————————————————————————————————————
-# Bot Setup
+# 💜 Bot Setup
 # ——————————————————————————————————————————————————————————————
+
+# 🧩 Intents setup (what the bot can listen to)
 intents = discord.Intents.default()
 intents.messages = True
 intents.guilds = True
 intents.message_content = True
 intents.members = True
 
+# 🐾 Create the bot instance
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+# 💌 Tell the logger which bot instance to use
+set_espeon_bot(bot)
+
+# 🪻 Hook in rate-limit logging (keeps us safe from spammy APIs)
 setup_rate_limit_logging(bot)
 
-
-bot = commands.Bot(command_prefix="!", intents=intents)
+# 🌸 Allowed guilds (keeps bot scoped to friendly homes only!)
 ALLOWED_GUILD_IDS = {
     STRAYMONS_GUILD_ID,
     MEOW_SUMMIT_GUILD_ID,
     CC_GUILD_ID,
     STAFF_SERVER_GUILD_ID,
-}  # add any other allowed guild IDs here
+}
 
 
 @bot.event
