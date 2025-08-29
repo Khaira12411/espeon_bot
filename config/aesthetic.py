@@ -1,4 +1,6 @@
 class Espeon_Emoji:
+    pokeball = "<:pokeball:1411013864727773264>"
+    purple_check2 = "<:purple_check2:1410993317147050004>"
     purple_hearts_one = "<a:purple_hearts_one:1409833092721541184>"
     purple_check = "<:purple_check:1409833024031424573>"
     purple_pin = "<:purple_pin:1409832970461777920>"

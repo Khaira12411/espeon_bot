@@ -11,7 +11,7 @@ from config.straymons_constants import STRAYMONS__TEXT_CHANNELS
 
 # 💌 Bot log + error channels
 ESPEON_BOTLOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.bot_logs
-ESPEON_ERROR_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.error_logs  # 👈 add error channel
+ESPEON_ERROR_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.error_logs  # 👈 error channel
 
 # 🔗 Global bot instance (set this on bot startup)
 ESPEON_BOT: Optional[commands.Bot] = None
@@ -53,7 +53,7 @@ def espeon_log(
     exc: Optional[BaseException] = None,
     context: Optional[Union[EspeonContext, commands.Cog]] = None,
 ):
-    """Prints a styled log with timestamp and sends error/critical/warn logs to Discord."""
+    """Prints a styled log with timestamp and sends error/critical logs to Discord."""
 
     now = datetime.now().strftime("%H:%M:%S")
 
@@ -87,10 +87,9 @@ def espeon_log(
 
     log_message = " ".join(parts)
 
-    # 🔎 Decide if we should include traceback
-    force_trace = tag in ("error", "critical")
+    # 🔎 Include traceback only for error/critical or if explicitly requested
     trace_text = ""
-    if (include_trace or force_trace) and exc:
+    if exc and tag in ("error", "critical"):
         trace_text = "".join(
             traceback.format_exception(type(exc), exc, exc.__traceback__)
         )
@@ -99,18 +98,16 @@ def espeon_log(
     # 🖨️ Print to console
     print(log_message)
 
-    # 🚨 Send warn/error/critical logs to error channel
-    if tag in ("warn", "error", "critical") and ESPEON_BOT and ESPEON_ERROR_CHANNEL_ID:
+    # 🚨 Send only error/critical logs to error channel
+    if tag in ("error", "critical") and ESPEON_BOT and ESPEON_ERROR_CHANNEL_ID:
         try:
             channel = ESPEON_BOT.get_channel(ESPEON_ERROR_CHANNEL_ID)
             if channel:
                 full_message = f"`{prefix}` {context_str}{label_str} {message}"
-
-                # attach traceback if present
                 if trace_text:
                     full_message += f"\n```py\n{trace_text}```"
 
-                # ensure within Discord’s limit
+                # ensure within Discord’s 2000 char limit
                 if len(full_message) > 2000:
                     full_message = full_message[:1997] + "..."
 

@@ -3,13 +3,14 @@
 #       🎀 Calls all individual caches 🎀
 # ─────────────────────────────────────────────
 
-from utils.cache.market_alert_cache import load_market_alert_cache, market_alert_cache
 from utils.cache.ev_tracker_cache import ev_tracker_cache, load_ev_tracker_cache
+from utils.cache.market_alert_cache import load_market_alert_cache, market_alert_cache
 from utils.cache.mr_weakness_cache import (
     load_mr_weakness_user_cache,
     mr_weakness_user_cache,
 )
-from utils.loggers.espeon_log import espeon_log, EspeonContext
+from utils.cache.timers_cache import load_timer_cache, timer_cache
+from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 
 # 🐾────────────────────────────────────────────
@@ -30,6 +31,9 @@ async def load_all_caches(bot):
     # 🐼 Load EV Tracker cache
     await load_ev_tracker_cache(bot)
 
+    # ⌚ Load Timer cache
+    await load_timer_cache(bot)
+
     # 🎀 Unified single-line log
     espeon_log(
         tag="",
@@ -38,7 +42,8 @@ async def load_all_caches(bot):
             f"All caches refreshed and loaded "
             f"(Market Alerts: {len(market_alert_cache)} + "
             f"MR Weakness: {len(mr_weakness_user_cache)} + "
-            f"EV Tracker: {len(ev_tracker_cache)})"
+            f"EV Trackers: {len(ev_tracker_cache)} + "
+            f"Timers: {len(timer_cache)})"
         ),
         context=EspeonContext.STRAYMONS,
     )

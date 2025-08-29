@@ -19,6 +19,7 @@ from utils.listener_func.bud_ev_listener import handle_pokemeow_embed_sync
 from utils.listener_func.ev_tracker_listener import handle_pokemeow_battle_message
 from utils.listener_func.market_alert import process_market_alert_message
 from utils.listener_func.mr_weakness import mr_weakness_chart
+from utils.listener_func.pokemon_timer import *
 from utils.loggers.espeon_log import espeon_log
 
 
@@ -59,6 +60,7 @@ class MessageCreateListener(commands.Cog):
                 and not message.webhook_id
             ):
                 return
+            # if message.guild and message.guild.id == ACTIVE_GUILD_ID:
 
             # --- Weakness chart processing (Active + Staff Guilds) ---
             if message.guild and message.guild.id in (
@@ -66,6 +68,7 @@ class MessageCreateListener(commands.Cog):
                 STAFF_SERVER_GUILD_ID,
                 STRAYMONS_GUILD_ID,
             ):
+                await detect_pokemeow_reply(message)
                 await mr_weakness_chart(bot=self.bot, message=message)
                 await handle_pokemeow_battle_message(bot=self.bot, message=message)
                 await handle_pokemeow_embed_sync(bot=self.bot, message=message)

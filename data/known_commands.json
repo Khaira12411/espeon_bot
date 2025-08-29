@@ -142,5 +142,21 @@
     "group": null,
     "subgroup": null,
     "name": "reset"
+  },
+  "timer pokemon-set": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Public",
+    "group": null,
+    "subgroup": null,
+    "name": "pokemon-set"
+  },
+  "timer pokemon-view": {
+    "rename_history": [],
+    "grouped": false,
+    "category": "Public",
+    "group": null,
+    "subgroup": null,
+    "name": "pokemon-view"
   }
 }
