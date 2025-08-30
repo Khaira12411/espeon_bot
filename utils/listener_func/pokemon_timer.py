@@ -66,7 +66,7 @@ async def detect_pokemeow_reply(message: discord.Message):
         # Schedule behavior depending on setting
         async def notify_ready():
             try:
-                await asyncio.sleep(12)
+                await asyncio.sleep(11)
 
                 if setting == "on":
                     await message.channel.send(
