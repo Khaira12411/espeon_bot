@@ -225,7 +225,7 @@ class MarketAlerts(commands.Cog):
 
     market_alert_register.extras = {"category": "Public"}
 
-#    add_market_alert.extras = {"force_true": True, "category": "Staff"}
+#    add_market_alert.extras = {"category": "Staff"}
 
 # 🟣────────────────────────────────────────────
 #           💜 Cog Setup Function 💜

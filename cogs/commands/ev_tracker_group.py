@@ -69,7 +69,7 @@ class EvTrackerGroup(commands.Cog):
             spe=spe,
         )
 
-    ev_tracker_add.extras = {"force_true": True, "category": "Public"}
+    ev_tracker_add.extras = {"category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /ev-tracker view 💜
@@ -92,7 +92,7 @@ class EvTrackerGroup(commands.Cog):
             command_func=ev_tracker_view_func,
         )
 
-    ev_tracker_view.extras = {"force_true": True, "category": "Public"}
+    ev_tracker_view.extras = { "category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /ev-tracker update 💜
@@ -135,7 +135,7 @@ class EvTrackerGroup(commands.Cog):
             spe=spe,
         )
 
-    ev_tracker_update.extras = {"force_true": True, "category": "Public"}
+    ev_tracker_update.extras = {"category": "Public"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /ev-tracker reset 💜
@@ -158,7 +158,7 @@ class EvTrackerGroup(commands.Cog):
             command_func=ev_tracker_reset_func,
         )
 
-    ev_tracker_reset.extras = {"force_true": True, "category": "Public"}
+    ev_tracker_reset.extras = {"category": "Public"}
 
 
 # 🟣────────────────────────────────────────────
