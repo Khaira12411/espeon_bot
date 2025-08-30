@@ -186,7 +186,7 @@ async def market_alert_register_func(
         )
 
         embed_user.set_footer(
-            text="You'll be notified when a Pokémon matches your alert 💜"
+            text="Don't forget to add your alerts via /market-alert add 💜"
         )
 
         await interaction.response.send_message(embed=embed_user, ephemeral=True)
