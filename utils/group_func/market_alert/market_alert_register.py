@@ -8,12 +8,12 @@ import discord
 from discord.ext import commands
 
 from config.aesthetic import *
+from config.current_setup import STAFF_SERVER_GUILD_ID, STRAYMONS_GUILD_ID
 from config.straymons_constants import *
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from utils.visuals.embeds.visual_helpers import set_embed_user_context
 from utils.visuals.embeds.get_log_channel import get_log_channel
+from utils.visuals.embeds.visual_helpers import design_embed
 
-from config.current_setup import STAFF_SERVER_GUILD_ID, STRAYMONS_GUILD_ID
 ROLE_COUNTER = {
     STRAYMONS__ROLES.top_catcher: 1,
     STRAYMONS__ROLES.floriane: 3,
@@ -180,7 +180,7 @@ async def market_alert_register_func(
             title=f"{Espeon_Emoji.purple_hearts_one} Market Alerts Registered!",
             description=(
                 f"✨ You have **{total_alerts} free market alerts** available! 🌸\n\n"
-                f"**Alert Breakdown:**\n{role_breakdown_text}"
+                f"**{Espeon_Emoji.purple_ribbon} Alert Breakdown:**\n{role_breakdown_text}"
             ),
             color=0xFF99FF,
         )
@@ -197,12 +197,12 @@ async def market_alert_register_func(
             description=(
                 f"- Member: {user.mention}\n"
                 f"- Total Alerts: {total_alerts}\n\n"
-                f"**Alert Breakdown:**\n{role_breakdown_text}"
+                f"**{Espeon_Emoji.purple_ribbon} Alert Breakdown:**\n{role_breakdown_text}"
             ),
             color=0xFF99FF,
             timestamp=datetime.now(),
         )
-        embed_log = set_embed_user_context(embed=embed_log, user=user)
+        embed_log = design_embed(embed=embed_log, user=user)
         await log_channel.send(embed=embed_log)
 
         return total_alerts

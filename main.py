@@ -12,10 +12,10 @@ from dotenv import load_dotenv
 
 from config.current_setup import *
 from utils.cache.centralized_cache_loader import load_all_caches
-from utils.cache.market_alert_cache import load_market_alert_cache
 from utils.essentials.command_tracker import auto_log_new_commands
 from utils.essentials.get_pg_pool import get_pg_pool
-from utils.loggers.espeon_log import EspeonContext, espeon_log, set_espeon_bot  # Using Espeon logs
+from utils.loggers.espeon_log import EspeonContext  # Using Espeon logs
+from utils.loggers.espeon_log import espeon_log, set_espeon_bot
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
 
 # ——————————————————————————————————————————————————————————————
@@ -187,7 +187,11 @@ def pick_status_tuple():
 @tasks.loop(minutes=5)
 async def status_rotator():
     activity_type, message = pick_status_tuple()
-    espeon_log(tag= "", label="🌤️  STATUS ROTATOR",message=f"Switching status → {activity_type.name}: {message}")
+    espeon_log(
+        tag="",
+        label="🌤️  STATUS ROTATOR",
+        message=f"Switching status → {activity_type.name}: {message}",
+    )
     await bot.change_presence(
         activity=discord.Activity(type=activity_type, name=message)
     )
@@ -199,7 +203,7 @@ async def status_rotator():
 @tasks.loop(hours=1)
 async def refresh_all_caches():
     await load_all_caches(bot)
-    #espeon_log("ready", "🔄 All caches refreshed (Market Alerts + Mr. Weakness)")
+    # espeon_log("ready", "🔄 All caches refreshed (Market Alerts + Mr. Weakness)")
 
 
 # ====================
@@ -271,6 +275,12 @@ async def startup_checklist(bot: commands.Bot):
     from utils.cache.ev_tracker_cache import ev_tracker_cache
 
     checklist.append(f"✅ {len(ev_tracker_cache)} 🐼 EV Tracker Users")
+
+    # ⌚ Pokemon Timer cache
+    from utils.cache.timers_cache import timer_cache
+
+    checklist.append(f"✅ {len(timer_cache)} ⌚ Pokemon Timer Users")
+
     # 💛 Status rotator
     checklist.append(f"✅ {status_rotator.is_running()} ✨ Status Rotator Running")
 
@@ -302,7 +312,7 @@ async def on_ready():
 
     # Sync slash commands
     await bot.tree.sync()
-    #espeon_log("ready", "Slash commands synced with Discord successfully!")
+    # espeon_log("ready", "Slash commands synced with Discord successfully!")
 
     # Status rotator
     if not status_rotator.is_running():
@@ -340,12 +350,12 @@ async def setup_hook():
         except Exception as e:
             espeon_log("error", f"Failed to load {cog_name}: {e}", include_trace=True)
 
-    #espeon_log("ready", f"All cogs loaded successfully: {loaded_count}")
+    # espeon_log("ready", f"All cogs loaded successfully: {loaded_count}")
 
     # 💜 Syncing guild slash commands
     try:
         await bot.tree.sync(guild=discord.Object(id=ACTIVE_GUILD_ID))
-        #espeon_log("ready", "Slash commands synced to Active Guild!")
+        # espeon_log("ready", "Slash commands synced to Active Guild!")
     except Exception as e:
         espeon_log("error", f"Guild sync failed: {e}", include_trace=True)
 

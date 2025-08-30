@@ -3,11 +3,12 @@ from typing import List, Optional
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils.visuals.embeds.visual_helpers import set_embed_user_context
 
+from config.current_setup import STAFF_SERVER_GUILD_ID
 from config.straymons_constants import *
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from config.current_setup import STAFF_SERVER_GUILD_ID
+from utils.visuals.embeds.visual_helpers import design_embed
+
 STAFF_GUILD_ID = STAFF_SERVER_GUILD_ID  # replace with your actual staff guild ID
 
 MAX_ALERTS = 10

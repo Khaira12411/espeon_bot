@@ -12,7 +12,7 @@ from utils.group_func.market_alert.parsers import (
     resolve_pokemon_input,
 )
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from utils.visuals.embeds.visual_helpers import set_embed_user_context
+from utils.visuals.embeds.visual_helpers import design_embed
 
 STAFF_LOG_CHANNEL_ID = (
     STRAYMONS__TEXT_CHANNELS.server_logs
@@ -161,7 +161,7 @@ async def ev_tracker_add_func(
             color=0xFF99FF,
             timestamp=datetime.utcnow(),
         )
-        embed = set_embed_user_context(embed, user)
+        embed = design_embed(embed, user)
 
         # 💜 Load EV Tracker cache
         await load_ev_tracker_cache(bot)

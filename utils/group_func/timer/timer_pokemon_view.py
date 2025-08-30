@@ -7,7 +7,7 @@ from discord.ext import commands
 
 from utils.group_func.timer.timer_db_func import fetch_timer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from utils.visuals.embeds.visual_helpers import set_embed_user_context
+from utils.visuals.embeds.visual_helpers import design_embed
 
 
 async def timer_pokemon_view_func(bot: commands.Bot, interaction: discord.Interaction):
@@ -30,7 +30,7 @@ async def timer_pokemon_view_func(bot: commands.Bot, interaction: discord.Intera
         description=f"Pokémon: **{pokemon_setting.title()}**",
         color=0x9B59B6,  # purple Wooper color
     )
-    embed = set_embed_user_context(embed=embed, user=user)
+    embed = design_embed(embed=embed, user=user)
 
     # Send ephemeral interaction response
     try:

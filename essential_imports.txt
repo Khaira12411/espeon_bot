@@ -1,4 +1,4 @@
-from utils.visuals.embeds.visual_helpers import set_embed_user_context
+from utils.visuals.embeds.visual_helpers import design_embed
 from config.aesthetic import *
 
 from utils.visuals.embeds.get_log_channel import get_log_channel

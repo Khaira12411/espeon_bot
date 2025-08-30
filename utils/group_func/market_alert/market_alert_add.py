@@ -5,7 +5,6 @@
 from datetime import datetime
 
 import discord
-from utils.visuals.embeds.get_log_channel import get_log_channel
 
 from config.aesthetic import *
 from config.emojis import PokeCoin
@@ -16,7 +15,8 @@ from utils.group_func.market_alert.parsers import (
     resolve_pokemon_input,
 )
 from utils.loggers.espeon_log import espeon_log
-from utils.visuals.embeds.visual_helpers import set_embed_user_context
+from utils.visuals.embeds.get_log_channel import get_log_channel
+from utils.visuals.embeds.visual_helpers import design_embed
 
 
 async def add_market_alert_func(
@@ -179,8 +179,7 @@ async def add_market_alert_func(
             timestamp=datetime.now(),
         )
 
-        log_embed = set_embed_user_context(embed=log_embed, user=user)
-
+        log_embed = design_embed(embed=log_embed, user=user)
 
     # 💜 Step 9: Send embeds
     try:

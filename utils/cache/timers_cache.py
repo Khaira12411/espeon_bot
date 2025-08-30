@@ -32,8 +32,8 @@ async def load_timer_cache(bot):
     #     print(f"  -> {uid}: {data}")
 
     espeon_log(
-        tag="db",
-        label="⏱ TIMER CACHE",
+        tag="",
+        label="⌚ TIMER CACHE",
         message=f"Loaded {len(timer_cache)} users' timer settings into cache",
         context=EspeonContext.STRAYMONS,
     )

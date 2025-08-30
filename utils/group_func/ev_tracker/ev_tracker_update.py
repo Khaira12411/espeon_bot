@@ -4,10 +4,11 @@
 from datetime import datetime
 
 import discord
-from utils.group_func.ev_tracker.ev_tracker_db_func import add_or_update_ev
-from utils.visuals.embeds.visual_helpers import set_embed_user_context
-from utils.loggers.espeon_log import EspeonContext, espeon_log
+
 from config.straymons_constants import STRAYMONS__TEXT_CHANNELS
+from utils.group_func.ev_tracker.ev_tracker_db_func import add_or_update_ev
+from utils.loggers.espeon_log import EspeonContext, espeon_log
+from utils.visuals.embeds.visual_helpers import design_embed
 
 MAX_EVS_PER_STAT = 252
 MAX_TOTAL_EVS = 510
@@ -134,7 +135,7 @@ async def ev_tracker_update_func(
             color=0xFF99FF,
             timestamp=datetime.utcnow(),
         )
-        embed = set_embed_user_context(embed, user)
+        embed = design_embed(embed, user)
         await load_ev_tracker_cache(bot)
         await interaction.response.send_message(embed=embed, ephemeral=True)
 

@@ -78,6 +78,20 @@ def log_command_group_full_paths(group: app_commands.Group, top_prefix: str = No
 
 
 import json
+import unicodedata
+
+
+def sanitize_for_cache(s: str) -> str:
+    """
+    Normalize string to remove fancy accents and special Unicode characters
+    that might break downstream JSON or processing.
+    Keeps normal letters, numbers, and basic punctuation.
+    """
+    if not s:
+        return s
+    # NFKD normalization, then encode to ASCII ignoring errors, then decode back
+    return unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
+
 
 # ----------------------------📌 Safe Force Command Embed ----------------------------
 from pathlib import Path
@@ -85,6 +99,7 @@ from pathlib import Path
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 
+# ----------------------------📌 Force Commands ----------------------------
 def get_force_commands_to_send(
     all_commands: dict, force_cache_file: str = FORCE_COMMAND_CACHE_FILE
 ) -> list[dict]:
@@ -92,6 +107,7 @@ def get_force_commands_to_send(
     Returns a list of force-true command dicts that haven't been sent yet.
     Recursively handles subgroups and constructs full paths for proper logging.
     """
+
     # Load existing force cache
     if Path(force_cache_file).exists():
         with open(force_cache_file, "r", encoding="utf-8") as f:
@@ -144,13 +160,15 @@ def get_force_commands_to_send(
             )
             return
 
-        # Attach full path for embed
+        # Attach full path for embed and sanitize description
         cmd_dict = cmd_data.copy()
         cmd_dict["_full_path"] = full_path
+        if "description" in cmd_dict:
+            cmd_dict["description"] = sanitize_for_cache(cmd_dict["description"])
         commands_to_send.append(cmd_dict)
 
         espeon_log(
-            message=f"Adding {full_path} to commands_to_send",
+            message=f"Adding {full_path} to commands_to_send (description sanitized)",
             context=EspeonContext.STRAYMONS,
             tag="sent",
         )
@@ -178,6 +196,7 @@ def get_force_commands_to_send(
     return commands_to_send
 
 
+# ----------------------------📌 Cache Logging ----------------------------
 async def log_command_group_full_paths_to_cache(
     bot, group: app_commands.Group, known_cache: dict = None
 ):
@@ -189,6 +208,7 @@ async def log_command_group_full_paths_to_cache(
     # Quick one-line summary of the group
     log_command_group_counter(group)
 
+    # Load known cache
     if known_cache is None:
         known_cache = {}
         if Path(KNOWN_COMMAND_CACHE_FILE).exists():
@@ -210,6 +230,7 @@ async def log_command_group_full_paths_to_cache(
 
     added_any = False
 
+    # Recursive function to gather commands
     async def gather_commands(cmd_group: app_commands.Group, parent_path=""):
         nonlocal added_any
         for cmd in cmd_group.commands:
@@ -249,11 +270,14 @@ async def log_command_group_full_paths_to_cache(
                         force_cache[full_cmd_path] = known_cache[full_cmd_path].copy()
                         force_cache[full_cmd_path]["sent"] = False
                         force_cache[full_cmd_path]["_full_path"] = full_cmd_path
-                        force_cache[full_cmd_path]["description"] = getattr(
-                            cmd, "description", ""
+                        # sanitize description to prevent JSON corruption
+                        raw_desc = getattr(cmd, "description", "")
+                        force_cache[full_cmd_path]["description"] = sanitize_for_cache(
+                            raw_desc
                         )
+
                         espeon_log(
-                            message=f"Added {full_cmd_path} to force cache",
+                            message=f"Added {full_cmd_path} to force cache (sanitized description)",
                             context=EspeonContext.STRAYMONS,
                             tag="sent",
                         )

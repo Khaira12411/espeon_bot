@@ -8,7 +8,7 @@ from discord.ext import commands
 
 from utils.group_func.timer.timer_db_func import set_timer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from utils.visuals.embeds.visual_helpers import set_embed_user_context
+from utils.visuals.embeds.visual_helpers import design_embed
 
 
 async def timer_pokemon_set_func(
@@ -38,7 +38,7 @@ async def timer_pokemon_set_func(
         color=discord.Color.purple(),
         timestamp=datetime.now(),
     )
-    embed = set_embed_user_context(embed=embed, user=user)
+    embed = design_embed(embed=embed, user=user)
     # ✨ Send as ephemeral interaction response
     try:
         if interaction.response.is_done():
