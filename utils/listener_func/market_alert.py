@@ -7,6 +7,7 @@ import re
 import discord
 from discord import Embed
 
+from config.current_setup import STRAYMONS_GUILD_ID
 from config.emojis import PokeCoin
 from utils.cache.market_alert_cache import market_alert_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
@@ -124,6 +125,12 @@ async def process_market_alert_message(
                     role = message.guild.get_role(alert["role_id"])
                     if role:
                         content += role.mention + " "
+                    else:
+                        guild = bot.get_guild(STRAYMONS_GUILD_ID)
+                        if guild:
+                            role = guild.get_role(alert["role_id"])
+                            content += role.mention + " "
+
                 content += f"{poke_name} on market for {PokeCoin} {listed_price:,}"
 
                 # Send alert

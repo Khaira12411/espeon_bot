@@ -34,6 +34,15 @@ async def add_market_alert_func(
     """
     from utils.cache.market_alert_cache import load_market_alert_cache
 
+    # 💜 Step 0.5: Defer the interaction so we have more time
+    try:
+        await interaction.response.defer(ephemeral=True)
+    except Exception as e:
+        espeon_log(
+            "warn",
+            f"Failed to defer interaction (might have been already responded): {e}",
+            source="MarketAlert",
+        )
     user = interaction.user
     role_id = role.id if role else None
     user_id = interaction.user.id
@@ -141,9 +150,9 @@ async def add_market_alert_func(
     user_embed.add_field(
         name="Max Price", value=f"{PokeCoin} {max_price:,}", inline=False
     )
-    user_embed.add_field(
-        name="Channel", value=f"<#{channel.id}>{role_mention}", inline=False
-    )
+    user_embed.add_field(name="Channel", value=f"<#{channel.id}>", inline=False)
+    if role_id:
+        user_embed.add_field(name="Role", value=f"{role_mention}", inline=False)
     user_embed.set_footer(
         text="You'll be notified when a Pokémon matches your alert 💜"
     )
@@ -162,7 +171,8 @@ async def add_market_alert_func(
             f"- Max Price: {PokeCoin} {max_price:,}",
             f"- Channel: {channel.mention}",
         ]
-
+        if role_id:
+            desc_lines.append(f"- Role: {role_mention}")
         # Append Alerts Usage if user is not staff
         if not is_staff:
             desc_lines.append(
@@ -182,8 +192,9 @@ async def add_market_alert_func(
         log_embed = design_embed(embed=log_embed, user=user)
 
     # 💜 Step 9: Send embeds
+    # 💜 Step 9: Send embeds using followup
     try:
-        await interaction.response.send_message(embed=user_embed, ephemeral=True)
+        await interaction.followup.send(embed=user_embed, ephemeral=True)
         espeon_log(
             "sent",
             f"Market alert created for {target_name} @ {max_price}",
