@@ -64,7 +64,7 @@ async def insert_name_alert(
             ON CONFLICT (user_id, pokemon, channel_id) DO NOTHING;
             """,
             user_id,
-            pokemon_name,
+            pokemon_name.lower(),
             dex_number,
             max_price,
             channel_id,
@@ -118,11 +118,11 @@ async def remove_market_alert(bot, user_id: int, pokemon: str):
                 dex_number,
             )
         else:
-            # pokemon_name = pokemon.lower()
+            pokemon_name = pokemon.lower()
             result = await conn.execute(
                 "DELETE FROM market_alerts WHERE user_id=$1 AND pokemon=$2",
                 user_id,
-                pokemon,
+                pokemon_name,
             )
     return int(result.split()[-1])
 
@@ -172,6 +172,7 @@ async def toggle_market_alert_notify(
                 user_id,
             )
     return int(result.split()[-1])
+
 
 # 🔮────────────────────────────────────────────
 #           📝 Update Functions

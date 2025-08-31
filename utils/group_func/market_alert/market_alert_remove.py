@@ -30,7 +30,8 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
 
     user = interaction.user
     user_id = user.id
-
+#todo add a remove all report log
+    await interaction.response.defer()
     # 💜 Handle "all"
     if pokemon.lower() == "all":
         try:
@@ -42,7 +43,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
                 color=0xFF99FF,
             )
             embed.set_footer(text="You will no longer receive alerts 💜")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.edit_original_response(embed=embed)  # non-ephemeral
             espeon_log(
                 "sent",
                 f"Removed all market alerts for user {user_id}",
@@ -57,28 +58,55 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
                 exc=e,
                 include_trace=True,
             )
-            await interaction.response.send_message(
-                f"❌ Failed to remove all alerts: {e}", ephemeral=True
-            )
+            await interaction.edit_original_response(
+                f"❌ Failed to remove all alerts: {e}"
+            )  # non-ephemeral
             return
-
     # 💜 Resolve Pokémon
+    initial_dex = ""
+    initial_pokemon = ""
     pokemon_title = pokemon.title()
+    # Initial Values
+    if pokemon.isdigit():
+        initial_dex = pokemon
+    else:
+        initial_pokemon = pokemon.title()
+
+    print(f"[DEBUG] Initial input: {pokemon}, title-cased: {pokemon_title}")
+
     try:
         if any(
             pokemon_title.startswith(f"{prefix}Mega ")
             for prefix in ["", "Shiny ", "Golden "]
         ):
             target_name = pokemon_title
+            print(
+                f"[DEBUG] Detected Mega form or special prefix, target_name: {target_name}"
+            )
         else:
-            target_name, dex_number = resolve_pokemon_input(pokemon)
+            for prefix in ["Shiny ", "Golden "]:
+                if pokemon_title.startswith(prefix):
+                    target_name = pokemon_title
+                    place_holder_name, dex_number = resolve_pokemon_input(pokemon_title)
+                else:
+                    target_name, dex_number = resolve_pokemon_input(pokemon_title)
+            print(
+                f"[DEBUG] Resolved normally: target_name={target_name}, dex_number={dex_number}"
+            )
     except ValueError as e:
+        print(f"[ERROR] ValueError encountered: {e}")
+        import traceback
+
+        traceback.print_exc()
         await interaction.response.send_message(f"❌ {e}", ephemeral=True)
         return
 
     # 💜 Remove the alert
     try:
-        removed_count = await remove_market_alert(bot, user_id, target_name.lower())
+        if initial_dex:
+            removed_count = await remove_market_alert(bot, user_id, initial_dex)
+        else:
+            removed_count = await remove_market_alert(bot, user_id, target_name.lower())
         await load_market_alert_cache(bot)
 
         # 💜 Refund one alert
@@ -91,9 +119,16 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
                 description=f"{status['message']}",
                 color=0xFF99FF,
             )
+            display_name = target_name
+            display_dex = dex_number
+            if initial_pokemon.startswith(prefix):
+                display_name = initial_pokemon
+            elif initial_dex:
+                display_dex = initial_dex
+
             user_embed.add_field(
                 name="Pokémon",
-                value=f"{target_name.title()} #{dex_number}",
+                value=f"{display_name.title()} #{display_dex}",
                 inline=False,
             )
             user_embed.set_footer(
@@ -132,7 +167,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
             )
 
         # 💜 Send embeds
-        await interaction.response.send_message(embed=user_embed, ephemeral=True)
+        await interaction.edit_original_response(embed=user_embed)
         espeon_log(
             "sent",
             f"Removed {removed_count} market alert(s) for user {user_id} -> {target_name}",
