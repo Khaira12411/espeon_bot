@@ -64,7 +64,7 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
         # Build embeds
         embeds = []
         embed = discord.Embed(
-            title=f"{Espeon_Emoji.purple_flowers} Your Market Alerts",
+            title=f"{Espeon_Emoji.purple_flower} Your Market Alerts",
             description=f"{status_message}\n{Espeon_Emoji.purple_message} Here’s a list of your current market alerts:\n\n",
             color=0xAA88FF,
         )

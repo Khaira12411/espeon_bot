@@ -146,7 +146,8 @@ class MarketAlerts(commands.Cog):
         pokemon="Pokemon name or Dex number",
         max_price="Maximum price in PokeCoin",
         channel="Channel to send alerts",
-        role="Role to ping",
+        role="(Desktop) Optional role to ping",
+        mobile_role_input="(Mobile) Optional role to ping (<@role> | <@&role> | roleid)",
         notify="Enable or disable notifications",
     )
     @app_commands.choices(
@@ -162,6 +163,7 @@ class MarketAlerts(commands.Cog):
         max_price: int | None = None,
         channel: discord.TextChannel | None = None,
         role: discord.Role | None = None,
+        mobile_role_input: str = None,
         notify: str | None = None,  # Choice strings
     ):
         slash_cmd_name = "market-alert update"
@@ -176,6 +178,7 @@ class MarketAlerts(commands.Cog):
             channel=channel,
             role=role,
             notify=notify,
+            mobile_role_input=mobile_role_input,
         )
 
     update_market_alert.extras = {"category": "Public"}
@@ -190,13 +193,13 @@ class MarketAlerts(commands.Cog):
     )
     @app_commands.describe(
         channel="Channel to send alerts",
-        role="Role to ping (type 'none' to remove the role)",
+        role="Role to ping (<@role> | <@&role> | roleid| type 'none' to remove the role)",
     )
     async def update_market_alert_bulk(
         self,
         interaction: discord.Interaction,
         channel: discord.TextChannel | None = None,
-        role: discord.Role | None = None,  # ✅ correct
+        role: str = None,  # ✅ correct
     ):
         slash_cmd_name = "market-alert update"
 
