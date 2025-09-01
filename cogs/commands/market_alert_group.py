@@ -1,6 +1,8 @@
 # 🟣────────────────────────────────────────────
 #           💜 Market Alerts Command Group 💜
 # ─────────────────────────────────────────────
+from typing import Optional, Union
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -32,7 +34,8 @@ class MarketAlerts(commands.Cog):
         pokemon="Pokemon name or Dex number",
         max_price="Maximum price in PokeCoin",
         channel="Channel to send alerts",
-        role="Optional role to ping",
+        role="(Desktop) Optional role to ping",
+        mobile_role_input="(Mobile) Optional role to ping (<@role> | <@&role> | roleid)",
     )
     async def add_alert(
         self,
@@ -40,7 +43,8 @@ class MarketAlerts(commands.Cog):
         pokemon: str,
         max_price: int,
         channel: discord.TextChannel,
-        role: discord.Role | None = None,
+        role: Optional[discord.Role] = None,  # 👈 must stay a Role for slash commands
+        mobile_role_input: str = None,
     ):
 
         slash_cmd_name = "market-alert add"
@@ -54,6 +58,7 @@ class MarketAlerts(commands.Cog):
             max_price=max_price,
             channel=channel,
             role=role,
+            mobile_role_input=mobile_role_input,
         )
 
     add_alert.extras = {"category": "Public"}
@@ -225,7 +230,9 @@ class MarketAlerts(commands.Cog):
 
     market_alert_register.extras = {"category": "Public"}
 
+
 #    add_market_alert.extras = {"category": "Staff"}
+
 
 # 🟣────────────────────────────────────────────
 #           💜 Cog Setup Function 💜

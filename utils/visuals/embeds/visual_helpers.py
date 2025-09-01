@@ -1,7 +1,58 @@
 import random
 from datetime import datetime
 
+
 import discord
+
+def format_bulletin_desc(*args, key_style_override: str = None) -> str:
+    """
+    Flexible bulletin formatter.
+    - By default, keys are bold.
+    - If key_style_override is provided, all keys use that style.
+    - Skips any key/value pair where the value is None or empty string.
+    """
+
+    def apply_style(text: str, style: str) -> str:
+        style = style.lower()
+        if style == "bold":
+            return f"**{text}**"
+        elif style == "italic":
+            return f"*{text}*"
+        elif style == "underline":
+            return f"__{text}__"
+        elif style == "strikethrough":
+            return f"~~{text}~~"
+        elif style == "spoiler":
+            return f"||{text}||"
+        elif style == "inline_code":
+            return f"`{text}`"
+        elif style == "code":
+            return f"```\n{text}\n```"
+        elif style == "bold_upper":
+            return f"**{text.upper()}**"
+        else:
+            return f"**{text}**"  # default bold
+
+    key_style = key_style_override if key_style_override else "bold"
+
+    lines = []
+    i = 0
+    while i < len(args):
+        key = args[i]
+        value = args[i + 1] if i + 1 < len(args) else None
+
+        # 🔹 Skip if value is None or empty string
+        if value is None or (isinstance(value, str) and value.strip() == ""):
+            i += 2
+            continue
+
+        formatted_key = apply_style(f"{key}:", key_style)
+        lines.append(f"- {formatted_key} {value}")
+
+        i += 2
+
+    return "\n".join(lines)
+
 
 # 💜 Expanded Espeon palette
 ESPEON_PALETTE = {

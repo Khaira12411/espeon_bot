@@ -4,9 +4,14 @@
 
 import discord
 
+from config.aesthetic import *
 from config.emojis import PokeCoin
+from utils.group_func.market_alert.db_func.market_alert_counter import (
+    get_market_alert_status,
+)
 from utils.group_func.market_alert.db_func.market_alert_db_func import fetch_user_alerts
 from utils.loggers.espeon_log import espeon_log
+from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 
 
 class MarketAlertPaginator(discord.ui.View):
@@ -42,12 +47,13 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
     user = interaction.user
     user_id = interaction.user.id
     await interaction.response.defer(ephemeral=True)
-
+    status = await get_market_alert_status(bot=bot, user=user)
+    status_message = status["message"]
     try:
         alerts = await fetch_user_alerts(bot, user_id)
         if not alerts:
             embed = discord.Embed(
-                title="💜 No Market Alerts",
+                title=f"{Espeon_Emoji.purple_flower} No Market Alerts",
                 description="You don’t have any active market alerts right now.\n"
                 "Use `/market-alert add` to create one ✨",
                 color=0xAA88FF,
@@ -58,14 +64,16 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
         # Build embeds
         embeds = []
         embed = discord.Embed(
-            title="💜 Your Market Alerts",
-            description="Here’s a list of your current market alerts:\n",
+            title=f"{Espeon_Emoji.purple_flowers} Your Market Alerts",
+            description=f"{status_message}\n{Espeon_Emoji.purple_message} Here’s a list of your current market alerts:\n\n",
             color=0xAA88FF,
         )
+        embed.set_thumbnail(url=Espeon_Thumbnail.purple_list)
+        embed.set_author(name=user.display_name, icon_url=user.display_avatar)
         char_count = len(embed.description)
 
         for alert in alerts:
-            field_name = f"✨ {alert['pokemon'].title()} (Dex #{alert['dex_number']})"
+            field_name = f"{Espeon_Emoji.purple_plushie} {alert['pokemon'].title()} (Dex #{alert['dex_number']})"
             role_mention = f"<@&{alert['role_id']}>" if alert.get("role_id") else "None"
             notify_status = "✅ Enabled" if alert.get("notify", True) else "❌ Disabled"
             field_value = (

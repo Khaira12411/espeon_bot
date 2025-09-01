@@ -1,4 +1,4 @@
-from utils.visuals.embeds.visual_helpers import design_embed
+from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 from config.aesthetic import *
 
 from utils.visuals.embeds.get_log_channel import get_log_channel

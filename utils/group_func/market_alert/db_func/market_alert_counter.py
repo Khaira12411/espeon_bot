@@ -4,6 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from config.aesthetic import Espeon_Emoji
 from config.current_setup import STAFF_SERVER_GUILD_ID
 from config.straymons_constants import *
 from utils.loggers.espeon_log import EspeonContext, espeon_log
@@ -332,7 +333,7 @@ async def get_market_alert_status(bot, user: discord.Member):
     Fetch total and used market alerts for a user.
     - Registers user in market_alert_counter if missing (roles are always saved as int[]).
     - Clan staff or anyone in staff guild: bypass limits.
-    - Returns dict with totals, left, block flag, and message.
+    - Returns dict with totals, left, block flag, and compact message.
     """
     user_id = user.id
     user_roles_ids = [r.id for r in user.roles]
@@ -351,7 +352,7 @@ async def get_market_alert_status(bot, user: discord.Member):
             user_id,
         )
 
-        # If no row exists, insert one
+        # Insert row if missing
         if not row:
             total_alerts = market_alert_rows if is_clan_staff else 0
             alerts_used = market_alert_rows if is_clan_staff else 0
@@ -364,7 +365,7 @@ async def get_market_alert_status(bot, user: discord.Member):
                 """,
                 user_id,
                 str(user),
-                user_roles_ids,  # stored as int[]
+                user_roles_ids,
                 getattr(user, "premium_subscription_count", 0),
                 total_alerts,
                 alerts_used,
@@ -386,14 +387,14 @@ async def get_market_alert_status(bot, user: discord.Member):
                     user_id,
                 )
 
-            # Always update roles in DB to reflect current user roles
+            # Always update roles in DB
             await conn.execute(
                 "UPDATE market_alert_counter SET roles = $1 WHERE user_id = $2",
                 user_roles_ids,
                 user_id,
             )
 
-            # For staff: ensure alerts_used reflects current rows in market_alerts
+            # For staff: reflect current rows in market_alerts
             if is_clan_staff or is_staff_guild_member:
                 alerts_used = market_alert_rows
                 await conn.execute(
@@ -402,31 +403,23 @@ async def get_market_alert_status(bot, user: discord.Member):
                     user_id,
                 )
 
-    # Compute remaining alerts
     alerts_left = max(total_alerts - alerts_used, 0)
 
-    # Build message
-    if total_alerts == 0:
-        message = "❌ You don’t have any free market alerts yet. 🍰"
+    # 💡 Compact one-liner messages
+    if is_clan_staff or is_staff_guild_member:
+        message = f"{Espeon_Emoji.purple_crown} Staff Alerts: {alerts_used}"
+        block = False
+    elif total_alerts == 0:
+        message = f"{Espeon_Emoji.purplecandle} No free alerts yet."
         block = True
     elif alerts_used >= total_alerts:
-        message = f"⚠️ You’ve used all {total_alerts} of your free market alerts. 🪻"
+        message = f"{Espeon_Emoji.purple_warn} All free alerts used."
         block = True
     else:
-        plural = "alert" if total_alerts == 1 else "alerts"
         message = (
-            f"✨ You’ve used {alerts_used} of your {total_alerts} free market {plural}. "
-            f"({alerts_left} left!) 🌸"
+            f"{Espeon_Emoji.purple_butterfly} Alerts: {alerts_used}/{total_alerts}"
         )
         block = False
-
-    # Staff always bypass (role or guild)
-    if is_clan_staff or is_staff_guild_member:
-        block = False
-        message = (
-            f"✨ Staff guild magic! You currently have {alerts_used} alert(s). "
-            "You can always add more! 🌷"
-        )
 
     return {
         "total_alerts": total_alerts,
