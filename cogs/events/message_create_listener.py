@@ -68,7 +68,7 @@ class MessageCreateListener(commands.Cog):
                 STAFF_SERVER_GUILD_ID,
                 STRAYMONS_GUILD_ID,
             ):
-                await detect_pokemeow_reply(message)
+               # await detect_pokemeow_reply(message)
                 await mr_weakness_chart(bot=self.bot, message=message)
                 await handle_pokemeow_battle_message(bot=self.bot, message=message)
                 await handle_pokemeow_embed_sync(bot=self.bot, message=message)
