@@ -15,6 +15,7 @@ from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 
 STAFF_LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
+from config.aesthetic import *
 from utils.visuals.gif import fetch_pokemon_gif
 
 
@@ -52,7 +53,7 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
             else "✅ Your EV tracker has been reset! Use `/ev-tracker add` to track a new Pokémon!"
         )
         embed = discord.Embed(
-            title="EV Tracker Reset",
+            title=f"{Espeon_Emoji.purple_broom} EV Tracker Reset",
             description=description,
             color=0xFF99FF,
         )
@@ -63,7 +64,7 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
             if pokemon_gif_url:
                 thumbnail_url = pokemon_gif_url  # replace avatar with Pokémon GIF
 
-        embed = design_embed(
+        embed = await design_embed(
             embed=embed,
             user=interaction.user,
             thumbnail_url=thumbnail_url,
@@ -79,10 +80,10 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
         )  # mini info
         if staff_channel:
             staff_embed = discord.Embed(
-                title="EV Tracker Reset",
+                title=f"{Espeon_Emoji.purple_broom} EV Tracker Reset",
                 description=desc,
             )
-            staff_embed = design_embed(
+            staff_embed = await design_embed(
                 embed=staff_embed, user=user, thumbnail_url=thumbnail_url
             )  # staff embed with same cute thumbnail
             await staff_channel.send(embed=staff_embed)  # log to staff

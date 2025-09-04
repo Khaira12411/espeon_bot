@@ -38,7 +38,7 @@ async def timer_pokemon_set_func(
         color=discord.Color.purple(),
         timestamp=datetime.now(),
     )
-    embed = design_embed(embed=embed, user=user)
+    embed = await design_embed(embed=embed, user=user)
     # ✨ Send as ephemeral interaction response
     try:
         if interaction.response.is_done():

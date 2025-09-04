@@ -16,18 +16,6 @@ async def pretty_defer(
     """
     Defer an interaction with a styled loading message.
     Returns a handle for safely editing or stopping the message later.
-
-    Usage:
-    -------
-    ```python
-    handle = await pretty_defer(interaction, content="Saving your settings...")
-
-    # Update midway
-    await handle.edit(content="Still working...")
-
-    # Stop with final success
-    await handle.stop(content="✅ Done!")
-    ```
     """
 
     # 🟣────────────────────────────────────────────
@@ -39,9 +27,12 @@ async def pretty_defer(
             self.message = message
 
         async def edit(
-            self, content: str | None = None, embed: discord.Embed | None = None
+            self,
+            content: str | None = None,
+            embed: discord.Embed | None = None,
+            view: discord.ui.View | None = None,
         ):
-            """Edit the loader safely with new content/embed."""
+            """Edit the loader safely with new content/embed/view."""
             if not self.message:
                 return
             try:
@@ -50,17 +41,19 @@ async def pretty_defer(
                     kwargs["content"] = f"{Espeon_Emoji.heart_loading} {content}"
                 if embed is not None:
                     kwargs["embed"] = embed
+                if view is not None:
+                    kwargs["view"] = view
                 if kwargs:
                     await self.message.edit(**kwargs)
                     espeon_log(
                         "cmd",
-                        f"Loader edited → {content or 'embed'}",
+                        f"Loader edited → {content or 'embed/view'}",
                         context=EspeonContext.ESPEON,
                     )
             except discord.NotFound:
                 try:
                     await self.interaction.followup.send(
-                        content=content, embed=embed, ephemeral=ephemeral
+                        content=content, embed=embed, view=view, ephemeral=ephemeral
                     )
                 except Exception as e:
                     espeon_log(
@@ -74,17 +67,18 @@ async def pretty_defer(
             self,
             content: str | None = None,
             embed: discord.Embed | None = None,
+            view: discord.ui.View | None = None,
             delete: bool = False,
         ):
             """Stop the loader: optionally edit final message or delete."""
             if not self.message:
                 return
             try:
-                if content or embed:
-                    await self.message.edit(content=content, embed=embed)
+                if content or embed or view:
+                    await self.message.edit(content=content, embed=embed, view=view)
                     espeon_log(
                         "cmd",
-                        f"Loader stopped → {content or 'embed'}",
+                        f"Loader stopped → {content or 'embed/view'}",
                         context=EspeonContext.ESPEON,
                     )
                 if delete:

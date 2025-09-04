@@ -12,22 +12,9 @@ from utils.visuals.pokemon_gif import insert_pokemon_gif_embed
 
 "force_true": True,
 from shared_utils.pokemon_utils.pokemon_gif import get_pokemon_gif
-usage
-    gif_data = await get_pokemon_gif(pokemon_name)
-    gif_url = gif_data["gif_url"]
-    # Use shared_utils to get the gif
-    gif_data = await get_pokemon_gif(pokemon_name)
-    gif_url = gif_data["gif_url"]
-
-    if gif_url:
-        embed.set_thumbnail(url=gif_url)
-    else:
-        espeon_log(
-            tag="error",
-            message=f"Cannot find Pokémon GIF for '{pokemon_name}'",
-            context=EspeonContext.STRAYMONS,
-            source="GIF Embed",
-        )
+fetch_pokemon_gif usage
+        if tracked_list:
+            pokemon_gif_url = await fetch_pokemon_gif(pokemon=tracked_list)
 
 
 # 🟣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

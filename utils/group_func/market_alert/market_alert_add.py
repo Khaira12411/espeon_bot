@@ -123,42 +123,40 @@ async def add_market_alert_func(
     target_name = target_name.title()
 
     desc_lines = [
-        f"- Member: {user.mention}",
-        f"- Pokémon Added: {target_name} #{dex_number}",
-        f"- Max Price: {PokeCoin} {max_price_int:,}",
-        f"- Channel: {channel.mention}",
+        f"- **Member:** {user.mention}",
+        f"- **Pokemon:** {target_name} #{dex_number}",
+        f"- **Max Price:** {PokeCoin} {max_price_int:,}",
+        f"- **Channel:** {channel.mention}",
     ]
     if role_id:
         desc_lines.append(f"- Role: {role_mention}")
 
-
     full_desc = "\n".join(desc_lines)
 
     # 💜 Build final confirmation embed
-    
+
     user_embed = discord.Embed(
         title=f"{Espeon_Emoji.purple_candy} Market Alert Added!",
         description=f"{status['message']}\n{full_desc}",
     )
 
     footer_text = "You'll be notified when a Pokémon matches your alert 💜"
-    user_embed = design_embed(
+    user_embed = await design_embed(
         embed=user_embed,
         user=user,
-        thumbnail_url=Espeon_Thumbnail.pink_purple_message,
+        pokemon_name=target_name,
         footer_text=footer_text,
     )
 
     if log_channel:
         desc_lines = [
-            f"- Member: {user.mention}",
-            f"- Pokémon Added: {target_name} #{dex_number}",
-            f"- Max Price: {PokeCoin} {max_price_int:,}",
-            f"- Channel: {channel.mention}",
+            f"- **Member:** {user.mention}",
+            f"- **Pokemon:** {target_name} #{dex_number}",
+            f"- **Max Price:** {PokeCoin} {max_price_int:,}",
+            f"- **Channel:** {channel.mention}",
         ]
         if role_id:
             desc_lines.append(f"- Role: {role_mention}")
-
 
         full_desc = "\n".join(desc_lines)
         log_embed = discord.Embed(
@@ -167,7 +165,7 @@ async def add_market_alert_func(
             color=0xFF99FF,
             timestamp=datetime.now(),
         )
-        log_embed = design_embed(embed=log_embed, user=user)
+        log_embed = await design_embed(embed=log_embed, user=user, pokemon_name=target_name)
 
     # 💜 Stop loader and show final embed
     await loader.stop(embed=user_embed, delete=False)

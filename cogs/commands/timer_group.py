@@ -50,7 +50,7 @@ class TimerGroup(commands.Cog):
             mode=mode,
         )
 
-    timer_pokemon_set.extras = {"category": "Public"}
+    timer_pokemon_set.extras = {"category": "Owner"}
 
     # 🟣────────────────────────────────────────────
     #           💜 /timer pokemon-view 💜
@@ -73,7 +73,7 @@ class TimerGroup(commands.Cog):
             command_func=timer_pokemon_view_func,
         )
 
-    timer_pokemon_view.extras = {"category": "Public"}
+    timer_pokemon_view.extras = {"category": "Owner"}
 
 
 # 🟣────────────────────────────────────────────

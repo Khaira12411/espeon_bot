@@ -5,7 +5,9 @@ from datetime import datetime
 
 import discord
 
+from config.aesthetic import *
 from config.straymons_constants import STRAYMONS__TEXT_CHANNELS
+from utils.essentials.loader import pretty_defer
 from utils.group_func.ev_tracker.ev_tracker_db_func import add_or_update_ev
 from utils.group_func.market_alert.parsers import (
     parse_special_mega_input,
@@ -14,8 +16,7 @@ from utils.group_func.market_alert.parsers import (
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed
 from utils.visuals.gif import insert_pokemon_gif_embed
-from utils.essentials.loader import pretty_defer
-from config.aesthetic import *
+
 STAFF_LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
 
 MAX_EVS_PER_STAT = 252
@@ -24,6 +25,7 @@ MAX_TOTAL_EVS = 510
 # 🟣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   💜 Espeon Helper Function › Build EV Lines 💜
 # 🟣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 
 def build_ev_lines(evs_to_track: dict, goals_to_track: dict) -> list[str]:
     """Builds formatted EV lines for a Pokémon."""
@@ -35,6 +37,7 @@ def build_ev_lines(evs_to_track: dict, goals_to_track: dict) -> list[str]:
         else:
             lines.append(f"- {stat.upper()}: {current}")
     return lines
+
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   ✨ Espeon Core Function › EV Tracker Add ✨
@@ -152,7 +155,7 @@ async def ev_tracker_add_func(
 
         # ✨──────── Step 4 › Build Confirmation Embed ─────✨
         user_desc_lines = [
-            f"**Pokemon:** {pokemon_title} #{dex_number}\n{Espeon_Emoji.purple_pie} **EVs:**"
+            f"- **Pokemon:** {pokemon_title} #{dex_number}\n{Espeon_Emoji.purple_pie} **EVs:**"
         ]
         user_desc_lines.extend(build_ev_lines(evs_to_track, goals_to_track))
 
@@ -161,15 +164,17 @@ async def ev_tracker_add_func(
             description="\n".join(user_desc_lines),
             color=0xFF99FF,
         )
-        embed = design_embed(embed, user)
-        embed = await insert_pokemon_gif_embed(bot=bot, embed=embed, input_name=pokemon_title)
+        embed = await design_embed(embed, user)
+        embed = await insert_pokemon_gif_embed(
+            bot=bot, embed=embed, input_name=pokemon_title
+        )
 
         await load_ev_tracker_cache(bot)
         await handle.stop(embed=embed)
 
         espeon_log(
             tag="sent",
-            message=f"User {user_id} started tracking {pokemon_title} EVs: {evs_to_track} with goals {goals_to_track}",
+            message=f"User {user.name} started tracking {pokemon_title} EVs: {evs_to_track} with goals {goals_to_track}",
             context=EspeonContext.STRAYMONS,
         )
 
@@ -187,7 +192,7 @@ async def ev_tracker_add_func(
                 color=0xFF99FF,
                 timestamp=datetime.now(),
             )
-            staff_embed = design_embed(staff_embed, user)
+            staff_embed = await design_embed(staff_embed, user)
             staff_embed = await insert_pokemon_gif_embed(
                 bot=bot, embed=staff_embed, input_name=pokemon_title
             )

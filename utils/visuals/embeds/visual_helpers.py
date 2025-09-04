@@ -1,8 +1,10 @@
 import random
 from datetime import datetime
 
-
 import discord
+
+from utils.visuals.gif import fetch_pokemon_gif
+
 
 def format_bulletin_desc(*args, key_style_override: str = None) -> str:
     """
@@ -60,7 +62,7 @@ ESPEON_PALETTE = {
     "light_purple": ["#D0A9F5", "#CDA4DE", "#AF7AC5", "#C39BD3", "#DAA6F3", "#B39DDB"],
     "dark_purple": ["#9B59B6", "#8E44AD", "#7D3C98", "#6C3483", "#5B2C6F", "#4A235A"],
     "pastel_red": ["#F5B7B1", "#F1948A", "#FADBD8", "#F8C8DC", "#F9E0E3"],
-    "pink": ["#FFC0CB", "#FFB6C1", "#FF69B4", "#FF77FF", "#FF85D7"],
+    "pink": ["#FFC0CB", "#FFB6C1", "#FF69B4", "#FF77FF", "#E6ABD2"],
     "magenta": ["#FF00FF", "#D100D1", "#C71585", "#E754E4", "#F012BE"],
 }
 
@@ -89,12 +91,13 @@ get_random_magenta = lambda: get_random_espeon_shade("magenta")
 
 
 # ── Embed helper ─────────────────────────────
-def design_embed(
+async def design_embed(
     embed: discord.Embed,
     user: discord.User | discord.Member,
     thumbnail_url: str = None,
     image_url: str = None,
     footer_text: str = None,
+    pokemon_name: str = None,
     color: discord.Colour | str = None,
 ) -> discord.Embed:
     """
@@ -109,6 +112,11 @@ def design_embed(
     avatar_url = user.display_avatar.url
     embed.set_author(name=user.display_name, icon_url=avatar_url)
     embed.timestamp = datetime.now()
+
+    if pokemon_name:
+        pokemon_gif = await fetch_pokemon_gif(pokemon=pokemon_name)
+        if pokemon_gif:
+            thumbnail_url = pokemon_gif
 
     # Set thumbnail
     embed.set_thumbnail(url=thumbnail_url or avatar_url)

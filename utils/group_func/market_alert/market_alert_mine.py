@@ -6,6 +6,7 @@ import discord
 
 from config.aesthetic import *
 from config.emojis import PokeCoin
+from utils.essentials.loader import pretty_defer
 from utils.group_func.market_alert.db_func.market_alert_counter import (
     get_market_alert_status,
 )
@@ -14,6 +15,9 @@ from utils.loggers.espeon_log import espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 
 
+# 🍇──────────────────────────────
+#      🌀 Market Alert Paginator
+# 🍇──────────────────────────────
 class MarketAlertPaginator(discord.ui.View):
     def __init__(self, embeds: list[discord.Embed]):
         super().__init__(timeout=120)
@@ -39,29 +43,46 @@ class MarketAlertPaginator(discord.ui.View):
         )
 
 
+# 🌸──────────────────────────────
+#       💜 Mine Market Alerts
+# 🌸──────────────────────────────
 async def mine_market_alerts_func(bot, interaction: discord.Interaction):
     """
     Fetch all market alerts for a user, build embeds with pagination if needed,
     and send them directly to the interaction.
     """
     user = interaction.user
-    user_id = interaction.user.id
-    await interaction.response.defer(ephemeral=True)
+    user_id = user.id
+
+    # ⏳ Pretty loader while fetching
+    handle = await pretty_defer(
+        interaction=interaction, content="Fetching your Market Alerts..."
+    )
+
+    # 📊 Get user status
     status = await get_market_alert_status(bot=bot, user=user)
     status_message = status["message"]
+
     try:
         alerts = await fetch_user_alerts(bot, user_id)
+
+        # 🟣 No alerts case
         if not alerts:
             embed = discord.Embed(
                 title=f"{Espeon_Emoji.purple_flower} No Market Alerts",
-                description="You don’t have any active market alerts right now.\n"
-                "Use `/market-alert add` to create one ✨",
+                description="You don’t have any active market alerts right now.",
                 color=0xAA88FF,
             )
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            embed = await design_embed(
+                embed=embed,
+                user=user,
+                footer_text="Use /market-alert add` to create one ✨",
+                thumbnail_url=Espeon_Thumbnail.purple_list,
+            )
+            await handle.stop(embed=embed)
             return
 
-        # Build embeds
+        # 🟣 Build alert embeds
         embeds = []
         embed = discord.Embed(
             title=f"{Espeon_Emoji.purple_flower} Your Market Alerts",
@@ -69,7 +90,8 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
             color=0xAA88FF,
         )
         embed.set_thumbnail(url=Espeon_Thumbnail.purple_list)
-        embed.set_author(name=user.display_name, icon_url=user.display_avatar)
+        embed.set_author(name=user.display_name, icon_url=user.display_avatar.url)
+
         char_count = len(embed.description)
 
         for alert in alerts:
@@ -83,6 +105,7 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
                 f"> - **Notify:** {notify_status}"
             )
 
+            # Split embeds if field/char limits exceeded
             if (
                 len(embed.fields) >= 25
                 or (char_count + len(field_name) + len(field_value)) > 5500
@@ -99,19 +122,21 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
 
         embeds.append(embed)
 
+        # Footer & pagination info
         total_pages = len(embeds)
         for i, e in enumerate(embeds, start=1):
             e.set_footer(
                 text=f"💜 Use /market-alert remove or /market-alert toggle to manage these alerts! | Page {i}/{total_pages}"
             )
 
-        # Send paginated or single
+        # 🟢 Send single or paginated embed
         if len(embeds) == 1:
-            await interaction.followup.send(embed=embeds[0], ephemeral=True)
+            await handle.stop(embed=embeds[0])
         else:
             view = MarketAlertPaginator(embeds)
-            await interaction.followup.send(embed=embeds[0], view=view, ephemeral=True)
+            await handle.stop(embed=embeds[0], view=view)
 
+        # 📦 Log success
         espeon_log(
             "sent",
             f"Sent market alerts to user {user_id} ({len(alerts)} alerts)",
@@ -119,6 +144,7 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
         )
 
     except Exception as e:
+        # ❌ Error handling
         espeon_log(
             "error",
             f"Failed to fetch or send market alerts: {e}",

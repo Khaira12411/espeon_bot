@@ -1,12 +1,15 @@
 import discord
+
+from config.aesthetic import *
 from config.emojis import PokeCoin
+from utils.essentials.loader import pretty_defer
 from utils.group_func.market_alert.db_func.market_alert_db_func import (
     update_market_alert,
 )
 from utils.group_func.market_alert.parsers import resolve_pokemon_input
 from utils.loggers.espeon_log import espeon_log
 from utils.visuals.embeds.get_log_channel import get_log_channel
-from utils.essentials.loader import pretty_defer
+from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 
 
 async def update_market_alert_func(
@@ -94,28 +97,35 @@ async def update_market_alert_func(
         return
 
     # ── Build confirmation embed ──
-    fields = []
+    description = f"- **Pokemon:** {pokemon_name.title()} (Dex #{dex_number})\n"
+
+    # Only add Updated Fields section if something changed
+    updated_fields = []
     if max_price is not None:
-        fields.append(("Max Price", f"{PokeCoin} {max_price:,}"))
+        updated_fields.append(f"**Max Price:** {PokeCoin} {max_price:,}")
     if channel_id is not None:
-        fields.append(("Channel", f"<#{channel_id}>"))
+        updated_fields.append(f"**Channel:** <#{channel_id}>")
     if role_id is not None:
-        fields.append(("Role", f"<@&{role_id}>"))
+        updated_fields.append(f"**Role:** <@&{role_id}>")
     if notify is not None:
         notify_display = "Enable" if notify else "Disable"
-        fields.append(("Notify", notify_display))
+        updated_fields.append(f"**Notify:** {notify_display}")
+
+    if updated_fields:
+        description += (
+            f"\n{Espeon_Emoji.purple_candle} **Updated Fields:**\n"
+            + "\n".join(updated_fields)
+        )
 
     embed = discord.Embed(
-        title="💜 Market Alert Updated!",
-        description=f"{updated_count} alert(s) successfully updated for {pokemon_name} (Dex #{dex_number})",
+        title=f"{Espeon_Emoji.purple_plushie} Market Alert Updated!",
+        description=description,
         color=0xFF99FF,
     )
 
-    for name, value in fields:
-        embed.add_field(name=name, value=value, inline=False)
-
-    embed.set_footer(
-        text="You'll be notified according to your updated alert settings 💜"
+    footer_text = "You'll be notified according to your updated alert settings"
+    embed = await design_embed(
+        embed=embed, user=user, pokemon_name=pokemon_name, footer_text=footer_text
     )
 
     # ── Stop loader and show final embed ──
@@ -123,6 +133,6 @@ async def update_market_alert_func(
 
     espeon_log(
         "sent",
-        f"Updated {updated_count} alerts for user {user_id} -> {pokemon_name} (Dex #{dex_number})",
+        f"Updated {updated_count} alerts for user: {user.name} -> {pokemon_name.title()} (Dex #{dex_number})",
         source="MarketAlert",
     )

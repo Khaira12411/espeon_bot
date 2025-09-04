@@ -27,14 +27,21 @@ class Espeon_Emoji:
     purple_pie = "<:purple_pie:1413017494037336134>"
     purple_three_flowers = "<:purple_three_flowers:1413017508004233318>"
     purple_star = "<:purple_star:1413017520796991508>"
+    purple_candle = "<:purplecandle:1411900896912347239>"
+    sun = "<:sun:1413116327987773501>"
+    moon = "<:moon:1413116647744475319>"
 
 class Espeon_Thumbnail:
     note = "https://media.discordapp.net/attachments/1298966164072038450/1409832548397351033/0a5610c12c7bdb90305c0d70a9b8752d-removebg-preview.png?ex=68aed060&is=68ad7ee0&hm=ea64fe1c0bb3d0f4285fe2d0f8cdc1aca9de56c1cb561bda82619d56e4715a12&=&format=webp&quality=lossless&width=459&height=689"
     pink_purple_message = "https://media.discordapp.net/attachments/1394913073520967680/1411900548197781564/4998e56fa336b4e0b6f3ffb9f42ee3f0-removebg-preview.png?ex=68b6565a&is=68b504da&hm=1bc7a02d65a594aafe6dcf938dba0854655efda7cb4203a004f25d50dd9dde1a&=&format=webp&quality=lossless&width=625&height=625"
     purple_list = "https://media.discordapp.net/attachments/1394913073520967680/1411902498507067453/e984fa729f8db5c327a974469aa64b05-removebg-preview.png?ex=68b6582b&is=68b506ab&hm=0e71933f1c1efadabff520e138e99bb09196f79e608b80199216d4d2458e0fe2&=&format=webp&quality=lossless&width=625&height=625"
     purple_message = "https://media.discordapp.net/attachments/1394913073520967680/1411903911752630352/ab1a280b388af6ccd15e004a3fde23bf-removebg-preview.png?ex=68b6597c&is=68b507fc&hm=e18898551eef27e431fe5e9e67cfa68615397d1cc6b4c4ac71e589395ce2aa23&=&format=webp&quality=lossless&width=625&height=625"
+    espeon_sun = "https://media.discordapp.net/attachments/1394913073520967680/1413108096892403783/9ce3634be904c55b9f8bfe5c1351c0e2-removebg-preview.png?ex=68babaf8&is=68b96978&hm=3d800b8d7a30d02b63162c642b109c6c4ce2c8301e096762d1f493a78f1e3e7b&=&format=webp&quality=lossless&width=625&height=625"
+    sunflower = "https://media.discordapp.net/attachments/1394913073520967680/1413110346088059001/3ac687ea21c2f98ab88507eeca84bef7-removebg-preview.png?ex=68babd10&is=68b96b90&hm=90e4e1f45318b3c3f47139119412c75b5121349e64d7c2376e534d17aff00921&=&format=webp&quality=lossless&width=625&height=625"
+    purple_witch_cat = "https://media.discordapp.net/attachments/1394913073520967680/1413112983835512842/d7a20bbdaca517b8dbc99602abaa0358-removebg-preview.png?ex=68babf85&is=68b96e05&hm=9024a52457f46717b4ae1e54b800fdf0d9e36efa710a9f71d5856bf19ce236ce&=&format=webp&quality=lossless&width=644&height=606"
 
 class Esepon_Divider:
     purple_moon = "https://media.discordapp.net/attachments/1298966164072038450/1409829302140403802/image.png?ex=68aecd5a&is=68ad7bda&hm=fde848872c0477b56ff1d0032cca0773ee6f4bc0a96aeef35af2d84353460c0c&=&format=webp&quality=lossless&width=845&height=68"
     purple_hearts = "https://media.discordapp.net/attachments/1298966164072038450/1409829438874587257/image.png?ex=68aecd7b&is=68ad7bfb&hm=0e92c0245c4c20d627a5ac119e51b230906b0be3599b0c8422e3a84c8432f28b&=&format=webp&quality=lossless&width=845&height=68"
     purple_clouds = "https://media.discordapp.net/attachments/1298966164072038450/1409829939779207281/image.png?ex=68aecdf3&is=68ad7c73&hm=f5da76c20870df137dbd3ab6bc412d0f28fdcd13d1dfa9e415182f05fdcfb3df&=&format=webp&quality=lossless&width=845&height=51"
+    purple_flowers = "https://media.discordapp.net/attachments/1298966164072038450/1377594830355697776/image.png?ex=68babbaa&is=68b96a2a&hm=f7c7d75794b6ca13c3c74cc4aa2af61959430edd4004a3d3a772fdf584338997&=&format=webp&quality=lossless&width=1600&height=128"

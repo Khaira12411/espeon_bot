@@ -26,7 +26,7 @@ class EspeonContext(Enum):
 # 💜 Tags
 ESPEON_TAGS = {
     "db": "🪻  DB INFO",
-    "cmd": "🫐 COMMAND",
+    "cmd": "🫐  COMMAND",
     "ready": "💜 READY",
     "error": "💣 ERROR",
     "skip": "🌷 SKIP",

@@ -40,7 +40,7 @@ def log_command_group_counter(group: app_commands.Group):
         tag="",
         message=summary,
         context=EspeonContext.ESPEON,
-        label=f" 🌟  {group.name.capitalize()} Command Group",
+        label=f"🌟  {group.name.capitalize()} Command Group",
     )
 
 
@@ -203,12 +203,13 @@ async def log_command_group_full_paths_to_cache(
     """
     Logs all commands in a group (including nested subgroups) with full paths.
     Updates KNOWN_COMMAND_CACHE_FILE and FORCE_COMMAND_CACHE_FILE for force-true commands.
+    Only writes to files if there are actual changes.
     """
 
     # Quick one-line summary of the group
     log_command_group_counter(group)
 
-    # Load known cache
+    # --- Load known cache ---
     if known_cache is None:
         known_cache = {}
         if Path(KNOWN_COMMAND_CACHE_FILE).exists():
@@ -218,16 +219,19 @@ async def log_command_group_full_paths_to_cache(
             except json.JSONDecodeError:
                 pass
 
-    # Load existing force cache
-    if Path(FORCE_COMMAND_CACHE_FILE).exists():
-        with open(FORCE_COMMAND_CACHE_FILE, "r", encoding="utf-8") as f:
-            try:
-                force_cache = json.load(f)
-            except json.JSONDecodeError:
-                force_cache = {}
-    else:
-        force_cache = {}
+    # Take snapshot to compare later
+    old_known_cache = known_cache.copy()
 
+    # --- Load force cache ---
+    force_cache = {}
+    if Path(FORCE_COMMAND_CACHE_FILE).exists():
+        try:
+            with open(FORCE_COMMAND_CACHE_FILE, "r", encoding="utf-8") as f:
+                force_cache = json.load(f)
+        except json.JSONDecodeError:
+            pass
+
+    old_force_cache = force_cache.copy()
     added_any = False
 
     # Recursive function to gather commands
@@ -284,8 +288,8 @@ async def log_command_group_full_paths_to_cache(
 
     await gather_commands(group, "")
 
-    # Save caches
-    if added_any:
+    # --- Save caches only if changed ---
+    if known_cache != old_known_cache:
         with open(KNOWN_COMMAND_CACHE_FILE, "w", encoding="utf-8") as f:
             json.dump(known_cache, f, indent=2, ensure_ascii=False)
             espeon_log(
@@ -294,10 +298,11 @@ async def log_command_group_full_paths_to_cache(
                 tag="db",
             )
 
-    with open(FORCE_COMMAND_CACHE_FILE, "w", encoding="utf-8") as f:
-        json.dump(force_cache, f, indent=2, ensure_ascii=False)
-        espeon_log(
-            message="Force command cache updated",
-            context=EspeonContext.STRAYMONS,
-            tag="db",
-        )
+    if force_cache != old_force_cache:
+        with open(FORCE_COMMAND_CACHE_FILE, "w", encoding="utf-8") as f:
+            json.dump(force_cache, f, indent=2, ensure_ascii=False)
+            espeon_log(
+                message="Force command cache updated",
+                context=EspeonContext.STRAYMONS,
+                tag="db",
+            )

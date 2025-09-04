@@ -27,6 +27,8 @@ class Weakness(commands.Cog):
 
         await interaction.response.send_message(embed=embed)
 
+    test_weakness.extras = {"category": "Public"}
+
 
 # -------------------- Setup --------------------
 async def setup(bot: commands.Bot):

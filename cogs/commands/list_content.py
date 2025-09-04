@@ -112,6 +112,6 @@ class MessageInspectWretch(commands.Cog):
                 "📄 The content was too long! Here’s a file instead:", file=file
             )
 
-
+    list_contents.extras = {"category": "Owner"}
 async def setup(bot):
     await bot.add_cog(MessageInspectWretch(bot))

@@ -30,7 +30,7 @@ async def timer_pokemon_view_func(bot: commands.Bot, interaction: discord.Intera
         description=f"Pokémon: **{pokemon_setting.title()}**",
         color=0x9B59B6,  # purple Wooper color
     )
-    embed = design_embed(embed=embed, user=user)
+    embed = await design_embed(embed=embed, user=user)
 
     # Send ephemeral interaction response
     try:

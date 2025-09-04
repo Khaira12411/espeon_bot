@@ -32,7 +32,7 @@ async def load_all_caches(bot):
     await load_ev_tracker_cache(bot)
 
     # ⌚ Load Timer cache
-    await load_timer_cache(bot)
+    #await load_timer_cache(bot)
 
     # 🎀 Unified single-line log
     espeon_log(
@@ -42,8 +42,7 @@ async def load_all_caches(bot):
             f"All caches refreshed and loaded "
             f"(Market Alerts: {len(market_alert_cache)} + "
             f"MR Weakness: {len(mr_weakness_user_cache)} + "
-            f"EV Trackers: {len(ev_tracker_cache)} + "
-            f"Timers: {len(timer_cache)})"
+            f"EV Trackers: {len(ev_tracker_cache)}"
         ),
         context=EspeonContext.STRAYMONS,
     )

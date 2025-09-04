@@ -1,12 +1,18 @@
 import discord
+
+from config.aesthetic import *
 from config.emojis import PokeCoin
+from utils.essentials.loader import pretty_defer
 from utils.group_func.market_alert.db_func.market_alert_db_func import (
     update_user_alerts_channel_or_role,
 )
 from utils.loggers.espeon_log import espeon_log
-from utils.essentials.loader import pretty_defer
+from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 
 
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#   ✨ Espeon Core Function › Market Alert Update Role/Channel ✨
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async def update_market_alert_role_channel_func(
     bot,
     interaction: discord.Interaction,
@@ -82,14 +88,17 @@ async def update_market_alert_role_channel_func(
 
     description_text = "\n".join(description_parts)
     embed = discord.Embed(
-        title="💜 Market Alerts Bulk Updated!",
+        title=f"{Espeon_Emoji.purple_message} Market Alerts Bulk Updated!",
         description=f"{updated_count} alert(s) successfully updated!\n{description_text}",
         color=0xFF99FF,
     )
-    embed.set_footer(
-        text="You'll be notified according to your updated alert settings 💜"
+    footer_text = "You'll be notified according to your updated alert settings"
+    embed = await design_embed(
+        embed=embed,
+        user=user,
+        thumbnail_url=Espeon_Thumbnail.pink_purple_message,
+        footer_text=footer_text,
     )
-
     # 💜 Stop loader and show final embed
     await loader.stop(embed=embed, delete=False)
 

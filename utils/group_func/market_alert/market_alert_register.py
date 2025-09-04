@@ -202,7 +202,7 @@ async def market_alert_register_func(
             color=0xFF99FF,
             timestamp=datetime.now(),
         )
-        embed_log = design_embed(embed=embed_log, user=user)
+        embed_log = await design_embed(embed=embed_log, user=user)
         await log_channel.send(embed=embed_log)
 
         return total_alerts

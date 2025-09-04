@@ -13,7 +13,9 @@ from dotenv import load_dotenv
 from config.current_setup import *
 from utils.cache.centralized_cache_loader import load_all_caches
 from utils.essentials.command_tracker import auto_log_new_commands
+from utils.essentials.error_handler import on_app_command_error
 from utils.essentials.get_pg_pool import get_pg_pool
+from utils.essentials.role_checks import *
 from utils.loggers.espeon_log import EspeonContext  # Using Espeon logs
 from utils.loggers.espeon_log import espeon_log, set_espeon_bot
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
@@ -200,10 +202,12 @@ async def status_rotator():
 # ────────────────────────────────────────────
 #       💜 Hourly Cache Refresh Loop 💜
 # ─────────────────────────────────────────────
-@tasks.loop(hours=1)
+@tasks.loop(hours=1, reconnect=True)
 async def refresh_all_caches():
+    if not hasattr(refresh_all_caches, "already_ran"):
+        refresh_all_caches.already_ran = True
+        return  # 🚫 Skip the first run
     await load_all_caches(bot)
-    # espeon_log("ready", "🔄 All caches refreshed (Market Alerts + Mr. Weakness)")
 
 
 # ====================
@@ -213,32 +217,94 @@ async def refresh_all_caches():
 async def startup_tasks():
     await bot.wait_until_ready()  # ensures bot is fully logged in
     print()
+    print("✿ ─── · ─── · ─── · ─── · [🦋 CACHES ] · ─── · ─── · ─── · ─── ✿")
+    print()
     # 🔹 Load all caches first and wait for completion
-    await load_all_caches(
-        bot
-    )  # <-- this ensures market alerts + Mr. Weakness are ready
-    
+    await load_all_caches(bot)
+
+    print()
+    print("✿ ─── · ─── · ─── · ─── · [🌻 CHANGE LOG ] · ─── · ─── · ─── · ─── ✿")
     print()
     await auto_log_new_commands(bot, dry_run=False)
+    print()
+    print("✿ ─── · ─── · ─── · ─── · [🪐 CHECKLIST ] · ─── · ─── · ─── · ─── ✿")
 
     # Run the checklist at the very end
     await startup_checklist(bot)
-    # Start caches and startup tasks
+
+    # ✅ Start the hourly loop AFTER startup (skips first immediate run)
     if not refresh_all_caches.is_running():
         refresh_all_caches.start()
+    print()
+    print("✿ ─── · ─── · ─── · ─── · [☀️  ESPEON BOT ] · ─── · ─── · ─── · ─── ✿")
+    print()
 
+# ── 💜 Unified Command Error Handler 💜 ──
+async def handle_command_error(
+    error: Exception, ctx_or_interaction, is_slash: bool = False
+):
+    """
+    Unified handler for prefix and slash command errors.
+    Silently ignores CommandNotFound for both types.
+    """
 
-# 💜 Global Error Handler
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
+    # ✅ Ignore "command not found" for both prefix and slash
+    if (is_slash and isinstance(error, app_commands.CommandNotFound)) or (
+        not is_slash and isinstance(error, commands.CommandNotFound)
+    ):
         return
-    espeon_log(
-        "error",
-        f"Command error: {error}",
-        context=ctx.cog if ctx.cog else None,
-        include_trace=True,
+
+    # --- Handle custom role-check failures ---
+    role_failures = (
+        ClanStaffCheckFailure,
+        VIPCheckFailure,
+        ClanMemberCheckFailure,
+        OwnerCheckFailure,
+        OwnerCoownerCheckFailure,
     )
+    if isinstance(error, role_failures):
+        if is_slash:
+            await ctx_or_interaction.response.send_message(
+                error.args[0], ephemeral=True
+            )
+        else:
+            await ctx_or_interaction.send(error.args[0], ephemeral=True)
+        return
+
+    # --- Fallback for other errors ---
+    if is_slash:
+        if ctx_or_interaction.response.is_done():
+            await ctx_or_interaction.followup.send(
+                "❌ Something went wrong.", ephemeral=True
+            )
+        else:
+            await ctx_or_interaction.response.send_message(
+                "❌ Something went wrong.", ephemeral=True
+            )
+        espeon_log(
+            "error", f"Slash command error: {error}", context=None, include_trace=True
+        )
+    else:
+        await ctx_or_interaction.send("❌ Something went wrong.", ephemeral=True)
+        espeon_log(
+            "error", f"Prefix command error: {error}", context=None, include_trace=True
+        )
+
+
+# ── Register Slash Command Error Handler
+async def on_app_command_error(
+    interaction: discord.Interaction, error: app_commands.AppCommandError
+):
+    await handle_command_error(error, interaction, is_slash=True)
+
+
+bot.tree.error(on_app_command_error)
+
+
+# ── Register Prefix Command Error Handler
+@bot.event
+async def on_command_error(ctx: commands.Context, error):
+    await handle_command_error(error, ctx, is_slash=False)
 
 
 # 💜 Startup Checklist
@@ -271,11 +337,6 @@ async def startup_checklist(bot: commands.Bot):
 
     checklist.append(f"✅ {len(ev_tracker_cache)} 🐼 EV Tracker Users")
 
-    # ⌚ Pokemon Timer cache
-    from utils.cache.timers_cache import timer_cache
-
-    checklist.append(f"✅ {len(timer_cache)} ⌚ Pokemon Timer Users")
-
     # 💛 Status rotator
     checklist.append(f"✅ {status_rotator.is_running()} ✨ Status Rotator Running")
 
@@ -304,7 +365,9 @@ async def startup_checklist(bot: commands.Bot):
 @bot.event
 async def on_ready():
     print()
-    espeon_log("ready", f"EspeonBot awake as {bot.user}")
+    print("✿ ─── · ─── · ─── · ─── · [🌤️ ESPEON AWAKE ] · ─── · ─── · ─── · ─── ✿")
+    print()
+    espeon_log(tag="", message=f"EspeonBot awake as {bot.user}", label="☀️ ESPEON")
 
     # Sync slash commands
     await bot.tree.sync()
@@ -326,15 +389,25 @@ async def on_ready():
 @bot.event
 async def setup_hook():
     print()
+    print(
+        "✿ ─── · ─── · ─── · ─── · [🪻  COGS AND DATABASE ] · ─── · ─── · ─── · ─── ✿"
+    )
+    print()
     espeon_log("ready", "Setting up database and loading cogs...")
+
+    # -------------------- Setup DB --------------------
     try:
-        bot.pg_pool = await get_pg_pool()
-        async with bot.pg_pool.acquire() as conn:
-            version = await conn.fetchval("SELECT version();")
-        espeon_log("db", f"Connected to Postgres (v{version})")
+        bot.pg_pool = await get_pg_pool()  # returns SafePool
+        # Use SafePool fetchval for the version check
+        version = await bot.pg_pool.fetchval("SELECT version();")
+        espeon_log("db", f"Connected to Postgres (v{version}) via SafePool")
     except Exception as e:
         espeon_log("critical", f"Postgres connection failed: {e}", include_trace=True)
 
+    # -------------------- Load Cogs --------------------
+    print()
+    print("✿ ─── · ─── · ─── · ─── · [🌟 GROUP COMMANDS ] · ─── · ─── · ─── · ─── ✿")
+    print()
     loaded_count = 0
     for cog_path in glob.glob("cogs/**/*.py", recursive=True):
         relative_path = os.path.relpath(cog_path, "cogs")
@@ -348,13 +421,15 @@ async def setup_hook():
 
     # espeon_log("ready", f"All cogs loaded successfully: {loaded_count}")
 
-    # 💜 Syncing guild slash commands
+    # -------------------- Sync Slash Commands --------------------
     try:
         await bot.tree.sync(guild=discord.Object(id=ACTIVE_GUILD_ID))
         # espeon_log("ready", "Slash commands synced to Active Guild!")
     except Exception as e:
         espeon_log("error", f"Guild sync failed: {e}", include_trace=True)
+
     print()
+
 
 # 💜 Starting Bot
 if __name__ == "__main__":
@@ -363,8 +438,11 @@ if __name__ == "__main__":
     if not token:
         espeon_log("critical", "DISCORD_TOKEN not found in environment. Exiting...")
         exit(1)
-
-    espeon_log("ready", "EspeonBot is starting...")
+    print(
+        "✿ ─── · ─── · ─── · ─── · [🌥️  Espeon is starting ] · ─── · ─── · ─── · ─── ✿"
+    )
+    print()
+    espeon_log(tag="", label="☀️  ESPEON", message="EspeonBot is starting...")
 
     try:
         bot.run(token)

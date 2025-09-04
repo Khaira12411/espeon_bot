@@ -142,7 +142,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
             title=f"{Espeon_Emoji.purple_hearts_one} Market Alert Removed",
             description=f"{status_line}\n{member_line}\n{removed_line}",
         )
-        user_embed = design_embed(
+        user_embed = await design_embed(
             embed=user_embed,
             user=user,
             thumbnail_url=Espeon_Thumbnail.pink_purple_message,
@@ -170,7 +170,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
             color=0xFF99FF,
             timestamp=datetime.now(),
         )
-        log_embed = design_embed(embed=log_embed, user=user)
+        log_embed = await design_embed(embed=log_embed, user=user)
 
     # 💜 Stop loader and show final embed
     await loader.stop(content=f"{user.mention}", embed=user_embed)
