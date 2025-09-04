@@ -1,3 +1,6 @@
+# 🟣────────────────────────────────────────────
+#        💜 Auto-Log New Commands Utility 💛
+# ─────────────────────────────────────────────
 from discord.ext import commands
 from utils.essentials.command_group_counter import get_force_commands_to_send
 from config.straymons_constants import *
@@ -17,14 +20,27 @@ KNOWN_COMMAND_CACHE_FILE = "data/known_commands.json"
 from discord import app_commands
 
 
+# 🟡────────────────────────────────────────────
+#        💜 Core Function: auto_log_new_commands 💛
+# ─────────────────────────────────────────────
 async def auto_log_new_commands(
     bot: commands.Bot,
     label: str = "🌻 Changelog",
     dry_run: bool | None = None,
+    enabled: bool | None = False,
 ):
     """💙 Auto-log commands; embeds sent only once per force-true command.
     Group commands and their children are reliably tracked via FORCE_COMMAND_CACHE_FILE.
     """
+    if enabled is not True:
+        espeon_log(
+            tag="",
+            message="🌨️  Skipping auto-log of commands...",
+            context=EspeonContext.STRAYMONS,
+            label=label,
+        )
+        return
+
     espeon_log(
         tag="",
         message="💫 Starting auto-log of commands...",
@@ -33,15 +49,13 @@ async def auto_log_new_commands(
     )
 
     try:
-        # Load caches
+        # 🌟 Load caches
         known_cache = load_command_cache(KNOWN_COMMAND_CACHE_FILE)
 
-        # Collect all top-level commands to update known_cache silently
-        all_commands, force_cache = collect_all_commands_from_cogs(
-            bot
-        )  # ← use returned force_cache
+        # 🌞 Collect all top-level commands to update known_cache silently
+        all_commands, force_cache = collect_all_commands_from_cogs(bot)
 
-        # Update known_cache
+        # 💛 Update known_cache
         for path, cmd_data in all_commands.items():
             extras = cmd_data.get("extras", {}) or {}
             grouped = cmd_data.get("grouped", False)
@@ -83,7 +97,7 @@ async def auto_log_new_commands(
 
         save_command_cache(KNOWN_COMMAND_CACHE_FILE, known_cache)
 
-        # ── Send force-true commands directly from the freshly collected force_cache ──
+        # 🟣 Send force-true commands directly from the freshly collected force_cache
         for key, cmd_data in force_cache.items():
             full_path = cmd_data.get("_full_path") or key
 
@@ -93,7 +107,7 @@ async def auto_log_new_commands(
 
             category = cmd_data.get("category", "Owner")
 
-            # Channel selection
+            # 🌼 Channel selection
             channel_map = {
                 "staff": STRAYMONS__TEXT_CHANNELS.staff_announcement,
                 "owner": STRAYMONS__TEXT_CHANNELS.bot_logs,
@@ -103,7 +117,7 @@ async def auto_log_new_commands(
             )
             channel = bot.get_channel(channel_id)
 
-            # Detect changes
+            # ✨ Detect changes
             changes = detect_command_changes(cmd_data, force_cache)
 
             # Skip sending if dry run
@@ -116,12 +130,12 @@ async def auto_log_new_commands(
                 )
                 continue
 
-            # Send embed
+            # 📬 Send embed
             await send_changelog_embed(
                 bot, cmd_data, channel, label, extra_changes=changes
             )
 
-            # Mark as sent
+            # ✅ Mark as sent
             force_cache[key]["sent"] = True
             espeon_log(
                 tag="",
@@ -130,7 +144,7 @@ async def auto_log_new_commands(
                 label=label,
             )
 
-        # Save the updated force cache
+        # 🌻 Save the updated force cache
         save_command_cache(FORCE_COMMAND_CACHE_FILE, force_cache)
 
         espeon_log(

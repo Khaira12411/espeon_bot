@@ -24,6 +24,9 @@ class Espeon_Emoji:
     purple_crown = "<:purple_crown:1411910780776874104>"
     purple_butterfly = "<:purple_butterfly:1411911762378362890>"
     purple_broom = "<:purple_broom:1411916563858198680>"
+    purple_pie = "<:purple_pie:1413017494037336134>"
+    purple_three_flowers = "<:purple_three_flowers:1413017508004233318>"
+    purple_star = "<:purple_star:1413017520796991508>"
 
 class Espeon_Thumbnail:
     note = "https://media.discordapp.net/attachments/1298966164072038450/1409832548397351033/0a5610c12c7bdb90305c0d70a9b8752d-removebg-preview.png?ex=68aed060&is=68ad7ee0&hm=ea64fe1c0bb3d0f4285fe2d0f8cdc1aca9de56c1cb561bda82619d56e4715a12&=&format=webp&quality=lossless&width=459&height=689"

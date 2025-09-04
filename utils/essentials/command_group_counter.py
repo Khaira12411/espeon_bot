@@ -40,7 +40,7 @@ def log_command_group_counter(group: app_commands.Group):
         tag="",
         message=summary,
         context=EspeonContext.ESPEON,
-        label=f" ☂️  {group.name.capitalize()} Command Group",
+        label=f" 🌟  {group.name.capitalize()} Command Group",
     )
 
 
@@ -73,7 +73,7 @@ def log_command_group_full_paths(group: app_commands.Group, top_prefix: str = No
         tag="",
         message=summary,
         context=EspeonContext.ESPEON,
-        label="☂️  Command Group",
+        label="🌟  Command Group",
     )
 
 

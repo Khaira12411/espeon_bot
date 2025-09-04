@@ -1,7 +1,10 @@
 import discord
 from discord.ext import commands
 
-from utils.visuals.pokemon_gif import insert_pokemon_gif_embed
+# from utils.visuals.gif import insert_pokemon_gif_embed
+from shared_utils.pokemon_utils.pokemon_gif import get_pokemon_gif
+
+from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 
 async def build_ev_tracker_embed(
@@ -59,7 +62,7 @@ async def build_ev_tracker_embed(
                 + f" {current}/{goal} {completed}"
             )
 
-            if i % 3 == 0:
+            if i % 2 == 0:
                 stats_lines.append(" |  ".join(line))
                 line = []
 
@@ -77,15 +80,25 @@ async def build_ev_tracker_embed(
         f"{stats_str}"
     )
     pokemon_name = tracked_data["pokemon"].lower()
-    gif_url = f"https://play.pokemonshowdown.com/sprites/xyani/{pokemon_name}.gif?quality=lossless"
+    #gif_url = f"https://play.pokemonshowdown.com/sprites/xyani/{pokemon_name}.gif?quality=lossless"
 
     embed = discord.Embed(
         description=description,
         color=0xFF99FF,
     )
-    embed = await insert_pokemon_gif_embed(
-        bot=bot, input_name=pokemon_name, embed=embed, is_thumbnail=True
-    )
+    # Use shared_utils to get the gif
+    gif_data = await get_pokemon_gif(pokemon_name)
+    gif_url = gif_data["gif_url"]
+
+    if gif_url:
+        embed.set_thumbnail(url=gif_url)
+    else:
+        espeon_log(
+            tag="error",
+            message=f"Cannot find Pokémon GIF for '{pokemon_name}'",
+            context=EspeonContext.STRAYMONS,
+            source="GIF Embed",
+        )
     # Set author with title prefix next to username
     member = guild.get_member(user_id) if guild else None
     avatar_url = member.display_avatar.url if member else None

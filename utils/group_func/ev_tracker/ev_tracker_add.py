@@ -13,15 +13,32 @@ from utils.group_func.market_alert.parsers import (
 )
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed
-
-STAFF_LOG_CHANNEL_ID = (
-    STRAYMONS__TEXT_CHANNELS.server_logs
-)  # replace with your staff log channel ID
+from utils.visuals.gif import insert_pokemon_gif_embed
+from utils.essentials.loader import pretty_defer
+from config.aesthetic import *
+STAFF_LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
 
 MAX_EVS_PER_STAT = 252
 MAX_TOTAL_EVS = 510
 
+# 🟣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#   💜 Espeon Helper Function › Build EV Lines 💜
+# 🟣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+def build_ev_lines(evs_to_track: dict, goals_to_track: dict) -> list[str]:
+    """Builds formatted EV lines for a Pokémon."""
+    lines = []
+    for stat, current in evs_to_track.items():
+        goal = goals_to_track.get(stat)
+        if goal is not None:
+            lines.append(f"- {stat.upper()}: {current}/{goal}")
+        else:
+            lines.append(f"- {stat.upper()}: {current}")
+    return lines
+
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#   ✨ Espeon Core Function › EV Tracker Add ✨
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async def ev_tracker_add_func(
     bot,
     interaction: discord.Interaction,
@@ -38,10 +55,13 @@ async def ev_tracker_add_func(
     user = interaction.user
     user_id = user.id
 
-    # -------------------- Step 1: Collect EV stats with goals --------------------
+    # 💜 Start loader
+    handle = await pretty_defer(interaction, content="Tracking your EVs...")
+
+    # ✨──────── Step 1 › Collect EV stats with goals ─────✨
     evs_to_track = {}
     goals_to_track = {}
-    total_goal_sum = 0  # ✅ initialize here
+    total_goal_sum = 0
 
     for stat, val in (
         ("hp", hp),
@@ -54,54 +74,44 @@ async def ev_tracker_add_func(
         if val is not None:
             val_str = str(val).strip()
 
-            # Validate current/goal format
             if "/" not in val_str:
-                await interaction.response.send_message(
-                    f"❌ Invalid format for **{stat.upper()}**. "
-                    f"Please provide as `current/goal` (e.g., 0/252).",
-                    ephemeral=True,
+                await handle.stop(
+                    content=f"❌ Invalid format for **{stat.upper()}**. Use `current/goal` (e.g., 0/252)."
                 )
                 return
 
-            # Split and convert to int
             parts = val_str.split("/")
             try:
                 current = int(parts[0].strip())
                 goal = int(parts[1].strip()) if len(parts) > 1 else None
             except ValueError:
-                await interaction.response.send_message(
-                    f"❌ Invalid number for **{stat.upper()}**. "
-                    f"Please provide integers only, e.g., 0/252.",
-                    ephemeral=True,
+                await handle.stop(
+                    content=f"❌ Invalid number for **{stat.upper()}**. Use integers only (e.g., 0/252)."
                 )
                 return
-            # ✅ Validate per-stat max
+
             if goal is not None and goal > MAX_EVS_PER_STAT:
-                await interaction.response.send_message(
-                    f"❌ The goal for **{stat.upper()}** cannot exceed {MAX_EVS_PER_STAT}.",
-                    ephemeral=True,
+                await handle.stop(
+                    content=f"❌ The goal for **{stat.upper()}** cannot exceed {MAX_EVS_PER_STAT}."
                 )
                 return
+
             evs_to_track[stat] = current
             if goal is not None:
                 goals_to_track[stat] = goal
                 total_goal_sum += goal
+
     if not evs_to_track:
-        await interaction.response.send_message(
-            "❌ You must provide at least one EV to track.", ephemeral=True
-        )
+        await handle.stop(content="❌ You must provide at least one EV to track.")
         return
 
-    # ✅ Validate total EV max
     if total_goal_sum > MAX_TOTAL_EVS:
-        await interaction.response.send_message(
-            f"❌ The total sum of your EV goals ({total_goal_sum}) exceeds the "
-            f"maximum allowed total of {MAX_TOTAL_EVS}.",
-            ephemeral=True,
+        await handle.stop(
+            content=f"❌ The total sum of your EV goals ({total_goal_sum}) exceeds {MAX_TOTAL_EVS}."
         )
         return
 
-    # -------------------- Step 2: Resolve Pokémon --------------------
+    # ✨──────── Step 2 › Resolve Pokémon ─────✨
     pokemon_title = pokemon.title()
     try:
         if pokemon.isdigit():
@@ -121,74 +131,67 @@ async def ev_tracker_add_func(
         espeon_log(
             "critical",
             f"Failed to resolve Pokémon: {e}",
-            source="MarketAlert",
+            source="EVTracker",
             exc=e,
             include_trace=True,
         )
-        await interaction.response.send_message(
-            f"❌ Could not resolve Pokémon '{pokemon}': {e}", ephemeral=True
-        )
+        await handle.stop(content=f"❌ Could not resolve Pokémon '{pokemon}': {e}")
         return
 
-    # -------------------- Step 3: Save to database --------------------
+    # ✨──────── Step 3 › Save to Database ─────✨
     try:
         await add_or_update_ev(
             bot,
             user_id,
-            user.name,  # user_name
-            pokemon_title,  # pokemon
-            evs_to_track,  # current EVs
-            goals=goals_to_track,  # goal EVs
+            user.name,
+            pokemon_title,
+            evs_to_track,
+            goals=goals_to_track,
             dex_number=dex_number,
         )
 
-        # -------------------- Step 4: Build confirmation embed --------------------
-        description_lines = [
-            f"Tracking **{pokemon_title} #{dex_number}** with the following EVs:"
+        # ✨──────── Step 4 › Build Confirmation Embed ─────✨
+        user_desc_lines = [
+            f"**Pokemon:** {pokemon_title} #{dex_number}\n{Espeon_Emoji.purple_pie} **EVs:**"
         ]
-        for stat, current in evs_to_track.items():
-            goal = goals_to_track.get(stat)
-            if goal is not None:
-                description_lines.append(f"- {stat.upper()}: {current}/{goal}")
-            else:
-                description_lines.append(f"- {stat.upper()}: {current}")
-
-        description_text = "\n".join(description_lines)
+        user_desc_lines.extend(build_ev_lines(evs_to_track, goals_to_track))
 
         embed = discord.Embed(
-            title="EV Tracker Started",
-            description=description_text,
+            title=f"{Espeon_Emoji.purple_star} EV Tracker Started",
+            description="\n".join(user_desc_lines),
             color=0xFF99FF,
-            timestamp=datetime.utcnow(),
         )
         embed = design_embed(embed, user)
+        embed = await insert_pokemon_gif_embed(bot=bot, embed=embed, input_name=pokemon_title)
 
-        # 💜 Load EV Tracker cache
         await load_ev_tracker_cache(bot)
-
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await handle.stop(embed=embed)
 
         espeon_log(
             tag="sent",
             message=f"User {user_id} started tracking {pokemon_title} EVs: {evs_to_track} with goals {goals_to_track}",
             context=EspeonContext.STRAYMONS,
         )
-        # -------------------- Step 5: Send log embed to staff --------------------
+
+        # ✨──────── Step 5 › Send Staff Log Embed ─────✨
         staff_channel = bot.get_channel(STAFF_LOG_CHANNEL_ID)
         if staff_channel:
+            staff_desc_lines = [
+                f"- **Member:** {user.mention}\n- **Pokemon:** {pokemon_title} #{dex_number}\n{Espeon_Emoji.purple_pie} **EVs:**"
+            ]
+            staff_desc_lines.extend(build_ev_lines(evs_to_track, goals_to_track))
+
             staff_embed = discord.Embed(
-                title="EV Tracker Added",
-                description=f"User **{user}** started tracking EVs for **{pokemon_title}**",
-                color=0xAA66FF,
+                title=f"{Espeon_Emoji.purple_star} EV Tracker Added",
+                description="\n".join(staff_desc_lines),
+                color=0xFF99FF,
                 timestamp=datetime.now(),
             )
-            for stat, current in evs_to_track.items():
-                goal = goals_to_track.get(stat)
-                staff_embed.add_field(
-                    name=stat.upper(),
-                    value=f"{current}/{goal if goal else '-'}",
-                    inline=True,
-                )
+            staff_embed = design_embed(staff_embed, user)
+            staff_embed = await insert_pokemon_gif_embed(
+                bot=bot, embed=staff_embed, input_name=pokemon_title
+            )
+
             await staff_channel.send(embed=staff_embed)
 
     except Exception as e:
@@ -197,6 +200,4 @@ async def ev_tracker_add_func(
             message=f"Failed to track EVs for user {user_id}: {e}",
             context=EspeonContext.STRAYMONS,
         )
-        await interaction.response.send_message(
-            f"❌ Failed to track EVs: {e}", ephemeral=True
-        )
+        await handle.stop(content=f"❌ Failed to track EVs: {e}")

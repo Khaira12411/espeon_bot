@@ -2,10 +2,26 @@ import discord
 from discord.ext import commands
 from utils.loggers.espeon_log import espeon_log, EspeonContext
 from config.straymons_constants import STRAYMONS__TEXT_CHANNELS
+from shared_utils.pokemon_utils.pokemon_gif import get_pokemon_gif
 
 # Example fallback list
 from config.pokemon_gifs import *
 error_channel_id = STRAYMONS__TEXT_CHANNELS.error_logs
+
+
+async def fetch_pokemon_gif(pokemon: str) -> str | None:
+    """Fetches a Pokémon GIF URL or returns None if missing."""
+    gif_data = await get_pokemon_gif(pokemon)
+    if gif_data.get("gif_url"):
+        return gif_data["gif_url"]
+
+    espeon_log(
+        tag="error",
+        message=f"Cannot find Pokémon GIF for '{pokemon}'",
+        context=EspeonContext.STRAYMONS,
+        source="GIF Embed",
+    )
+    return None
 
 
 # -------------------- Main Function (Gmax aware with Urshifu) --------------------

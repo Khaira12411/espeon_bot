@@ -212,19 +212,14 @@ async def refresh_all_caches():
 @tasks.loop(count=1)
 async def startup_tasks():
     await bot.wait_until_ready()  # ensures bot is fully logged in
+    print()
     # 🔹 Load all caches first and wait for completion
     await load_all_caches(
         bot
     )  # <-- this ensures market alerts + Mr. Weakness are ready
+    
+    print()
     await auto_log_new_commands(bot, dry_run=False)
-    from utils.loggers.espeon_log import EspeonContext, espeon_log
-
-    espeon_log(
-        tag="",
-        message="Command tracker finished!",
-        context=EspeonContext.STRAYMONS,
-        label="🐦 STARTUP TASK",
-    )
 
     # Run the checklist at the very end
     await startup_checklist(bot)
@@ -308,6 +303,7 @@ async def startup_checklist(bot: commands.Bot):
 # 💜 on_ready Event
 @bot.event
 async def on_ready():
+    print()
     espeon_log("ready", f"EspeonBot awake as {bot.user}")
 
     # Sync slash commands
@@ -329,13 +325,13 @@ async def on_ready():
 # 💜 Loading Cogs & Database
 @bot.event
 async def setup_hook():
+    print()
     espeon_log("ready", "Setting up database and loading cogs...")
     try:
-        pg_pool = await get_pg_pool()
-        async with pg_pool.acquire() as conn:
+        bot.pg_pool = await get_pg_pool()
+        async with bot.pg_pool.acquire() as conn:
             version = await conn.fetchval("SELECT version();")
-            espeon_log("db", f"Connected to Postgres (v{version})")
-        bot.pg_pool = pg_pool
+        espeon_log("db", f"Connected to Postgres (v{version})")
     except Exception as e:
         espeon_log("critical", f"Postgres connection failed: {e}", include_trace=True)
 
@@ -358,17 +354,21 @@ async def setup_hook():
         # espeon_log("ready", "Slash commands synced to Active Guild!")
     except Exception as e:
         espeon_log("error", f"Guild sync failed: {e}", include_trace=True)
-
+    print()
 
 # 💜 Starting Bot
 if __name__ == "__main__":
     load_dotenv()
+    token = os.getenv("DISCORD_TOKEN")
+    if not token:
+        espeon_log("critical", "DISCORD_TOKEN not found in environment. Exiting...")
+        exit(1)
+
     espeon_log("ready", "EspeonBot is starting...")
 
-    while True:
-        try:
-            bot.run(os.getenv("DISCORD_TOKEN"))
-        except Exception as e:
-            espeon_log("error", f"Bot crashed: {e}", include_trace=True)
-            espeon_log("ready", "Restarting EspeonBot in 5 seconds...")
-            time.sleep(5)
+    try:
+        bot.run(token)
+    except Exception as e:
+        espeon_log("error", f"Bot crashed during run: {e}", include_trace=True)
+        espeon_log("ready", "EspeonBot did not start successfully. Exiting...")
+        exit(1)

@@ -1,8 +1,49 @@
+import discord
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 from config.aesthetic import *
-
 from utils.visuals.embeds.get_log_channel import get_log_channel
+from utils.visuals.gif import fetch_pokemon_gif
+from utils.loggers.espeon_log import EspeonContext, espeon_log
+from utils.essentials.loader import pretty_defer
+
 log_channel = get_log_channel(bot=bot)
 
+from utils.visuals.pokemon_gif import insert_pokemon_gif_embed
 
 "force_true": True,
+from shared_utils.pokemon_utils.pokemon_gif import get_pokemon_gif
+usage
+    gif_data = await get_pokemon_gif(pokemon_name)
+    gif_url = gif_data["gif_url"]
+    # Use shared_utils to get the gif
+    gif_data = await get_pokemon_gif(pokemon_name)
+    gif_url = gif_data["gif_url"]
+
+    if gif_url:
+        embed.set_thumbnail(url=gif_url)
+    else:
+        espeon_log(
+            tag="error",
+            message=f"Cannot find Pokémon GIF for '{pokemon_name}'",
+            context=EspeonContext.STRAYMONS,
+            source="GIF Embed",
+        )
+
+
+# 🟣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#   💜 Espeon Helper Function › Function Name 💜
+# 🟣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#   ✨ Espeon Core Function › Function Name ✨
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 🔮━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#   🪻 Espeon Database Function › Function Name 🪻
+# 🔮━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#   🌸 Espeon Event Handler › Function Name 🌸
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    # ✨─────────── Step 1 › Collect EV stats with goals ──────✨
