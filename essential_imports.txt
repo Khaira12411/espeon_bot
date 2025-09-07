@@ -10,6 +10,8 @@ from utils.essentials.role_checks import *
 log_channel = get_log_channel(bot=bot)
 
 from utils.visuals.pokemon_gif import insert_pokemon_gif_embed
+pip uninstall shared_utils -y
+pip install git+https://github.com/Khaira12411/shared_utils.git@main
 
 "force_true": True,
 from shared_utils.pokemon_utils.pokemon_gif import get_pokemon_gif

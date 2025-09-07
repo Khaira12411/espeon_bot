@@ -142,3 +142,29 @@ async def design_embed(
         embed.color = 11500229
 
     return embed
+
+
+import discord
+
+ERROR_LOG_CHANNEL_ID = 1410202143570530375
+async def pokemon_embed(
+    embed: discord.Embed, pokemon_name: str, bot: discord.Client
+) -> discord.Embed:
+    """
+    Inserts a Pokémon GIF in the embed thumbnail.
+    Logs a warning to the botlog if the GIF is invalid or missing.
+    """
+    # Fetch the Pokémon GIF (assume it returns a URL string or None)
+    pokemon_gif = await fetch_pokemon_gif(pokemon=pokemon_name)
+
+    if not pokemon_gif or not isinstance(pokemon_gif, str) or not pokemon_gif.strip():
+        # Send warning to botlog channel
+        botlog_channel = bot.get_channel(ERROR_LOG_CHANNEL_ID)
+        if botlog_channel:
+            await botlog_channel.send(
+                f"⚠️ Pokémon '{pokemon_name}' does not have a proper GIF for the thumbnail."
+            )
+        return embed  # still return the embed, just without thumbnail
+
+    embed.set_thumbnail(url=pokemon_gif)
+    return embed
