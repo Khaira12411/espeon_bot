@@ -4,6 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from utils.visuals.embeds.weakness_embed import build_weakness_embed_from_input
+from utils.essentials.pokemon_autocomplete import pokemon_autocomplete
 
 
 # -------------------- Weakness Cog --------------------
@@ -15,13 +16,16 @@ class Weakness(commands.Cog):
         name="test-weakness", description="Show a Pokémon's type weaknesses"
     )
     @app_commands.describe(pokemon="The Pokémon name or dex number")
+    @app_commands.autocomplete(pokemon=pokemon_autocomplete)  # 👈 attach autocomplete
     async def test_weakness(self, interaction: discord.Interaction, pokemon: str):
-        # ⚡ Single call: resolve input and build embed
+        # pokemon here is already the Choice.value you set in autocomplete
+        print (pokemon)
         embed = build_weakness_embed_from_input(pokemon)
 
         if not embed:
             await interaction.response.send_message(
-                f"❌ Pokémon `{pokemon}` not found in weakness chart."
+                f"❌ Pokémon `{pokemon}` not found in weakness chart.",
+                ephemeral=True,
             )
             return
 

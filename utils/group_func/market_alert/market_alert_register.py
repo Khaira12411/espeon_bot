@@ -53,7 +53,7 @@ async def market_alert_register_func(
 
         # -------------------- STAFF GUILD AUTO UNLIMITED --------------------
         if interaction.guild.id == STAFF_SERVER_GUILD_ID:
-            total_alerts = 999
+            total_alerts = 50
             alerts_used = 0
 
             if not row:

@@ -27,28 +27,35 @@ print(f"💙 [INFO] Loaded {len(weakness_chart)} entries from weakness_chart.py"
 new_entries = {}
 for name, data in weakness_chart.items():
     dex = data.get("dex")
-    if dex and len(dex) == 4 and dex.startswith("7"):
-        base_dex_int = int(dex)
+    if not dex:
+        continue
 
-        # Shiny variant
-        shiny_name = f"shiny {name}"
-        if shiny_name not in weakness_chart:
-            shiny_data = data.copy()
-            shiny_data["dex"] = str(base_dex_int + 1)
-            new_entries[shiny_name] = shiny_data
-            print(f"💙 [ADD] {shiny_name}")
-        else:
-            print(f"💙 [SKIP] {shiny_name} already exists")
+    # Skip mons with dex starting with 7
+    if str(dex).startswith("7"):
+        print(f"💛 [SKIP] {name} (dex {dex} starts with 7)")
+        continue
 
-        # Golden variant
-        golden_name = f"golden {name}"
-        if golden_name not in weakness_chart:
-            golden_data = data.copy()
-            golden_data["dex"] = str(base_dex_int + 2)
-            new_entries[golden_name] = golden_data
-            print(f"💙 [ADD] {golden_name}")
-        else:
-            print(f"💙 [SKIP] {golden_name} already exists")
+    base_dex_int = int(dex)
+
+    # Shiny variant
+    shiny_name = f"shiny {name}"
+    if shiny_name not in weakness_chart:
+        shiny_data = data.copy()
+        shiny_data["dex"] = str(1000 + base_dex_int)
+        new_entries[shiny_name] = shiny_data
+        print(f"💙 [ADD] {shiny_name} → dex {shiny_data['dex']}")
+    else:
+        print(f"💛 [SKIP] {shiny_name} already exists")
+
+    # Golden variant
+    golden_name = f"golden {name}"
+    if golden_name not in weakness_chart:
+        golden_data = data.copy()
+        golden_data["dex"] = str(9000 + base_dex_int)
+        new_entries[golden_name] = golden_data
+        print(f"💙 [ADD] {golden_name} → dex {golden_data['dex']}")
+    else:
+        print(f"💛 [SKIP] {golden_name} already exists")
 
 # -------------------- Merge and Write Back --------------------
 weakness_chart.update(new_entries)

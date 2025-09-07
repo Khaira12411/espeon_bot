@@ -9,6 +9,7 @@ from discord.ext import commands
 
 from utils.essentials.command_group_counter import *
 from utils.essentials.command_safe import run_command_safe
+from utils.essentials.pokemon_autocomplete import *
 from utils.group_func.market_alert import *
 
 
@@ -30,6 +31,7 @@ class MarketAlerts(commands.Cog):
     #           💜 /market-alert add 💜
     # 🟣────────────────────────────────────────────
     @market_alerts_group.command(name="add", description="Set a new market alert")
+    @app_commands.autocomplete(pokemon=pokemon_autocomplete)  # 👈 attach autocomplete
     @app_commands.describe(
         pokemon="Pokemon name or Dex number",
         max_price="Maximum price in PokeCoin",
@@ -70,6 +72,7 @@ class MarketAlerts(commands.Cog):
         name="remove",
         description="Remove a market alert for a Pokemon, Dex number, or all",
     )
+    @app_commands.autocomplete(pokemon=user_alerts_autocomplete)  # 👈 attach autocomplete
     @app_commands.describe(
         pokemon="Pokemon name, Dex number, or 'all' to remove all alerts"
     )
@@ -142,6 +145,7 @@ class MarketAlerts(commands.Cog):
         name="update",
         description="Updates a market alert for a Pokemon",
     )
+    @app_commands.autocomplete(pokemon=user_alerts_autocomplete)
     @app_commands.describe(
         pokemon="Pokemon name or Dex number",
         max_price="Maximum price in PokeCoin",

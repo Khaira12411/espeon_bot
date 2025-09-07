@@ -28,11 +28,16 @@ class OwnerCoownerCheckFailure(app_commands.CheckFailure):
     pass
 
 
+class TestingMessage(app_commands.CheckFailure):
+    pass
+
+
 # 🌸──────────────────────────────────────────────────────
 # 🐾💫 Cute Error Messages by Server — Cottagecore Style 💫🌿
 # ───────────────────────────────────────────────────────
 ERROR_MESSAGES = {
     "straymons": {
+        "test": "🧪 This command is still under testing",
         "clan_staff": "❌ You don’t have the 🐾 Clan Staff role! ✨",
         "vip": "✨ You need the VIP role to sparkle here! 💖",
         "clan_member": "🐾 Only Straymon Members can use this command. 🌸",
@@ -100,6 +105,15 @@ def owner_and_co_owner_only():
             raise OwnerCoownerCheckFailure(
                 ERROR_MESSAGES["straymons"]["owner_and_co_owner"]
             )
+        return True
+
+    return app_commands.check(predicate)
+
+def testing():
+    async def predicate(ctx):
+        user_roles = [role.id for role in ctx.author.roles]
+        if STRAYMONS__ROLES.clan_owner not in user_roles:
+            raise TestingMessage(ERROR_MESSAGES["straymons"]["test"])
         return True
 
     return app_commands.check(predicate)

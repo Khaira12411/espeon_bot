@@ -239,19 +239,28 @@ async def startup_tasks():
     print("✿ ─── · ─── · ─── · ─── · [☀️  ESPEON BOT ] · ─── · ─── · ─── · ─── ✿")
     print()
 
+from discord.errors import NotFound
+
+
 # ── 💜 Unified Command Error Handler 💜 ──
 async def handle_command_error(
     error: Exception, ctx_or_interaction, is_slash: bool = False
 ):
     """
     Unified handler for prefix and slash command errors.
-    Silently ignores CommandNotFound for both types.
+    Silently ignores CommandNotFound and expired autocomplete.
     """
 
-    # ✅ Ignore "command not found" for both prefix and slash
+    # ✅ Ignore "command not found"
     if (is_slash and isinstance(error, app_commands.CommandNotFound)) or (
         not is_slash and isinstance(error, commands.CommandNotFound)
     ):
+        return
+
+    # ✅ Ignore autocomplete "Unknown interaction" (user typed too fast)
+    if isinstance(error, NotFound) and is_slash:
+        # optional pretty log instead of scary traceback
+        espeon_log("info", "Autocomplete interaction expired — safe to ignore")
         return
 
     # --- Handle custom role-check failures ---

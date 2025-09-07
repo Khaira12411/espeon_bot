@@ -13,6 +13,7 @@ from utils.visuals.embeds.visual_helpers import design_embed
 STAFF_GUILD_ID = STAFF_SERVER_GUILD_ID  # replace with your actual staff guild ID
 
 MAX_ALERTS = 10
+MAX_STAFF_ALERTS = 50
 
 ROLE_COUNTER = {
     STRAYMONS__ROLES.top_catcher: 1,
@@ -30,11 +31,10 @@ async def upsert_user(
     bot,
     user_id: int,
     user_name: str,
-    roles: Optional[List[str]] = None,
+    roles: Optional[List[int]] = None,
     server_boost_count: int = 0,
     total_alerts: int = 0,
 ):
-    total_alerts = min(total_alerts, MAX_ALERTS)
     async with bot.pg_pool.acquire() as conn:
         await conn.execute(
             """
@@ -45,7 +45,7 @@ async def upsert_user(
                 user_name = $2,
                 roles = $3,
                 server_boost_count = $4,
-                total_alerts = LEAST($5, 10);
+                total_alerts = $5;
             """,
             user_id,
             user_name,
@@ -75,24 +75,17 @@ CLAN_STAFF_ROLE_ID = (
 
 # ➕ Increment alerts_used (use one alert)
 async def use_market_alert(bot, user: discord.Member):
-    """
-    Increment alerts_used for a user if not blocked.
-    Returns updated status dict.
-    Staff guild members bypass block.
-    """
     user_id = user.id
-    is_staff_guild_member = user.guild.id == STAFF_GUILD_ID
-
     status = await get_market_alert_status(bot, user)
 
-    if status["block"] and not is_staff_guild_member:
-        return status  # Can't increment, already maxed
+    if status["block"]:
+        return status
 
     async with bot.pg_pool.acquire() as conn:
         await conn.execute(
             """
             UPDATE market_alert_counter
-            SET alerts_used = alerts_used + 1
+            SET alerts_used = LEAST(alerts_used + 1, total_alerts)
             WHERE user_id = $1
             """,
             user_id,
@@ -329,101 +322,74 @@ async def remove_recent_market_alerts(
 
 
 async def get_market_alert_status(bot, user: discord.Member):
-    """
-    Fetch total and used market alerts for a user.
-    - Registers user in market_alert_counter if missing (roles are always saved as int[]).
-    - Clan staff or anyone in staff guild: bypass limits.
-    - Returns dict with totals, left, block flag, and compact message.
-    """
     user_id = user.id
     user_roles_ids = [r.id for r in user.roles]
     is_clan_staff = CLAN_STAFF_ROLE_ID in user_roles_ids
     is_staff_guild_member = user.guild.id == STAFF_GUILD_ID
 
     async with bot.pg_pool.acquire() as conn:
-        # Count entries in market_alerts table
-        market_alert_rows = await conn.fetchval(
+        # Count actual alerts in table
+        actual_alerts = await conn.fetchval(
             "SELECT COUNT(*) FROM market_alerts WHERE user_id = $1", user_id
         )
 
-        # Fetch existing row
+        # Fetch row
         row = await conn.fetchrow(
             "SELECT total_alerts, alerts_used FROM market_alert_counter WHERE user_id = $1",
             user_id,
         )
 
-        # Insert row if missing
         if not row:
-            total_alerts = market_alert_rows if is_clan_staff else 0
-            alerts_used = market_alert_rows if is_clan_staff else 0
-
-            await conn.execute(
-                """
-                INSERT INTO market_alert_counter
-                (user_id, user_name, roles, server_boost_count, total_alerts, alerts_used)
-                VALUES ($1, $2, $3, $4, $5, $6)
-                """,
+            total_alerts, alerts_used = actual_alerts, actual_alerts
+            await upsert_user(
+                bot,
                 user_id,
                 str(user),
-                user_roles_ids,
-                getattr(user, "premium_subscription_count", 0),
-                total_alerts,
-                alerts_used,
+                roles=user_roles_ids,
+                server_boost_count=getattr(user, "premium_subscription_count", 0),
+                total_alerts=total_alerts,
             )
         else:
-            total_alerts = row["total_alerts"]
-            alerts_used = row["alerts_used"]
+            total_alerts, alerts_used = row["total_alerts"], row["alerts_used"]
 
-            # Sync total alerts for normal users if table has more alerts than DB
-            if (
-                not is_clan_staff
-                and not is_staff_guild_member
-                and market_alert_rows > total_alerts
-            ):
-                total_alerts = market_alert_rows
+            # Sync if actual alerts > stored
+            if actual_alerts > total_alerts:
+                total_alerts = actual_alerts
                 await conn.execute(
                     "UPDATE market_alert_counter SET total_alerts = $1 WHERE user_id = $2",
                     total_alerts,
                     user_id,
                 )
 
-            # Always update roles in DB
+            # Always update roles
             await conn.execute(
                 "UPDATE market_alert_counter SET roles = $1 WHERE user_id = $2",
                 user_roles_ids,
                 user_id,
             )
 
-            # For staff: reflect current rows in market_alerts
-            if is_clan_staff or is_staff_guild_member:
-                alerts_used = market_alert_rows
-                await conn.execute(
-                    "UPDATE market_alert_counter SET alerts_used = $1 WHERE user_id = $2",
-                    alerts_used,
-                    user_id,
-                )
+    # 🎯 Apply caps for display only
+    cap = MAX_STAFF_ALERTS if (is_clan_staff or is_staff_guild_member) else MAX_ALERTS
+    capped_total = min(total_alerts, cap)
+    capped_used = min(alerts_used, cap)
+    alerts_left = max(capped_total - capped_used, 0)
 
-    alerts_left = max(total_alerts - alerts_used, 0)
-
-    # 💡 Compact one-liner messages
     if is_clan_staff or is_staff_guild_member:
-        message = f"{Espeon_Emoji.purple_crown} Staff Alerts: {alerts_used}"
-        block = False
-    elif total_alerts == 0:
+        message = f"{Espeon_Emoji.purple_crown} Staff Alerts: {capped_used}/{cap}"
+    elif capped_total == 0:
         message = f"{Espeon_Emoji.purplecandle} No free alerts yet."
-        block = True
-    elif alerts_used >= total_alerts:
+    elif capped_used >= capped_total:
         message = f"{Espeon_Emoji.purple_warn} All free alerts used."
-        block = True
     else:
         message = (
-            f"{Espeon_Emoji.purple_butterfly} Alerts: {alerts_used}/{total_alerts}"
+            f"{Espeon_Emoji.purple_butterfly} Alerts: {capped_used}/{capped_total}"
         )
-        block = False
+
+    block = capped_used >= capped_total
 
     return {
-        "total_alerts": total_alerts,
-        "alerts_used": alerts_used,
+        "total_alerts": capped_total,
+        "alerts_used": capped_used,
         "alerts_left": alerts_left,
         "block": block,
         "message": message,

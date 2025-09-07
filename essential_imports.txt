@@ -5,6 +5,7 @@ from utils.visuals.embeds.get_log_channel import get_log_channel
 from utils.visuals.gif import fetch_pokemon_gif
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.essentials.loader import pretty_defer
+from utils.essentials.role_checks import *
 
 log_channel = get_log_channel(bot=bot)
 
