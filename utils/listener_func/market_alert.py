@@ -12,42 +12,30 @@ from config.emojis import PokeCoin
 from utils.cache.market_alert_cache import market_alert_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
-# MeowHelper webhook ID
-MEOWHELPER_WEBHOOK_ID = 1407470834251206677
-MEW_BOT_ID = 1407471147695476776
 ALLOWED_WEBHOOKS = {
-    1407471446023868416,  # Shiny 1407471446023868416
-    1407470834251206677,  # Regular 1407470834251206677
-    1407471147695476776,  # Legendary 1407471147695476776
-    1407471632368402514,  # Golden 1407471632368402514
+    1407471446023868416,  # Shiny
+    1407470834251206677,  # Regular
+    1407471147695476776,  # Legendary
+    1407471632368402514,  # Golden
 }
-#ALLOWED_WEBHOOKS = {MEOWHELPER_WEBHOOK_ID, MEW_BOT_ID}
+
+# 🔹 Global role cache (guild_id, role_id) -> discord.Role
+_role_cache: dict[tuple[int, int], discord.Role] = {}
 
 
 async def process_market_alert_message(
-    bot: discord.Client,
-    message: discord.Message,
-    market_category_id: int,
+    bot: discord.Client, message: discord.Message, market_category_id: int
 ):
-    """
-    Process MeowHelper market embeds and send alerts to users.
-    Only logs crucial errors/warnings.
-    """
+    from utils.cache.market_alert_cache import _market_alert_index
 
-    # Only process messages in the correct category
     if message.channel.category_id != market_category_id:
         return
-
-    # Only process messages from allowed webhooks
     if message.webhook_id not in ALLOWED_WEBHOOKS:
         return
-
     if not message.embeds:
         return
 
     embed = message.embeds[0]
-
-    # Parse Pokémon name & Dex from embed author field
     embed_author_name = embed.author.name if embed.author else ""
     match = re.match(r"(.+?)\s+#(\d+)", embed_author_name)
     if not match:
@@ -56,94 +44,110 @@ async def process_market_alert_message(
     poke_name = match.group(1)
     poke_dex = int(match.group(2))
 
-    # Parse listed price
     fields = {f.name: f.value for f in embed.fields}
-    listed_price_str = fields.get("Listed Price", "0")
-    listed_price_str = re.sub(r"<a?:\w+:\d+>", "", listed_price_str)
+    listed_price_str = re.sub(r"<a?:\w+:\d+>", "", fields.get("Listed Price", "0"))
     match_price = re.search(r"(\d[\d,]*)", listed_price_str)
     listed_price = int(match_price.group(1).replace(",", "")) if match_price else 0
 
     author_icon_url = embed.author.icon_url if embed.author else None
+    # Rebuild index if empty
+    if not _market_alert_index:
+        _market_alert_index.clear()
+        for alert in market_alert_cache:
+            # key by pokemon.lower() only, keep list for multiple alerts per Pokémon
+            key = alert["pokemon"].lower()
+            _market_alert_index.setdefault(key, []).append(alert)
+
     original_id = fields.get("ID", "0")
 
-    # Iterate through cache and send alerts
-    for alert in market_alert_cache:
+    # ✅ O(1) lookup using indexed cache
+    alerts_to_check = _market_alert_index.get(poke_name.lower(), [])
+
+    # --- Fallback to linear search if index is empty ---
+    if not alerts_to_check:
+
+        alerts_to_check = [
+            alert
+            for alert in market_alert_cache
+            if alert["pokemon"].lower() == poke_name.lower()
+        ]
+
+    for alert in alerts_to_check:
         if not alert.get("notify", True):
             continue
 
-        alert_dex = int(alert["dex_number"])
+        if int(alert["dex_number"]) != poke_dex:
+            continue
 
-        if alert["pokemon_name"].lower() == poke_name.lower() or alert_dex == poke_dex:
-            if listed_price <= alert["max_price"]:
+        if listed_price > alert["max_price"]:
+            continue
 
-                # Get the channel
-                channel = bot.get_channel(alert["channel_id"])
-                if not channel:
-                    try:
-                        channel = await bot.fetch_channel(alert["channel_id"])
-                    except Exception as e:
-                        espeon_log(
-                            "warn",
-                            f"Failed to fetch channel {alert['channel_id']}: {e}",
-                            context=EspeonContext.STRAYMONS,
-                        )
-                        continue
-
-                # Build alert embed
-                new_embed = Embed(
-                    color=embed.color or 0x0855FB,
+        # Fetch channel
+        channel = bot.get_channel(alert["channel_id"])
+        if not channel:
+            try:
+                channel = await bot.fetch_channel(alert["channel_id"])
+            except Exception as e:
+                espeon_log(
+                    "warn",
+                    f"Failed to fetch channel {alert['channel_id']}: {e}",
+                    context=EspeonContext.STRAYMONS,
                 )
+                continue
 
-                if embed.thumbnail:
-                    new_embed.set_thumbnail(url=embed.thumbnail.url)
+        # Build embed
+        new_embed = discord.Embed(color=embed.color or 0x0855FB)
+        if embed.thumbnail:
+            new_embed.set_thumbnail(url=embed.thumbnail.url)
+        new_embed.set_author(name=embed_author_name, icon_url=author_icon_url)
 
-                new_embed.set_author(name=embed_author_name, icon_url=author_icon_url)
+        # Buy commands
+        new_embed.add_field(
+            name="Buy Command (iPhone)", value=f"`;m b {original_id}`", inline=False
+        )
+        new_embed.add_field(
+            name="Buy Command (Android)", value=f";m b {original_id}", inline=False
+        )
 
-                # Add Buy Command fields
-                new_embed.add_field(
-                    name="Buy Command (iPhone)",
-                    value=f"`;m b {original_id}`",
-                    inline=False,
-                )
-                new_embed.add_field(
-                    name="Buy Command (Android)",
-                    value=f";m b {original_id}",
-                    inline=False,
-                )
+        # Copy & clean other fields
+        for name, value in fields.items():
+            value_cleaned = re.sub(r"<a?:\w+:\d+>", PokeCoin, value)
+            new_embed.add_field(name=name, value=value_cleaned)
 
-                # Replace custom emojis in other fields
-                for name, value in fields.items():
-                    value_cleaned = re.sub(r"<a?:\w+:\d+>", PokeCoin, value)
-                    new_embed.add_field(name=name, value=value_cleaned)
+        new_embed.set_footer(
+            text=(
+                embed.footer.text
+                if embed.footer
+                else "Please check listing before purchase"
+            )
+        )
 
-                new_embed.set_footer(
-                    text=(
-                        embed.footer.text
-                        if embed.footer
-                        else "Please check listing before purchase"
-                    )
-                )
-
-                # Build content message
-                content = ""
-                if alert.get("role_id"):
-                    role = message.guild.get_role(alert["role_id"])
+        # --- inside your for alert in alerts_to_check loop ---
+        content = ""
+        if alert.get("role_id"):
+            guild = bot.get_guild(STRAYMONS_GUILD_ID)
+            if guild:
+                role_key = (guild.id, alert["role_id"])
+                role = _role_cache.get(role_key)
+                if not role:
+                    role = guild.get_role(alert["role_id"])
                     if role:
-                        content += role.mention + " "
-                    else:
-                        guild = bot.get_guild(STRAYMONS_GUILD_ID)
-                        if guild:
-                            role = guild.get_role(alert["role_id"])
-                            content += role.mention + " "
+                        _role_cache[role_key] = role  # cache it
+                if role:
+                    content += role.mention + " "
+        content += f"{poke_name} on market for {PokeCoin} {listed_price:,}"
 
-                content += f"{poke_name} on market for {PokeCoin} {listed_price:,}"
-
-                # Send alert
-                try:
-                    await channel.send(content=content, embed=new_embed)
-                except Exception as e:
-                    espeon_log(
-                        "error",
-                        f"Failed to send market alert: {e}",
-                        context=EspeonContext.STRAYMONS,
-                    )
+        # Send
+        try:
+            await channel.send(content=content, embed=new_embed)
+            espeon_log(
+                "info",
+                f"Sent market alert for {poke_name} #{poke_dex} to channel {alert['channel_id']}",
+                context=EspeonContext.STRAYMONS,
+            )
+        except Exception as e:
+            espeon_log(
+                "error",
+                f"Failed to send market alert: {e}",
+                context=EspeonContext.STRAYMONS,
+            )

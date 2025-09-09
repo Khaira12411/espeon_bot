@@ -50,15 +50,17 @@ async def user_alerts_autocomplete(
     interaction: discord.Interaction, current: str
 ) -> list[app_commands.Choice[str]]:
     """
-    Autocomplete for the user's own market alerts.
+    Autocomplete for the user's own market alerts from cache.
     Choice.name = "Name #Dex — price"
     Choice.value = "Name" only
     """
-    bot = interaction.client
+    from utils.cache.market_alert_cache import fetch_user_alerts_from_cache
+
     user_id = interaction.user.id
 
+    # Fetch all alerts for this user from cache
     try:
-        rows = await fetch_user_alerts(bot, user_id)
+        rows = fetch_user_alerts_from_cache(user_id)
     except Exception:
         rows = []
 
@@ -67,7 +69,8 @@ async def user_alerts_autocomplete(
 
     for row in rows:
         name = row["pokemon"].title()
-        dex = row["dex_number"]
+        dex = row.get("dex_number")
+        max_price = row.get("max_price", 0)
 
         display = f"{name} #{dex}"
 
@@ -75,7 +78,7 @@ async def user_alerts_autocomplete(
         if not current or current in name.lower() or current in str(dex):
             results.append(app_commands.Choice(name=display, value=name))
 
-        if len(results) >= 25:
+        if len(results) >= 25:  # Discord limit
             break
 
     # fallback
@@ -119,9 +122,16 @@ def build_weakness_indexes(weakness_chart: dict):
 # create indexes (replace WEAKNESS_CHART with your dict)
 DEX_TO_KEY, KEY_NORMALIZED = build_weakness_indexes(WEAKNESS_CHART)
 
+# Pre-build a clean list for fast autocomplete
+POKEMON_LIST: list[tuple[str, int]] = [
+    (key.title(), int(data.get("dex", 0)))
+    for key, data in WEAKNESS_CHART.items()
+    if data.get("dex") is not None
+]
+
 
 # -------------------------- Autocomplete function --------------------------
-async def pokemon_autocomplete(
+async def old_pokemon_autocomplete(
     interaction: discord.Interaction, current: str
 ) -> list[app_commands.Choice[str]]:
     current = (current or "").lower().strip()
@@ -147,3 +157,44 @@ async def pokemon_autocomplete(
 
     # Always return something
     return results or [app_commands.Choice(name="No matches found", value=current)]
+
+
+# -------------------------- Clean Pokemon Autocomplete --------------------------
+import re
+from discord import app_commands
+
+# Pre-build a normalized list for autocomplete
+POKEMON_NORMALIZED: list[tuple[str, str, int]] = []
+for name, dex in POKEMON_LIST:
+    # remove punctuation & spaces for normalized lookup
+    norm = re.sub(r"[^\w\s]", "", name.lower()).replace(" ", "")
+    POKEMON_NORMALIZED.append((name, norm, dex))
+
+
+async def pokemon_autocomplete(
+    interaction: discord.Interaction, current: str
+) -> list[app_commands.Choice[str]]:
+    """
+    Autocomplete Pokémon names with #Dex display.
+    Fuzzy matching: punctuation & spaces ignored.
+    Returns max 25 results.
+    """
+    current_simple = re.sub(r"[^\w\s]", "", (current or "").lower()).replace(" ", "")
+    results: list[app_commands.Choice[str]] = []
+    seen = set()  # prevent duplicates
+
+    for name, norm, dex in POKEMON_NORMALIZED:
+        if not current_simple or current_simple in norm:
+            display = f"{name} #{dex}"
+            if display not in seen:
+                results.append(app_commands.Choice(name=display, value=name))
+                seen.add(display)
+        if len(results) >= 25:
+            break
+
+    if not results:
+        results.append(
+            app_commands.Choice(name="No matches found", value=current or "")
+        )
+
+    return results

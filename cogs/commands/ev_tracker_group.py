@@ -7,6 +7,7 @@ from discord.ext import commands
 
 from utils.essentials.command_group_counter import *
 from utils.essentials.command_safe import run_command_safe
+from utils.essentials.pokemon_autocomplete import *
 from utils.essentials.role_checks import *
 from utils.group_func.ev_tracker import *
 
@@ -33,6 +34,7 @@ class EvTrackerGroup(commands.Cog):
         description="Start tracking EVs for a Pokemon (one mon at a time)",
     )
     @espeon_roles_only()
+    @app_commands.autocomplete(pokemon=pokemon_autocomplete)  # 👈 attach autocomplete
     @app_commands.describe(
         pokemon="Name of the Pokemon you want to track (required)",
         hp="Current/goal HP EVs (e.g., 0/252) to start tracking",

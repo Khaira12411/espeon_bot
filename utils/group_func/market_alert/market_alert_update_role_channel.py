@@ -63,9 +63,11 @@ async def update_market_alert_role_channel_func(
         updated_count = await update_user_alerts_channel_or_role(
             bot, user_id=user_id, channel_id=channel_id, role_id=role_id
         )
-        from utils.cache.market_alert_cache import load_market_alert_cache
+        from utils.cache.market_alert_cache import update_user_alerts_in_cache
 
-        await load_market_alert_cache(bot)
+        update_user_alerts_in_cache(
+            user_id=user_id, new_channel_id=channel_id, new_role_id=role_id
+        )
     except Exception as e:
         espeon_log(
             "error",

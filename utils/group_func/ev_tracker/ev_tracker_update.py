@@ -126,6 +126,28 @@ async def ev_tracker_update_func(
             dex_number=dex_number,
         )
 
+        # 💜 Update cache directly for this user instead of full reload
+        from utils.cache.ev_tracker_cache import update_ev_tracker_cache, insert_ev_tracker_cache, get_ev_tracker
+
+        cached_user = get_ev_tracker(user_id)
+        if cached_user:
+            # Update only the stats that were provided
+            for stat, current in evs_to_track.items():
+                update_ev_tracker_cache(user_id, stat, current, is_goal=False)
+            for stat, goal in goals_to_track.items():
+                update_ev_tracker_cache(user_id, stat, goal, is_goal=True)
+        else:
+            # User not in cache? Insert full row
+            insert_ev_tracker_cache({
+                "user_id": user_id,
+                "user_name": user.name,
+                "pokemon": pokemon_title,
+                "dex_number": dex_number,
+                **evs_to_track,
+                **{f"{k}_goal": v for k, v in goals_to_track.items()},
+            })
+
+        # Build embed for user confirmation
         description_lines = [
             f"**Pokemon:** {pokemon_title} #{dex_number}\n {Espeon_Emoji.purple_pie} **EVs:**"
         ]
@@ -133,9 +155,7 @@ async def ev_tracker_update_func(
             goal = goals_to_track.get(stat)
             display_current = current if current is not None else "-"
             display_goal = goal if goal is not None else "-"
-            description_lines.append(
-                f"- {stat.upper()}: {display_current}/{display_goal}"
-            )
+            description_lines.append(f"- {stat.upper()}: {display_current}/{display_goal}")
         description_text = "\n".join(description_lines)
 
         embed = discord.Embed(
@@ -143,9 +163,7 @@ async def ev_tracker_update_func(
             description=description_text,
             color=0xFF99FF,
         )
-
         embed = await design_embed(embed=embed, user=user, pokemon_name=pokemon_title)
-        await load_ev_tracker_cache(bot)
 
         # Sends final embed
         await handle.stop(embed=embed)
@@ -155,35 +173,6 @@ async def ev_tracker_update_func(
             message=f"User {user_id} updated {pokemon_title} EVs: {evs_to_track} with goals {goals_to_track}",
             context=EspeonContext.STRAYMONS,
         )
-
-        # -------------------- Step 4: Send log embed to staff --------------------
-        staff_channel = bot.get_channel(STAFF_LOG_CHANNEL_ID)
-        if staff_channel:
-            # Build description like the user confirmation
-            description_lines = [
-                f"- **Member:** {user.mention}",
-                f"- **Pokemon:** {pokemon_title} #{dex_number}",
-                f"{Espeon_Emoji.purple_pie} **EVs:**",
-            ]
-            for stat, current in evs_to_track.items():
-                goal = goals_to_track.get(stat)
-                display_current = current if current is not None else "-"
-                display_goal = goal if goal is not None else "-"
-                description_lines.append(
-                    f"- {stat.upper()}: {display_current}/{display_goal}"
-                )
-
-            staff_description = "\n".join(description_lines)
-
-            staff_embed = discord.Embed(
-                title=f"{Espeon_Emoji.purple_three_flowers} EV Tracker Update",
-                description=staff_description,
-                color=0xAA66FF,
-            )
-            staff_embed = await design_embed(
-                embed=staff_embed, user=user, pokemon_name=pokemon_title
-            )
-            await staff_channel.send(embed=staff_embed)
 
     except Exception as e:
         espeon_log(

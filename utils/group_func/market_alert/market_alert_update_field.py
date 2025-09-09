@@ -12,6 +12,9 @@ from utils.visuals.embeds.get_log_channel import get_log_channel
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 
 
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#   ✨ Espeon Core Function › Market Alert Update ✨
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async def update_market_alert_func(
     bot,
     interaction: discord.Interaction,
@@ -26,7 +29,11 @@ async def update_market_alert_func(
     Update an existing market alert. Sends the embed directly to the interaction.
     Only updates columns for which a new value is provided.
     """
-    from utils.cache.market_alert_cache import load_market_alert_cache
+    from utils.cache.market_alert_cache import (
+        insert_alert,
+        market_alert_cache,
+        remove_alert,
+    )
 
     user = interaction.user
     user_id = user.id
@@ -82,8 +89,50 @@ async def update_market_alert_func(
             bot, user_id=user_id, dex_number=dex_number, pokemon=pokemon_name, **updates
         )
 
-        await loader.edit(content="Refreshing cache...")
-        await load_market_alert_cache(bot)
+        await loader.edit(content="Updating alert in cache...")
+
+        # ── Determine existing alert channel in cache ──
+        old_channel = next(
+            (
+                a["channel_id"]
+                for a in market_alert_cache
+                if a["pokemon"].lower() == pokemon_name.lower()
+                and a.get("user_id") == user_id
+            ),
+            None,
+        )
+
+        # Prepare only non-None updates for cache
+        cache_updates = {k: v for k, v in updates.items() if v is not None}
+
+        if channel_id and channel_id != old_channel:
+            # Channel changed: remove old alert and insert new one
+            if old_channel:
+                remove_alert(
+                    pokemon_name=pokemon_name, channel_id=old_channel, user_id=user_id
+                )
+
+            insert_alert(
+                {
+                    "user_id": user_id,
+                    "pokemon": pokemon_name.lower(),
+                    "dex_number": dex_number,
+                    "channel_id": channel_id,
+                    **cache_updates,
+                }
+            )
+        else:
+            # Update in-place
+            if old_channel:
+                insert_alert(
+                    {
+                        "user_id": user_id,
+                        "pokemon": pokemon_name.lower(),
+                        "dex_number": dex_number,
+                        "channel_id": old_channel,
+                        **cache_updates,
+                    }
+                )
 
     except Exception as e:
         espeon_log(

@@ -22,6 +22,9 @@ from utils.visuals.embeds.get_log_channel import get_log_channel
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 
 
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#   ✨ Espeon Core Function › Market Alert Add ✨
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async def add_market_alert_func(
     bot,
     interaction: discord.Interaction,
@@ -38,7 +41,7 @@ async def add_market_alert_func(
     - Updates steps live
     - Sends final confirmation embed
     """
-    from utils.cache.market_alert_cache import load_market_alert_cache
+    from utils.cache.market_alert_cache import insert_alert, load_market_alert_cache
 
     user = interaction.user
     user_id = user.id
@@ -102,10 +105,18 @@ async def add_market_alert_func(
             role_id,
             notify,
         )
-
+        alert_entry = {
+            "pokemon": target_name.lower(),
+            "dex_number": dex_number,
+            "max_price": max_price_int,
+            "channel_id": channel.id,
+            "role_id": role_id,
+            "notify": notify,
+            "user_id": user_id,
+        }
         # 🔹 Step 4: Refresh cache
-        await loader.edit(content="Refreshing cache...")
-        await load_market_alert_cache(bot)
+        await loader.edit(content="Adding alert to cache...")
+        insert_alert(alert=alert_entry)
 
         # 🔹 Step 5: Increment alerts used
         await loader.edit(content="Finalizing...")
@@ -165,7 +176,9 @@ async def add_market_alert_func(
             color=0xFF99FF,
             timestamp=datetime.now(),
         )
-        log_embed = await design_embed(embed=log_embed, user=user, pokemon_name=target_name)
+        log_embed = await design_embed(
+            embed=log_embed, user=user, pokemon_name=target_name
+        )
 
     # 💜 Stop loader and show final embed
     await loader.stop(embed=user_embed, delete=False)

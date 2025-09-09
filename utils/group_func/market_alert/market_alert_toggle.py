@@ -3,6 +3,7 @@
 # 🟣────────────────────────────────────────────
 
 import discord
+
 from config.emojis import PokeCoin
 from utils.group_func.market_alert.db_func.market_alert_db_func import (
     toggle_market_alert_notify,
@@ -11,6 +12,9 @@ from utils.group_func.market_alert.parsers import resolve_pokemon_input
 from utils.loggers.espeon_log import espeon_log
 
 
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#   ✨ Espeon Core Function › Market Alert Toggle ✨
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async def toggle_market_alert_func(
     bot, interaction: discord.Interaction, pokemon: str, value: bool
 ):
@@ -18,7 +22,7 @@ async def toggle_market_alert_func(
     Toggle 'notify' on/off for a specific Pokémon/Dex alert or all alerts.
     Sends the resulting embed directly to the interaction.
     """
-    from utils.cache.market_alert_cache import load_market_alert_cache
+    from utils.cache.market_alert_cache import update_user_alerts_in_cache
 
     user = interaction.user
     user_id = user.id
@@ -28,7 +32,8 @@ async def toggle_market_alert_func(
         # ── Handle ALL case ──
         if pokemon.lower() == "all":
             updated_count = await toggle_market_alert_notify(bot, user_id, value, "all")
-            await load_market_alert_cache(bot)
+            # Bulk update cache for this user
+            update_user_alerts_in_cache(user_id=user_id, new_notify=value)
             embed = discord.Embed(
                 title="💜 Market Alerts Updated",
                 description=f"Toggled **{updated_count} alert(s)** to {'✅ Enabled' if value else '❌ Disabled'}.",
@@ -64,7 +69,11 @@ async def toggle_market_alert_func(
         updated_count = await toggle_market_alert_notify(
             bot, user_id, value, target_name
         )
-        await load_market_alert_cache(bot)
+
+        # Refresh this user’s cache (single update still handled by same function)
+        update_user_alerts_in_cache(
+            user_id=user_id, new_notify=value, target_pokemon=target_name
+        )
 
         if updated_count == 0:
             embed = discord.Embed(

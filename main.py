@@ -242,6 +242,27 @@ async def startup_tasks():
 from discord.errors import NotFound
 
 
+def _get_original_error(error: Exception) -> Exception:
+    """Unwrap original error from AppCommandInvokeError chain."""
+    e = error
+    while hasattr(e, "__cause__") and e.__cause__ is not None:
+        e = e.__cause__
+    return e
+
+
+# ── 💜 Unified Command Error Handler 💜 ──
+from discord.errors import NotFound
+
+
+# ── Helper to unwrap original error ──
+def _get_original_error(error: Exception) -> Exception:
+    """Unwrap original error from AppCommandInvokeError chain."""
+    e = error
+    while hasattr(e, "__cause__") and e.__cause__ is not None:
+        e = e.__cause__
+    return e
+
+
 # ── 💜 Unified Command Error Handler 💜 ──
 async def handle_command_error(
     error: Exception, ctx_or_interaction, is_slash: bool = False
@@ -258,8 +279,8 @@ async def handle_command_error(
         return
 
     # ✅ Ignore autocomplete "Unknown interaction" (user typed too fast)
-    if isinstance(error, NotFound) and is_slash:
-        # optional pretty log instead of scary traceback
+    original = _get_original_error(error)
+    if isinstance(original, NotFound) and is_slash:
         espeon_log("info", "Autocomplete interaction expired — safe to ignore")
         return
 

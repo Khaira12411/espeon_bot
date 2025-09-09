@@ -51,6 +51,8 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
     Fetch all market alerts for a user, build embeds with pagination if needed,
     and send them directly to the interaction.
     """
+    from utils.cache.market_alert_cache import fetch_user_alerts_from_cache
+
     user = interaction.user
     user_id = user.id
 
@@ -64,7 +66,8 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
     status_message = status["message"]
 
     try:
-        alerts = await fetch_user_alerts(bot, user_id)
+        # 🔹 Use cache instead of hitting DB
+        alerts = fetch_user_alerts_from_cache(user_id)
 
         # 🟣 No alerts case
         if not alerts:
@@ -76,7 +79,7 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
             embed = await design_embed(
                 embed=embed,
                 user=user,
-                footer_text="Use /market-alert add` to create one ✨",
+                footer_text="Use /market-alert add to create one ✨",
                 thumbnail_url=Espeon_Thumbnail.purple_list,
             )
             await handle.stop(embed=embed)
@@ -139,7 +142,7 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
         # 📦 Log success
         espeon_log(
             "sent",
-            f"Sent market alerts to user {user_id} ({len(alerts)} alerts)",
+            f"Sent market alerts to user {user_id} ({len(alerts)} alerts) from cache",
             source="MarketAlert",
         )
 

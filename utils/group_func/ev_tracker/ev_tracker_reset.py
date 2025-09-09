@@ -23,76 +23,75 @@ from utils.visuals.gif import fetch_pokemon_gif
 #   ✨ Espeon Core Function › EV Tracker Reset ✨
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
+    from utils.cache.ev_tracker_cache import remove_ev_tracker_cache, get_ev_tracker
+
     user = interaction.user
     user_id = user.id
-    from utils.cache.ev_tracker_cache import ev_tracker_cache, load_ev_tracker_cache
 
     try:
         # ✨──────── Step 0 › Defer & Fetch Tracked Pokémon ─────✨
         handle = await pretty_defer(
             interaction=interaction, content="Resetting your EV Tracker..."
         )
-        tracked_data = await get_tracked_ev(
-            bot, user_id
-        )  # fetch tracked Pokémon from DB
-        tracked_list = tracked_data["pokemon"] if tracked_data else None
+
+        # Prefer cache first
+        cached = get_ev_tracker(user_id)
+        tracked_list = cached["pokemon"] if cached else None
+
+        # Fallback to DB if needed
+        if not tracked_list:
+            tracked_data = await get_tracked_ev(bot, user_id)
+            tracked_list = tracked_data["pokemon"] if tracked_data else None
 
         # ✨──────── Step 1 › Remove from DB ─────✨
-        deleted = await delete_tracked_ev(bot, user_id)  # delete tracked data
+        deleted = await delete_tracked_ev(bot, user_id)
         if not deleted:
-            await handle.stop(
-                content="❌ You aren't EV tracking any mons!"
-            )  # early return if none
+            await handle.stop(content="❌ You aren't EV tracking any mons!")
             return
 
+        # 💜 Remove from cache immediately
+        remove_ev_tracker_cache(user_id)
+
         # ✨──────── Step 2 › Build Confirmation Embed ─────✨
-        thumbnail_url = interaction.user.display_avatar.url  # fallback avatar
+        thumbnail_url = interaction.user.display_avatar.url
         description = (
             f"✅ Your current EV tracker for **{tracked_list}** has been reset!"
             if tracked_list
             else "✅ Your EV tracker has been reset! Use `/ev-tracker add` to track a new Pokémon!"
         )
+
+        if tracked_list:
+            pokemon_gif_url = await fetch_pokemon_gif(pokemon=tracked_list)
+            if pokemon_gif_url:
+                thumbnail_url = pokemon_gif_url
+
         embed = discord.Embed(
             title=f"{Espeon_Emoji.purple_broom} EV Tracker Reset",
             description=description,
             color=0xFF99FF,
         )
-        footer_text = f"Use `/ev-tracker add` to track a new Pokémon!"
-        # 💜 Fetching Pokémon GIF to make it extra cute 💜
-        if tracked_list:
-            pokemon_gif_url = await fetch_pokemon_gif(pokemon=tracked_list)
-            if pokemon_gif_url:
-                thumbnail_url = pokemon_gif_url  # replace avatar with Pokémon GIF
-
         embed = await design_embed(
             embed=embed,
-            user=interaction.user,
+            user=user,
             thumbnail_url=thumbnail_url,
-            footer_text=footer_text,
-        )  # apply Espeon embed styling
+            footer_text="Use `/ev-tracker add` to track a new Pokémon!",
+        )
+        await handle.stop(embed=embed)
 
-        await handle.stop(embed=embed)  # send the confirmation embed
-
-        # ✨──────── Step 3 › Log Reset to Staff ─────✨
+        # ✨──────── Step 3 › Staff log ─────✨
         staff_channel = bot.get_channel(STAFF_LOG_CHANNEL_ID)
-        desc = format_bulletin_desc(
-            "Member", user.mention, "Pokemon", tracked_list
-        )  # mini info
         if staff_channel:
+            desc = format_bulletin_desc("Member", user.mention, "Pokemon", tracked_list)
             staff_embed = discord.Embed(
                 title=f"{Espeon_Emoji.purple_broom} EV Tracker Reset",
                 description=desc,
             )
             staff_embed = await design_embed(
                 embed=staff_embed, user=user, thumbnail_url=thumbnail_url
-            )  # staff embed with same cute thumbnail
-            await staff_channel.send(embed=staff_embed)  # log to staff
-
-        # 💜 Refresh EV Tracker Cache 💜
-        await load_ev_tracker_cache(bot)
+            )
+            await staff_channel.send(embed=staff_embed)
 
     except Exception as e:
-        # ❌ Error logging if something goes wrong
         espeon_log(
             tag="error",
             message=f"Failed to reset EVs for user {user_id}: {e}",

@@ -41,7 +41,6 @@ async def fetch_pokemon_gif(pokemon: str) -> str | None:
     return None
 
 
-# -------------------- Main Function (Gmax aware with Urshifu) --------------------
 # -------------------- Main Function (Gmax aware with Urshifu + Golden) --------------------
 async def insert_pokemon_gif_embed(
     input_name: str,

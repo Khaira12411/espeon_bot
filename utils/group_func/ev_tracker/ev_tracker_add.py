@@ -153,6 +153,20 @@ async def ev_tracker_add_func(
             dex_number=dex_number,
         )
 
+        # 💜 Insert/update cache instead of full reload
+        from utils.cache.ev_tracker_cache import insert_ev_tracker_cache
+
+        insert_ev_tracker_cache(
+            {
+                "user_id": user_id,
+                "user_name": user.name,
+                "pokemon": pokemon_title,
+                "dex_number": dex_number,
+                **evs_to_track,
+                **{f"{k}_goal": v for k, v in goals_to_track.items()},
+            }
+        )
+
         # ✨──────── Step 4 › Build Confirmation Embed ─────✨
         user_desc_lines = [
             f"- **Pokemon:** {pokemon_title} #{dex_number}\n{Espeon_Emoji.purple_pie} **EVs:**"
@@ -169,7 +183,6 @@ async def ev_tracker_add_func(
             bot=bot, embed=embed, input_name=pokemon_title
         )
 
-        await load_ev_tracker_cache(bot)
         await handle.stop(embed=embed)
 
         espeon_log(

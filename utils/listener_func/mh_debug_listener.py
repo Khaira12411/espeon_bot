@@ -3,7 +3,9 @@
 # ─────────────────────────────────────────────
 
 import re
+
 import discord
+
 from utils.cache.market_alert_cache import market_alert_cache
 
 MEOWHELPER_NAME = "MeowHelper Market"
@@ -102,6 +104,4 @@ async def process_market_alert_message(
             else:
                 print(f"[DEBUG] Price {listed_price} exceeds max {alert['max_price']}")
         else:
-            print(
-                f"[DEBUG] Alert did not match: {alert['pokemon_name']} vs {poke_name}"
-            )
+            print(f"[DEBUG] Alert did not match: {alert['pokemon']} vs {poke_name}")
