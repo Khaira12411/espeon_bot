@@ -14,7 +14,7 @@ from utils.group_func.market_alert.db_func.market_alert_db_func import (
     remove_all_market_alerts,
     remove_market_alert,
 )
-from utils.group_func.market_alert.parsers import resolve_pokemon_input
+from utils.group_func.market_alert.parsers import resolve_pokemon_input, parse_special_mega_input
 from utils.loggers.espeon_log import espeon_log
 from utils.visuals.embeds.get_log_channel import get_log_channel
 from utils.visuals.embeds.visual_helpers import design_embed
@@ -78,7 +78,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
                     for prefix in ["", "Shiny ", "Golden "]
                 ):
                     target_name = pokemon_title
-                    dex_number = None
+                    dex_number = parse_special_mega_input(pokemon)
                 else:
                     for prefix in ["Shiny ", "Golden "]:
                         if pokemon_title.startswith(prefix):

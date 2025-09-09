@@ -33,7 +33,7 @@ class Weakness(commands.Cog):
                 ephemeral=True,
             )
             return
-        embed = await pokemon_embed(embed=embed, pokemon_name=pokemon)
+        embed = await pokemon_embed(embed=embed, pokemon_name=pokemon, bot=self.bot)
         await interaction.response.send_message(embed=embed)
 
     test_weakness.extras = {"category": "Public"}
