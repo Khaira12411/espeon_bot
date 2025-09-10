@@ -33,7 +33,8 @@ for logger_name in [
 ]:
     logging.getLogger(logger_name).setLevel(logging.CRITICAL)
 logging.getLogger("discord.client").setLevel(logging.CRITICAL)
-
+# Suppress the noisy "Ignoring exception in autocomplete" messages
+logging.getLogger("discord.app_commands.tree").setLevel(logging.CRITICAL)
 # ——————————————————————————————————————————————————————————————
 # 💜 Bot Setup
 # ——————————————————————————————————————————————————————————————

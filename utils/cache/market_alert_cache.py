@@ -155,10 +155,6 @@ def get_alert(pokemon_name: str, channel_id: int, user_id: int) -> dict | None:
 
 def fetch_user_alerts_from_cache(user_id: int) -> list[dict]:
     user_alerts = [a for a in market_alert_cache if a["user_id"] == user_id]
-    espeon_log(
-        "info",
-        f"[Market Alert Cache] Lookup (list-scan) for user {user_id} → {len(user_alerts)} alerts (list has {len(market_alert_cache)})",
-    )
     return user_alerts
 
 # -------------------- Bulk Update (Channel/Role) --------------------

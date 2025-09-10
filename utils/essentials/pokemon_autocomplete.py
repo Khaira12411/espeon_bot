@@ -100,28 +100,43 @@ def format_display_name(raw_name: str) -> str:
 
 
 # ==================== 🌟 Autocomplete Functions ==================== #
+# ==================== 🌟 Autocomplete Functions ==================== #
 async def pokemon_autocomplete(
     interaction: discord.Interaction, current: str
 ) -> list[app_commands.Choice[str]]:
     """
     Autocomplete Pokémon names with #Dex display.
-    Special cases:
-      - 'mega-' prefix is shown without dashes.
-      - 'golden-' and 'shiny-' prefixes handled.
-    Fuzzy matching: punctuation & spaces ignored.
-    Returns max 25 results.
+    Matches both names and dex numbers.
     """
     current_simple = re.sub(r"[^\w\s]", "", (current or "").lower()).replace(" ", "")
     results: list[app_commands.Choice[str]] = []
     seen = set()
 
+    # Check if input looks numeric (dex search)
+    dex_query = None
+    if current_simple.isdigit():
+        try:
+            dex_query = int(current_simple)
+        except ValueError:
+            dex_query = None
+
     for name, norm, dex in POKEMON_NORMALIZED:
+        # Match by name
         if not current_simple or current_simple in norm:
             display_name = format_display_name(name)
             display = f"{display_name} #{dex}"
             if display not in seen:
                 results.append(app_commands.Choice(name=display, value=name))
                 seen.add(display)
+
+        # Match by dex number
+        if dex_query is not None and dex_query == dex:
+            display_name = format_display_name(name)
+            display = f"{display_name} #{dex}"
+            if display not in seen:
+                results.append(app_commands.Choice(name=display, value=name))
+                seen.add(display)
+
         if len(results) >= 25:
             break
 
@@ -140,6 +155,7 @@ async def user_alerts_autocomplete(
     Autocomplete for the user's own market alerts from cache.
     Choice.name = "Name #Dex — price"
     Choice.value = "Name" only
+    Matches both names and dex numbers.
     """
     from utils.cache.market_alert_cache import fetch_user_alerts_from_cache
 
@@ -152,6 +168,14 @@ async def user_alerts_autocomplete(
     current = (current or "").lower().strip()
     results: list[app_commands.Choice[str]] = []
 
+    # Check if input is numeric
+    dex_query = None
+    if current.isdigit():
+        try:
+            dex_query = int(current)
+        except ValueError:
+            dex_query = None
+
     for row in rows:
         raw_name = row["pokemon"]
         name = format_display_name(raw_name)
@@ -160,7 +184,12 @@ async def user_alerts_autocomplete(
 
         display = f"{name} #{dex}"
 
-        if not current or current in name.lower() or current in str(dex):
+        if (
+            not current
+            or current in name.lower()
+            or (dex is not None and current in str(dex))
+            or (dex_query is not None and dex_query == dex)
+        ):
             results.append(app_commands.Choice(name=display, value=raw_name))
 
         if len(results) >= 25:

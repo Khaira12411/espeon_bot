@@ -174,6 +174,26 @@ def get_pokemon_from_input(pokemon_input: str):
     return None, None, None
 
 
+def clean_display_name(variant_name: str, shiny_golden_tag: str | None = None) -> str:
+    """
+    Format Pokémon display name:
+    - Remove dash for Mega forms (Mega-Abomasnow → Mega Abomasnow)
+    - Handle special cases like Mega-Charizard-X → Mega Charizard X
+    - Keep Shiny/Golden tags intact
+    """
+    display_name = variant_name.title()
+
+    if "mega-" in variant_name.lower():
+        # Replace "Mega-" with "Mega " then strip remaining dashes
+        display_name = display_name.replace("Mega-", "Mega ").replace("-", " ")
+
+    # Add Shiny/Golden tag if present
+    if shiny_golden_tag:
+        display_name = f"{shiny_golden_tag} {display_name}"
+
+    return display_name
+
+
 # -------------------- Embed Builder --------------------
 def build_weakness_embed_from_input(pokemon_input: str) -> discord.Embed | None:
     variant_name, shiny_golden_tag, base_dex = get_pokemon_from_input(pokemon_input)
@@ -193,10 +213,17 @@ def build_weakness_embed_from_input(pokemon_input: str) -> discord.Embed | None:
     types = weaknesses.get("types", [])
     type_emojis_str = "".join(type_emojis.get(t, "") for t in types)
 
-    title_name = f"{variant_name.title()}"
-    if shiny_golden_tag:
-        title_name = f"{shiny_golden_tag} {title_name}"
-    embed_title = f"{title_name} {type_emojis_str}"
+    # 🟢 Clean up title (fix Mega hyphen issue)
+    def clean_display_name(raw_name: str, tag: str | None = None) -> str:
+        display_name = raw_name.title()
+        if "mega-" in raw_name.lower():
+            display_name = display_name.replace("Mega-", "Mega ").replace("-", " ")
+        if tag:
+            display_name = f"{tag} {display_name}"
+        return display_name
+
+    display_name = clean_display_name(variant_name, shiny_golden_tag)
+    embed_title = f"{display_name} {type_emojis_str}"
 
     embed_color = TYPE_COLOR.get(types[0], 0x74CEC0) if types else 0x74CEC0
 
