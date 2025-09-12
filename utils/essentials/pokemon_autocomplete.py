@@ -3,8 +3,10 @@
 import ast
 import os
 import re
+
 import discord
 from discord import app_commands
+
 from utils.group_func.market_alert.db_func.market_alert_db_func import *
 
 # ==================== 💠 Config ==================== #
@@ -126,7 +128,7 @@ async def pokemon_autocomplete(
             display_name = format_display_name(name)
             display = f"{display_name} #{dex}"
             if display not in seen:
-                results.append(app_commands.Choice(name=display, value=name))
+                results.append(app_commands.Choice(name=display.title(), value=name))
                 seen.add(display)
 
         # Match by dex number
@@ -190,7 +192,7 @@ async def user_alerts_autocomplete(
             or (dex is not None and current in str(dex))
             or (dex_query is not None and dex_query == dex)
         ):
-            results.append(app_commands.Choice(name=display, value=raw_name))
+            results.append(app_commands.Choice(name=display.title(), value=raw_name))
 
         if len(results) >= 25:
             break

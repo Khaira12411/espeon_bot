@@ -24,7 +24,6 @@ class Weakness(commands.Cog):
     @app_commands.autocomplete(pokemon=pokemon_autocomplete)  # 👈 attach autocomplete
     async def test_weakness(self, interaction: discord.Interaction, pokemon: str):
         # pokemon here is already the Choice.value you set in autocomplete
-        print(pokemon)
         embed = build_weakness_embed_from_input(pokemon)
 
         if not embed:
