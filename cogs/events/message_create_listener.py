@@ -21,8 +21,13 @@ from utils.listener_func.market_alert import process_market_alert_message
 from utils.listener_func.mr_weakness import mr_weakness_chart
 from utils.listener_func.pokemon_timer import *
 from utils.loggers.espeon_log import espeon_log
-
-
+from config.straymons_constants import STRAYMONS__CATEGORIES, STRAYMONS__TEXT_CHANNELS
+MARKETFEED_CHANNELS = {
+STRAYMONS__TEXT_CHANNELS.ic_u_r_s_market_feed,
+STRAYMONS__TEXT_CHANNELS.iiishiny_market_feed,
+STRAYMONS__TEXT_CHANNELS.iil_m_gmax_market_feed,
+STRAYMONS__TEXT_CHANNELS.ivgolden_market_feed,
+}
 class MessageCreateListener(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -74,9 +79,10 @@ class MessageCreateListener(commands.Cog):
                 await handle_pokemeow_embed_sync(bot=self.bot, message=message)
 
             # --- Market alert processing only in staff guild ---
-            if message.guild and message.guild.id == STAFF_SERVER_GUILD_ID:
+            if message.guild and message.guild.id == STRAYMONS_GUILD_ID and message.channel.id in MARKETFEED_CHANNELS:
                 await process_market_alert_message(
-                    self.bot, message, STAFFMONS_CATEGORIES.MARKET_FEEDS
+                    self.bot, message, STRAYMONS__CATEGORIES.MONSTREET_EXCHANGE
+
                 )
                 await as_rare_ping(bot=self.bot, message=message)
 

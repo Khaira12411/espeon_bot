@@ -12,11 +12,18 @@ from config.emojis import PokeCoin
 from utils.cache.market_alert_cache import market_alert_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
-ALLOWED_WEBHOOKS = {
+STAFFMONS_ALLOWED_WEBHOOKS = {
     1407471446023868416,  # Shiny
     1407470834251206677,  # Regular
     1407471147695476776,  # Legendary
     1407471632368402514,  # Golden
+}
+
+ALLOWED_WEBHOOKS = {
+    1301883013571022892,  # Shiny
+    1301882441547513879,  # Regular
+    1301882823631966280,  # Legendary
+    1301883351359164486,  # Golden
 }
 
 # 🔹 Global role cache (guild_id, role_id) -> discord.Role
