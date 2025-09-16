@@ -158,5 +158,37 @@
     "group": null,
     "subgroup": null,
     "name": "pokemon-view"
+  },
+  "wb-sub add": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "wb-sub",
+    "subgroup": null,
+    "name": "add"
+  },
+  "wb-sub remove": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "wb-sub",
+    "subgroup": null,
+    "name": "remove"
+  },
+  "wb-sub update": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "wb-sub",
+    "subgroup": null,
+    "name": "update"
+  },
+  "wb-sub view": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "wb-sub",
+    "subgroup": null,
+    "name": "view"
   }
 }

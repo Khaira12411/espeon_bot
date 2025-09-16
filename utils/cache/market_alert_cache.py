@@ -22,7 +22,7 @@ async def load_market_alert_cache(bot):
     _market_alert_index.clear()
 
     active_alerts = await fetch_active_market_alerts(bot)
-    espeon_log("info", f"[Market Alert Cache] DB returned {len(active_alerts)} alerts")
+    #espeon_log("info", f"[Market Alert Cache] DB returned {len(active_alerts)} alerts")
 
     for alert in active_alerts:
         alert_entry = {
@@ -43,10 +43,10 @@ async def load_market_alert_cache(bot):
         )
         _market_alert_index[key] = alert_entry
 
-    espeon_log(
+    """espeon_log(
         "info",
         f"[Market Alert Cache] After load → {len(market_alert_cache)} in list, {len(_market_alert_index)} in index (sample keys: {list(_market_alert_index.keys())[:3]})",
-    )
+    )"""
 
     return market_alert_cache
 

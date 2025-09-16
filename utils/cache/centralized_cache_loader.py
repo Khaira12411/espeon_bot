@@ -1,101 +1,44 @@
-# 🟣────────────────────────────────────────────
-#       💜 Centralized Cache Loader 💜
+# 💜────────────────────────────────────────────
+#       🟣 Centralized Cache Loader 💜
 #       🎀 Calls all individual caches 🎀
-# ─────────────────────────────────────────────
+# 💜────────────────────────────────────────────
 
 from utils.cache.ev_tracker_cache import ev_tracker_cache, load_ev_tracker_cache
-from utils.cache.market_alert_cache import load_market_alert_cache, market_alert_cache, _market_alert_index
+from utils.cache.market_alert_cache import (
+    load_market_alert_cache,
+    market_alert_cache,
+    _market_alert_index,
+)
 from utils.cache.mr_weakness_cache import (
     load_mr_weakness_user_cache,
     mr_weakness_user_cache,
 )
 from utils.cache.timers_cache import load_timer_cache, timer_cache
+from utils.cache.wb_sub_cache import WB_PING_CACHE, load_wb_ping_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 
-# 🐾────────────────────────────────────────────
-#     💜 Load Everything in One Go
-# 🐾────────────────────────────────────────────
-async def old_load_all_caches(bot):
-    """
-    Centralized function to load all caches.
-    Calls each cache loader in order and logs once at the end.
-    """
-
-    # 🌸 Load Market Alerts into memory
-    await load_market_alert_cache(bot)
-
-    # 🌟 Load Mr. Weakness user settings into memory
-    await load_mr_weakness_user_cache(bot)
-
-    # 🐼 Load EV Tracker cache
-    await load_ev_tracker_cache(bot)
-
-    # 🎀 Unified single-line log
-    espeon_log(
-        tag="",
-        label="🦋 CENTRAL CACHE",
-        message=(
-            f"All caches refreshed and loaded "
-            f"(Market Alerts: {len(market_alert_cache)} + "
-            f"MR Weakness: {len(mr_weakness_user_cache)} + "
-            f"EV Trackers: {len(ev_tracker_cache)}"
-        ),
-        context=EspeonContext.STRAYMONS,
-    )
-
-
+# 💜────────────────────────────────────────────
+#     🟣 Load Everything in One Go
+# 💜────────────────────────────────────────────
 async def load_all_caches(bot):
     """
     Centralized function to load all caches.
-    Uses the combined fetcher to populate caches in memory.
+    Calls each cache loader and logs memory summary.
     """
-    # 🔹 Fetch all DB data in one go
-    results = await fetch_all_caches_from_db(bot)
+    # 🌸 Load Market Alerts
+    await load_market_alert_cache(bot)
 
-    # 🌸 Market Alerts
-    market_alert_cache.clear()
-    _market_alert_index.clear()  # reset index
+    # 🌟 Load Mr. Weakness
+    await load_mr_weakness_user_cache(bot)
 
-    for alert in results.get("market_alerts", []):
-        alert_entry = {
-            "pokemon": alert["pokemon"].lower(),
-            "dex_number": alert["dex_number"],
-            "max_price": alert["max_price"],
-            "channel_id": alert["channel_id"],
-            "role_id": alert.get("role_id"),
-            "notify": alert.get("notify", True),
-            "user_id": alert.get("user_id"),
-        }
-        market_alert_cache.append(alert_entry)
+    # 🔹 Load EV Tracker
+    await load_ev_tracker_cache(bot)
 
-        key = (
-            alert_entry["pokemon"],
-            alert_entry["channel_id"],
-            alert_entry["user_id"],
-        )
-        _market_alert_index[key] = alert_entry
+    # 🟣 Load WB Ping Cache
+    await load_wb_ping_cache(bot)
 
-    """# 🪄 Debug log for Market Alerts cache + index
-    espeon_log(
-        "info",
-        f"[Market Alert Cache] After load → {len(market_alert_cache)} in list, "
-        f"{len(_market_alert_index)} in index "
-        f"(sample keys: {list(_market_alert_index.keys())[:3]})",
-        context=EspeonContext.STRAYMONS,
-    )"""
-
-    # 🌟 Mr. Weakness
-    mr_weakness_user_cache.clear()
-    for row in results.get("mr_weakness", []):
-        mr_weakness_user_cache[row["user_id"]] = row["display_type"]
-
-    # 🐼 EV Tracker
-    ev_tracker_cache.clear()
-    for row in results.get("ev_tracker", []):
-        ev_tracker_cache[row["user_id"]] = row
-
-    # 🎀 Log summary
+    # 🎀 Unified summary log
     espeon_log(
         tag="",
         label="🦋 CENTRAL CACHE",
@@ -103,33 +46,36 @@ async def load_all_caches(bot):
             f"All caches refreshed and loaded "
             f"(Market Alerts: {len(market_alert_cache)} ~{get_deep_size(market_alert_cache)//1024} KB + "
             f"MR Weakness: {len(mr_weakness_user_cache)} ~{get_deep_size(mr_weakness_user_cache)//1024} KB + "
-            f"EV Trackers: {len(ev_tracker_cache)} ~{get_deep_size(ev_tracker_cache)//1024} KB)"
+            f"EV Trackers: {len(ev_tracker_cache)} ~{get_deep_size(ev_tracker_cache)//1024} KB + "
+            f"WB Pings: {len(WB_PING_CACHE)} ~{get_deep_size(WB_PING_CACHE)//1024} KB)"
         ),
         context=EspeonContext.STRAYMONS,
     )
 
 
-# 🟣────────────────────────────────────────────
-#       💜 Combined Cache Fetcher 💜
-# ─────────────────────────────────────────────
+# 💜────────────────────────────────────────────
+#       🟣 Combined Cache Fetcher 💜
+# 💜────────────────────────────────────────────
 async def fetch_all_caches_from_db(bot):
     """
-    Fetch all active Market Alerts, Mr. Weakness settings, and tracked EVs
-    in one DB call/transaction. Returns a dict with keys:
+    Fetch all active Market Alerts, Mr. Weakness settings, tracked EVs,
+    and WB Pings in one DB call/transaction. Returns a dict with keys:
       - market_alerts
       - mr_weakness
       - ev_tracker
+      - wb_pings
     """
     results = {
         "market_alerts": [],
         "mr_weakness": [],
         "ev_tracker": [],
+        "wb_pings": [],
     }
 
     try:
         async with bot.pg_pool.acquire() as conn:
             async with conn.transaction():
-                # 📌 1️⃣ Market Alerts
+                # 📌 Market Alerts
                 ma_rows = await conn.fetch(
                     """
                     SELECT user_id, pokemon, dex_number, max_price, channel_id, role_id, notify
@@ -139,16 +85,13 @@ async def fetch_all_caches_from_db(bot):
                 )
                 results["market_alerts"] = [dict(r) for r in ma_rows]
 
-                # 📌 2️⃣ Mr. Weakness
+                # 📌 Mr. Weakness
                 mw_rows = await conn.fetch(
-                    """
-                    SELECT user_id, display_type
-                    FROM mr_user_weakness_settings
-                    """
+                    "SELECT user_id, display_type FROM mr_user_weakness_settings"
                 )
                 results["mr_weakness"] = [dict(r) for r in mw_rows]
 
-                # 📌 3️⃣ EV Tracker
+                # 📌 EV Tracker
                 ev_rows = await conn.fetch(
                     """
                     SELECT user_id, user_name, pokemon, dex_number,
@@ -159,9 +102,13 @@ async def fetch_all_caches_from_db(bot):
                 )
                 results["ev_tracker"] = [dict(r) for r in ev_rows]
 
-    except Exception as e:
-        from utils.loggers.espeon_log import espeon_log, EspeonContext
+                # 📌 WB Pings
+                wb_rows = await conn.fetch(
+                    "SELECT * FROM user_wb_ping ORDER BY created_at DESC"
+                )
+                results["wb_pings"] = [dict(r) for r in wb_rows]
 
+    except Exception as e:
         espeon_log(
             tag="error",
             message=f"Failed to fetch all caches in one go: {e}",
@@ -169,6 +116,11 @@ async def fetch_all_caches_from_db(bot):
         )
 
     return results
+
+
+# 💜────────────────────────────────────────────
+#       🟣 Memory Size Helper 💜
+# 💜────────────────────────────────────────────
 import sys
 
 

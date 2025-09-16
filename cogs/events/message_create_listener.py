@@ -19,6 +19,7 @@ from utils.listener_func.bud_ev_listener import handle_pokemeow_embed_sync
 from utils.listener_func.ev_tracker_listener import handle_pokemeow_battle_message
 from utils.listener_func.market_alert import process_market_alert_message
 from utils.listener_func.mr_weakness import mr_weakness_chart
+from utils.listener_func.wb_sub import ping_wb_subscribers
 from utils.listener_func.pokemon_timer import *
 from utils.loggers.espeon_log import espeon_log
 from config.straymons_constants import STRAYMONS__CATEGORIES, STRAYMONS__TEXT_CHANNELS
@@ -85,6 +86,16 @@ class MessageCreateListener(commands.Cog):
 
                 )
                 await as_rare_ping(bot=self.bot, message=message)
+
+            # ---- WB SUB PING
+            if message.channel.id == STRAYMONS__TEXT_CHANNELS.worldboss_tracker:
+                try:
+                    await ping_wb_subscribers(bot=self.bot, message=message)
+
+                except Exception as e:
+                    import traceback
+                    print(f"[WB SUB PING ERROR] Failed to ping subscribers: {e}")
+                    traceback.print_exc()
 
         except Exception as e:
             espeon_log(
