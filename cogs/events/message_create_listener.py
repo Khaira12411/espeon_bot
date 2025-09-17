@@ -59,6 +59,16 @@ class MessageCreateListener(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         try:
+            # ---- WB SUB PING
+            if message.channel.id == STRAYMONS__TEXT_CHANNELS.worldboss_tracker:
+                try:
+                    await ping_wb_subscribers(bot=self.bot, message=message)
+
+                except Exception as e:
+                    import traceback
+
+                    print(f"[WB SUB PING ERROR] Failed to ping subscribers: {e}")
+                    traceback.print_exc()
             # 🚫 Ignore bots except PokéMeow, but allow webhooks
             if (
                 message.author.bot
@@ -74,7 +84,7 @@ class MessageCreateListener(commands.Cog):
                 STAFF_SERVER_GUILD_ID,
                 STRAYMONS_GUILD_ID,
             ):
-               # await detect_pokemeow_reply(message)
+                # await detect_pokemeow_reply(message)
                 await mr_weakness_chart(bot=self.bot, message=message)
                 await handle_pokemeow_battle_message(bot=self.bot, message=message)
                 await handle_pokemeow_embed_sync(bot=self.bot, message=message)
@@ -86,16 +96,6 @@ class MessageCreateListener(commands.Cog):
 
                 )
                 await as_rare_ping(bot=self.bot, message=message)
-
-            # ---- WB SUB PING
-            if message.channel.id == STRAYMONS__TEXT_CHANNELS.worldboss_tracker:
-                try:
-                    await ping_wb_subscribers(bot=self.bot, message=message)
-
-                except Exception as e:
-                    import traceback
-                    print(f"[WB SUB PING ERROR] Failed to ping subscribers: {e}")
-                    traceback.print_exc()
 
         except Exception as e:
             espeon_log(
