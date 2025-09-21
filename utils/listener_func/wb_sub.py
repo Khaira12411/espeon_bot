@@ -14,13 +14,15 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
     try:
         content = str(message.content).lower()
 
-        # Extract boss_name
-        boss_match = re.search(r"gmax:([a-z0-9\-]+)|gengar|pikachu|charizard", content)
+        # Extract boss_name after 'gigantamax-'
+        boss_match = re.search(r"gigantamax-([a-z0-9\-]+)", content)
         if boss_match:
-            boss_name = str(boss_match.group(1) or "gengar").lower()
+            boss_name = boss_match.group(1).lower()
         else:
+            # fallback if no GMAX found
             return
 
+        # Determine variant
         variant = "shiny" if "shiny" in content else "regular"
 
         pings_by_channel: Dict[int, list[int]] = {}
@@ -34,7 +36,6 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
 
             for sub_boss_name_raw, info in bosses.items():
                 try:
-                    # Defensive casts
                     sub_boss_name = str(sub_boss_name_raw).lower()
                     sub_variant = str(info.get("variant", "regular")).lower()
                     channel_id = info.get("channel_id")

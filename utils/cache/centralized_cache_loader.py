@@ -16,7 +16,7 @@ from utils.cache.mr_weakness_cache import (
 from utils.cache.timers_cache import load_timer_cache, timer_cache
 from utils.cache.wb_sub_cache import WB_PING_CACHE, load_wb_ping_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
+from utils.cache.afk_user_cache import AFK_CACHE, load_afk_cache
 
 # 💜────────────────────────────────────────────
 #     🟣 Load Everything in One Go
@@ -38,6 +38,9 @@ async def load_all_caches(bot):
     # 🟣 Load WB Ping Cache
     await load_wb_ping_cache(bot)
 
+    # 🟣 Load AFK Users Cache
+    await load_afk_cache(bot)
+
     # 🎀 Unified summary log
     espeon_log(
         tag="",
@@ -47,7 +50,8 @@ async def load_all_caches(bot):
             f"(Market Alerts: {len(market_alert_cache)} ~{get_deep_size(market_alert_cache)//1024} KB + "
             f"MR Weakness: {len(mr_weakness_user_cache)} ~{get_deep_size(mr_weakness_user_cache)//1024} KB + "
             f"EV Trackers: {len(ev_tracker_cache)} ~{get_deep_size(ev_tracker_cache)//1024} KB + "
-            f"WB Pings: {len(WB_PING_CACHE)} ~{get_deep_size(WB_PING_CACHE)//1024} KB)"
+            f"WB Pings: {len(WB_PING_CACHE)} ~{get_deep_size(WB_PING_CACHE)//1024} KB + "
+            f"AFK Users: {len(AFK_CACHE)} ~{get_deep_size(AFK_CACHE)//1024} KB)"
         ),
         context=EspeonContext.STRAYMONS,
     )
@@ -59,17 +63,20 @@ async def load_all_caches(bot):
 async def fetch_all_caches_from_db(bot):
     """
     Fetch all active Market Alerts, Mr. Weakness settings, tracked EVs,
-    and WB Pings in one DB call/transaction. Returns a dict with keys:
+    WB Pings, and AFK Users in one DB call/transaction.
+    Returns a dict with keys:
       - market_alerts
       - mr_weakness
       - ev_tracker
       - wb_pings
+      - afk_users
     """
     results = {
         "market_alerts": [],
         "mr_weakness": [],
         "ev_tracker": [],
         "wb_pings": [],
+        "afk_users": [],
     }
 
     try:
@@ -107,6 +114,12 @@ async def fetch_all_caches_from_db(bot):
                     "SELECT * FROM user_wb_ping ORDER BY created_at DESC"
                 )
                 results["wb_pings"] = [dict(r) for r in wb_rows]
+
+                # 📌 AFK Users
+                afk_rows = await conn.fetch(
+                    "SELECT user_id, user_name, reason, started_at FROM afk_status"
+                )
+                results["afk_users"] = [dict(r) for r in afk_rows]
 
     except Exception as e:
         espeon_log(

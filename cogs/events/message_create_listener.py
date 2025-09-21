@@ -14,21 +14,25 @@ from config.current_setup import (
     STRAYMONS_GUILD_ID,
 )
 from config.staffmons_constants import STAFFMONS_CATEGORIES
+from config.straymons_constants import STRAYMONS__CATEGORIES, STRAYMONS__TEXT_CHANNELS
+from utils.listener_func.afk import afk_reply_on_mention
 from utils.listener_func.as_ping import as_rare_ping
 from utils.listener_func.bud_ev_listener import handle_pokemeow_embed_sync
 from utils.listener_func.ev_tracker_listener import handle_pokemeow_battle_message
 from utils.listener_func.market_alert import process_market_alert_message
 from utils.listener_func.mr_weakness import mr_weakness_chart
-from utils.listener_func.wb_sub import ping_wb_subscribers
 from utils.listener_func.pokemon_timer import *
+from utils.listener_func.wb_sub import ping_wb_subscribers
 from utils.loggers.espeon_log import espeon_log
-from config.straymons_constants import STRAYMONS__CATEGORIES, STRAYMONS__TEXT_CHANNELS
+
 MARKETFEED_CHANNELS = {
-STRAYMONS__TEXT_CHANNELS.ic_u_r_s_market_feed,
-STRAYMONS__TEXT_CHANNELS.iiishiny_market_feed,
-STRAYMONS__TEXT_CHANNELS.iil_m_gmax_market_feed,
-STRAYMONS__TEXT_CHANNELS.ivgolden_market_feed,
+    STRAYMONS__TEXT_CHANNELS.ic_u_r_s_market_feed,
+    STRAYMONS__TEXT_CHANNELS.iiishiny_market_feed,
+    STRAYMONS__TEXT_CHANNELS.iil_m_gmax_market_feed,
+    STRAYMONS__TEXT_CHANNELS.ivgolden_market_feed,
 }
+
+
 class MessageCreateListener(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -76,7 +80,15 @@ class MessageCreateListener(commands.Cog):
                 and not message.webhook_id
             ):
                 return
-            # if message.guild and message.guild.id == ACTIVE_GUILD_ID:
+            # ---- afk reply
+            try:
+                await afk_reply_on_mention(message)
+            except Exception as afk_e:
+                espeon_log(
+                    "error",
+                    f"AFK reply failed for message {message.id}: {afk_e}",
+                    source="MessageCreateListener",
+                )
 
             # --- Weakness chart processing (Active + Staff Guilds) ---
             if message.guild and message.guild.id in (
@@ -90,10 +102,13 @@ class MessageCreateListener(commands.Cog):
                 await handle_pokemeow_embed_sync(bot=self.bot, message=message)
 
             # --- Market alert processing only in staff guild ---
-            if message.guild and message.guild.id == STRAYMONS_GUILD_ID and message.channel.id in MARKETFEED_CHANNELS:
+            if (
+                message.guild
+                and message.guild.id == STRAYMONS_GUILD_ID
+                and message.channel.id in MARKETFEED_CHANNELS
+            ):
                 await process_market_alert_message(
                     self.bot, message, STRAYMONS__CATEGORIES.MONSTREET_EXCHANGE
-
                 )
                 await as_rare_ping(bot=self.bot, message=message)
 

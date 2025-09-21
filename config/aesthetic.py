@@ -1,4 +1,8 @@
 class Espeon_Emoji:
+    purple_clock = "<:clock:1419259799081848842>"
+    purple_llama = "<a:purple_llama:1419257721466917005>"
+    purple_star2 = "<:purple_star2:1419255632472834068>"
+    purple_moon_cat = "<:purple_moon_cat:1419254666243342408>"
     purple_check3 = "<:purple_check3:1417412551926353981>"
     error = "<:error:1417412322854572142>"
     boss = "<:world_boss_spawned:1300780186073170051>"

@@ -190,5 +190,29 @@
     "group": "wb-sub",
     "subgroup": null,
     "name": "view"
+  },
+  "afk set": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "afk",
+    "subgroup": null,
+    "name": "set"
+  },
+  "afk update": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "afk",
+    "subgroup": null,
+    "name": "update"
+  },
+  "afk remove": {
+    "rename_history": [],
+    "grouped": true,
+    "category": "Public",
+    "group": "afk",
+    "subgroup": null,
+    "name": "remove"
   }
 }
