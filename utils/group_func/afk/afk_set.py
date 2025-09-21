@@ -24,7 +24,6 @@ async def afk_set_func(
     user = interaction.user
     started_at = int(time.time())
 
-
     try:
         # 📌 Upsert AFK in DB + Cache
         await upsert_afk(
@@ -59,11 +58,12 @@ async def afk_set_func(
         embed = discord.Embed(
             title="🌙 AFK Status Set",
             description=(
-                f"👤 **User:** {user.mention}\n",
-                f"💭 **Reason:** {reason or '*No reason provided*'}\n",
-                f"⏱️ **Since:** <t:{started_at}:R>",
+                f"👤 **User:** {user.mention}\n"
+                f"💭 **Reason:** {reason or '*No reason provided*'}\n"
+                f"⏱️ **Since:** <t:{started_at}:R>"
             ),
         )
+
         footer_text = "🦋 AFK mode enabled — stay cozy!"
         embed = await design_embed(embed=embed, user=user, footer_text=footer_text)
 
