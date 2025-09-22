@@ -1,7 +1,10 @@
-from typing import Dict
-import discord
 import re
+from typing import Dict
 
+import discord
+
+from config.wb_constants import *
+from config.aesthetic import *
 
 async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
     """
@@ -23,8 +26,12 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
             return
 
         # Determine variant
+        emoji = WBEmojis.Gmax
         variant = "shiny" if "shiny" in content else "regular"
+        if variant == "shiny":
+            emoji = WBEmojis.Sgmax
 
+        display_boss_name = f"{emoji} Gigantamax-{boss_name.title()}"
         pings_by_channel: Dict[int, list[int]] = {}
 
         for user_id, bosses in WB_PING_CACHE.items():
@@ -66,14 +73,14 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
                 channel = bot.get_channel(channel_id)
                 if channel:
                     await channel.send(
-                        f"{mentions} The boss **{boss_name}** ({variant}) has spawned!"
+                        f"{Espeon_Emoji.purple_heart_message} {mentions} {display_boss_name} has spawned! Don't forget to register your team ~"
                     )
                 else:
                     for uid in set(user_ids):
                         try:
                             user = await bot.fetch_user(uid)
                             await user.send(
-                                f"The boss **{boss_name}** ({variant}) has spawned!"
+                                f"{Espeon_Emoji.purple_heart_message} {display_boss_name} has spawned! Don't forget to register your team ~"
                             )
                         except Exception as dm_e:
                             print(f"[ping_wb_subscribers] Failed to DM {uid}: {dm_e}")

@@ -1,4 +1,5 @@
 class Espeon_Emoji:
+    purple_heart_message = "<:purple_heart_message:1419608794425589791>"
     purple_clock = "<:clock:1419259799081848842>"
     purple_llama = "<a:purple_llama:1419257721466917005>"
     purple_star2 = "<:purple_star2:1419255632472834068>"

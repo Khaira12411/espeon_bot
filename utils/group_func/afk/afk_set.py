@@ -8,6 +8,7 @@ from config.aesthetic import *
 from utils.essentials.loader import pretty_defer
 from utils.group_func.afk.afk_db_func import *
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
+from config.current_setup import KHY_USER_ID
 
 
 # 🤍────────────────────────────────────────────
@@ -23,6 +24,7 @@ async def afk_set_func(
     )
     user = interaction.user
     started_at = int(time.time())
+    nickname_status = "⚠️ Nickname unchanged"
 
     try:
         # 📌 Upsert AFK in DB + Cache
@@ -36,23 +38,34 @@ async def afk_set_func(
 
         # 🟣 Try adding [AFK] to nickname (if possible)
         if isinstance(user, discord.Member):  # only in guild context
-            current_nick = user.nick or user.name
-            if not current_nick.startswith("[AFK]"):
-                new_nick = f"[AFK] {current_nick}"
-                try:
-                    await user.edit(nick=new_nick, reason="User set AFK")
-                except discord.Forbidden:
-                    espeon_log(
-                        tag="warn",
-                        message=f"[🤍 AFK] Missing perms to edit nickname for {user.display_name}",
-                        context=EspeonContext.STRAYMONS,
-                    )
-                except Exception as e:
-                    espeon_log(
-                        tag="error",
-                        message=f"[💜 AFK] Failed to edit nickname for {user.display_name}: {e}",
-                        context=EspeonContext.STRAYMONS,
-                    )
+            if user.id == KHY_USER_ID:
+                espeon_log(
+                    tag="info",
+                    message=f"[🤍 AFK] Skipping nickname edit for {user.display_name} (server owner)",
+                    context=EspeonContext.STRAYMONS,
+                )
+                nickname_status = "👑 Nickname skipped (server owner)"
+            else:
+                current_nick = user.nick or user.name
+                if not current_nick.startswith("[AFK]"):
+                    new_nick = f"[AFK] {current_nick}"
+                    try:
+                        await user.edit(nick=new_nick, reason="User set AFK")
+                        nickname_status = "✏️ Nickname updated"
+                    except discord.Forbidden:
+                        espeon_log(
+                            tag="warn",
+                            message=f"[🤍 AFK] Missing perms to edit nickname for {user.display_name}",
+                            context=EspeonContext.STRAYMONS,
+                        )
+                        nickname_status = "⚠️ Nickname unchanged (missing perms)"
+                    except Exception as e:
+                        espeon_log(
+                            tag="error",
+                            message=f"[💜 AFK] Failed to edit nickname for {user.display_name}: {e}",
+                            context=EspeonContext.STRAYMONS,
+                        )
+                        nickname_status = "⚠️ Nickname unchanged (error)"
 
         # ✨ Build confirmation embed
         embed = discord.Embed(
@@ -60,7 +73,8 @@ async def afk_set_func(
             description=(
                 f"👤 **User:** {user.mention}\n"
                 f"💭 **Reason:** {reason or '*No reason provided*'}\n"
-                f"⏱️ **Since:** <t:{started_at}:R>"
+                f"⏱️ **Since:** <t:{started_at}:R>\n"
+                f"{nickname_status}"
             ),
         )
 
