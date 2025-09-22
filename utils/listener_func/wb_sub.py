@@ -65,7 +65,7 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
                     print(
                         f"[ping_wb_subscribers] Skipping subscription for user {user_id}, boss '{sub_boss_name_raw}': {inner_e}\nEntry: {info}"
                     )
-
+#
         # Send pings
         for channel_id, user_ids in pings_by_channel.items():
             try:
