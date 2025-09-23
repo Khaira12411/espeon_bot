@@ -5,10 +5,10 @@ from discord import app_commands
 from discord.ext import commands
 
 from config.aesthetic import *
+from config.current_setup import KHY_USER_ID
 from utils.essentials.loader import pretty_defer
 from utils.group_func.afk.afk_db_func import *
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
-from config.current_setup import KHY_USER_ID
 
 
 # 🤍────────────────────────────────────────────
@@ -44,7 +44,7 @@ async def afk_set_func(
                     message=f"[🤍 AFK] Skipping nickname edit for {user.display_name} (server owner)",
                     context=EspeonContext.STRAYMONS,
                 )
-                nickname_status = "👑 Nickname skipped (server owner)"
+                nickname_status = "👑 Nickname skipped (Server Owner)"
             else:
                 current_nick = user.nick or user.name
                 if not current_nick.startswith("[AFK]"):
@@ -79,7 +79,12 @@ async def afk_set_func(
         )
 
         footer_text = "🦋 AFK mode enabled — stay cozy!"
-        embed = await design_embed(embed=embed, user=user, footer_text=footer_text)
+        embed = await design_embed(
+            embed=embed,
+            user=user,
+            footer_text=footer_text,
+            thumbnail_url=Espeon_Thumbnail.afk_set,
+        )
 
         await handler.success(content="", embed=embed)
         espeon_log(

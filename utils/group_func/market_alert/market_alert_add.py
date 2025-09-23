@@ -161,6 +161,7 @@ async def add_market_alert_func(
 
     if log_channel:
         desc_lines = [
+            f"{status['message']}\n"
             f"- **Member:** {user.mention}",
             f"- **Pokemon:** {target_name} #{dex_number}",
             f"- **Max Price:** {PokeCoin} {max_price_int:,}",

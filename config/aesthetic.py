@@ -42,6 +42,8 @@ class Espeon_Emoji:
 
 
 class Espeon_Thumbnail:
+    afk_set = "https://media.discordapp.net/attachments/1394913073520967680/1419879436714770525/image.png?ex=68d35d45&is=68d20bc5&hm=c2615cf1e78f08d97d57927c17c41106220030c6fe4c10732fda1bba3f535c28&=&format=webp&quality=lossless&width=576&height=576"
+    afk_update = "https://media.discordapp.net/attachments/1394913073520967680/1419879059437125714/image.png?ex=68d35ceb&is=68d20b6b&hm=b178eb1366a910b3896d90669c5112cc35bc2bcc562042e20996a0755dec2ce7&=&format=webp&quality=lossless&width=576&height=576"
     boss = "https://media.discordapp.net/attachments/1394913073520967680/1417349428699856956/1248144585688092702.png?ex=68ca2904&is=68c8d784&hm=057235ee3940e94a3349d0140fc7e3b1ed0e88638f48165d1472e0821a33349b&=&format=webp&quality=lossless&width=113&height=113"
     note = "https://media.discordapp.net/attachments/1298966164072038450/1409832548397351033/0a5610c12c7bdb90305c0d70a9b8752d-removebg-preview.png?ex=68aed060&is=68ad7ee0&hm=ea64fe1c0bb3d0f4285fe2d0f8cdc1aca9de56c1cb561bda82619d56e4715a12&=&format=webp&quality=lossless&width=459&height=689"
     pink_purple_message = "https://media.discordapp.net/attachments/1394913073520967680/1411900548197781564/4998e56fa336b4e0b6f3ffb9f42ee3f0-removebg-preview.png?ex=68b6565a&is=68b504da&hm=1bc7a02d65a594aafe6dcf938dba0854655efda7cb4203a004f25d50dd9dde1a&=&format=webp&quality=lossless&width=625&height=625"

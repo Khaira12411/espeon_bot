@@ -1,19 +1,16 @@
-# 🤍────────────────────────────────────────────
-#   AFK Set Function (Slash Command Helper)
-# 🤍────────────────────────────────────────────
+
 # 🤍────────────────────────────────────────────
 #   AFK Update Function (Slash Command Helper)
 # 🤍────────────────────────────────────────────
 import time
 
 import discord
-from discord import app_commands
 from discord.ext import commands
 
 from config.aesthetic import *
 from utils.essentials.loader import pretty_defer
 from utils.group_func.afk.afk_db_func import *
-from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
+from utils.visuals.embeds.visual_helpers import design_embed
 
 
 async def afk_update_func(
@@ -47,13 +44,18 @@ async def afk_update_func(
         embed = discord.Embed(
             title="🌙 AFK Status Updated",
             description=(
-                f"👤 **User:** {user.mention}",
-                f"💭 **New Reason:** {reason or '*No reason provided*'}",
-                f"⏱️ **Updated at:** <t:{updated_at}:R>",
+                f"👤 **User:** {user.mention}\n"
+                f"💭 **New Reason:** {reason or '*No reason provided*'}\n"
+                f"⏱️ **Updated at:** <t:{updated_at}:R>"
             ),
         )
         footer_text = "🌸 New AFK note saved — soft & simple"
-        embed = await design_embed(embed=embed, user=user, footer_text=footer_text)
+        embed = await design_embed(
+            embed=embed,
+            user=user,
+            footer_text=footer_text,
+            thumbnail_url=Espeon_Thumbnail.afk_update,
+        )
 
         await handler.success(content="", embed=embed)
         espeon_log(
