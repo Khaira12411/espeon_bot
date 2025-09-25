@@ -14,7 +14,10 @@ from utils.group_func.market_alert.db_func.market_alert_db_func import (
     remove_all_market_alerts,
     remove_market_alert,
 )
-from utils.group_func.market_alert.parsers import resolve_pokemon_input, parse_special_mega_input
+from utils.group_func.market_alert.parsers import (
+    parse_special_mega_input,
+    resolve_pokemon_input,
+)
 from utils.loggers.espeon_log import espeon_log
 from utils.visuals.embeds.get_log_channel import get_log_channel
 from utils.visuals.embeds.visual_helpers import design_embed
@@ -207,7 +210,11 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
             color=0xFF99FF,
             timestamp=datetime.now(),
         )
-        log_embed = await design_embed(embed=log_embed, user=user)
+        log_embed = await design_embed(
+            embed=log_embed,
+            user=user,
+            pokemon_name=name,
+        )
 
     # 💜 Stop loader and show final embed
     await loader.stop(content=f"{user.mention}", embed=user_embed)
