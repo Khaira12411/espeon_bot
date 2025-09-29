@@ -52,6 +52,18 @@ async def add_market_alert_func(
         interaction, content="Espeon is thinking...", ephemeral=False
     )
 
+    alerts_counter = await get_alerts_row(bot=bot, user_id=user_id)
+    if not alerts_counter:
+        await loader.stop(content="❌ Do `/market-alert register` first!")
+        return
+
+    total_alerts = alerts_counter["total_alerts"]
+    alerts_used = alerts_counter["alerts_used"]
+
+    if total_alerts == alerts_used:
+        await loader.stop(content=f"❌ You have used up all of your {total_alerts} market alerts")
+        return
+
     # 💜 Normalize role
     role_obj = role
     role_id = None

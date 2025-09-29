@@ -140,7 +140,6 @@ class MarketAlerts(commands.Cog):
     # 🟣────────────────────────────────────────────
     #           💜 /market-alert update 💜
     # 🟣────────────────────────────────────────────
-
     @market_alerts_group.command(
         name="update",
         description="Updates a market alert for a Pokemon",

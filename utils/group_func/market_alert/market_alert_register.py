@@ -31,6 +31,7 @@ async def market_alert_register_func(
     """
     Register a user for market alerts safely.
     Auto-grant unlimited alerts for anyone in the staff guild.
+    Exit early if user has no eligible roles.
     """
     user = interaction.user
     user_id = user.id
@@ -38,24 +39,42 @@ async def market_alert_register_func(
 
     log_channel = get_log_channel(bot=bot)
 
-    async with bot.pg_pool.acquire() as conn:
-        # 🔹 Check if row exists
-        row = await conn.fetchrow(
-            "SELECT user_id, total_alerts FROM market_alert_counter WHERE user_id = $1",
-            user_id,
+    # -------------------- ELIGIBLE ROLES CHECK --------------------
+    eligible_roles = [role.id for role in user.roles if role.id in ROLE_COUNTER]
+    is_staff = any(role.id == STRAYMONS__ROLES.clan_staff for role in user.roles)
+
+    if not is_staff and not eligible_roles:
+        role_list_text = ", ".join(
+            [f"<@&{role_id}>" for role_id in ROLE_COUNTER.keys()]
         )
+        embed_fail = discord.Embed(
+            title="❌ Cannot Register",
+            description=(
+                "You must have at least one eligible role to register for market alerts. 🌸\n\n"
+                f"Roles that grant alerts include: {role_list_text}"
+            ),
+            color=0xFF99FF,
+        )
+        await interaction.response.send_message(embed=embed_fail, ephemeral=True)
 
-        # 🌟 Staff check
-        is_staff = any(role.id == STRAYMONS__ROLES.clan_staff for role in user.roles)
+        # Log attempt
+        espeon_log(
+            tag="warn",
+            message=f"User {user_id} tried to register without staff or eligible roles.",
+            context=EspeonContext.STRAYMONS,
+        )
+        return 0
 
-        # ✅ Eligible roles
-        eligible_roles = [role.id for role in user.roles if role.id in ROLE_COUNTER]
+    # -------------------- STAFF GUILD AUTO UNLIMITED --------------------
+    if interaction.guild.id == STAFF_SERVER_GUILD_ID:
+        total_alerts = 50
+        alerts_used = 0
 
-        # -------------------- STAFF GUILD AUTO UNLIMITED --------------------
-        if interaction.guild.id == STAFF_SERVER_GUILD_ID:
-            total_alerts = 50
-            alerts_used = 0
-
+        async with bot.pg_pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT user_id, total_alerts FROM market_alert_counter WHERE user_id = $1",
+                user_id,
+            )
             if not row:
                 await conn.execute(
                     """
@@ -83,58 +102,38 @@ async def market_alert_register_func(
                     user_id,
                 )
 
-            # Ephemeral user embed
-            embed_user = discord.Embed(
-                title="💜 Market Alerts (Staff Guild Magic!)",
-                description="✨ You can use **as many market alerts as you want**! 🌷",
-                color=0xFF99FF,
-            )
-            embed_user.set_footer(
-                text="Staff guild members have unlimited market alerts 💜"
-            )
-            await interaction.response.send_message(embed=embed_user, ephemeral=True)
+        embed_user = discord.Embed(
+            title="💜 Market Alerts (Staff Guild Magic!)",
+            description="✨ You can use **as many market alerts as you want**! 🌷",
+            color=0xFF99FF,
+        )
+        embed_user.set_footer(
+            text="Staff guild members have unlimited market alerts 💜"
+        )
+        await interaction.response.send_message(embed=embed_user, ephemeral=True)
 
-            # Log embed
-            embed_log = discord.Embed(
-                title="💜 Market Alert Registration (Staff Guild)",
-                description=f"User {user_name} connected in staff guild. Total alerts = unlimited.",
-                color=0xFF99FF,
-            )
-            await log_channel.send(embed=embed_log)
-            return total_alerts
+        embed_log = discord.Embed(
+            title="💜 Market Alert Registration (Staff Guild)",
+            description=f"User {user_name} connected in staff guild. Total alerts = unlimited.",
+            color=0xFF99FF,
+        )
+        await log_channel.send(embed=embed_log)
+        return total_alerts
 
-        # -------------------- NON-STAFF GUILD USERS --------------------
-        if not is_staff and not eligible_roles:
-            role_list_text = ", ".join(
-                [f"<@&{role_id}>" for role_id in ROLE_COUNTER.keys()]
-            )
-            embed_fail = discord.Embed(
-                title="❌ Cannot Register",
-                description=(
-                    "You must have at least one eligible role to register for market alerts. 🌸\n\n"
-                    f"Roles that grant alerts include: {role_list_text}"
-                ),
-                color=0xFF99FF,
-            )
-            await interaction.response.send_message(embed=embed_fail, ephemeral=True)
+    # -------------------- REGULAR USERS --------------------
+    server_boost_count = getattr(user, "premium_subscription_count", 0)
+    total_alerts = (
+        sum(ROLE_COUNTER.get(role_id, 0) for role_id in eligible_roles)
+        + server_boost_count
+    )
+    total_alerts = min(total_alerts, 10)
+    alerts_used = 0
 
-            # Log attempt
-            espeon_log(
-                tag="warn",
-                message=f"User {user_id} tried to register without staff or eligible roles.",
-                context=EspeonContext.STRAYMONS,
-            )
-            return 0
-
-        # ✅ Regular users: calculate total alerts
-        server_boost_count = getattr(user, "premium_subscription_count", 0)
-        total_alerts = sum(ROLE_COUNTER.get(role_id, 0) for role_id in eligible_roles)
-        total_alerts += server_boost_count
-
-        MAX_ALERTS = 10
-        total_alerts = min(total_alerts, MAX_ALERTS)
-        alerts_used = 0
-
+    async with bot.pg_pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT user_id, total_alerts FROM market_alert_counter WHERE user_id = $1",
+            user_id,
+        )
         if not row:
             await conn.execute(
                 """
@@ -162,47 +161,41 @@ async def market_alert_register_func(
                 user_id,
             )
 
-        # 🔹 Build role breakdown with mentions
-        role_breakdown_lines = []
-        for role_id in eligible_roles:
-            role_obj = interaction.guild.get_role(role_id)
-            if role_obj:
-                alert_count = ROLE_COUNTER.get(role_id, 0)
-                role_breakdown_lines.append(f"> - {role_obj.mention}: +{alert_count}")
+    # Build role breakdown
+    role_breakdown_lines = [
+        f"> - {interaction.guild.get_role(role_id).mention}: +{ROLE_COUNTER.get(role_id, 0)}"
+        for role_id in eligible_roles
+        if interaction.guild.get_role(role_id)
+    ]
+    if server_boost_count > 0:
+        role_breakdown_lines.append(f"> - Server Boosts: +{server_boost_count}")
 
-        if server_boost_count > 0:
-            role_breakdown_lines.append(f"> - Server Boosts: +{server_boost_count}")
+    role_breakdown_text = "\n".join(role_breakdown_lines)
 
-        role_breakdown_text = "\n".join(role_breakdown_lines)
+    embed_user = discord.Embed(
+        title=f"{Espeon_Emoji.purple_hearts_one} Market Alerts Registered!",
+        description=(
+            f"✨ You have **{total_alerts} free market alerts** available! 🌸\n\n"
+            f"**{Espeon_Emoji.purple_ribbon} Alert Breakdown:**\n{role_breakdown_text}"
+        ),
+        color=0xFF99FF,
+    )
+    embed_user.set_footer(
+        text="Don't forget to add your alerts via /market-alert add 💜"
+    )
+    await interaction.response.send_message(embed=embed_user, ephemeral=True)
 
-        # 🔹 Ephemeral user embed
-        embed_user = discord.Embed(
-            title=f"{Espeon_Emoji.purple_hearts_one} Market Alerts Registered!",
-            description=(
-                f"✨ You have **{total_alerts} free market alerts** available! 🌸\n\n"
-                f"**{Espeon_Emoji.purple_ribbon} Alert Breakdown:**\n{role_breakdown_text}"
-            ),
-            color=0xFF99FF,
-        )
+    embed_log = discord.Embed(
+        title=f"{Espeon_Emoji.purple_hearts_one} Market Alert Registration",
+        description=(
+            f"- Member: {user.mention}\n"
+            f"- Total Alerts: {total_alerts}\n\n"
+            f"**{Espeon_Emoji.purple_ribbon} Alert Breakdown:**\n{role_breakdown_text}"
+        ),
+        color=0xFF99FF,
+        timestamp=datetime.now(),
+    )
+    embed_log = await design_embed(embed=embed_log, user=user)
+    await log_channel.send(embed=embed_log)
 
-        embed_user.set_footer(
-            text="Don't forget to add your alerts via /market-alert add 💜"
-        )
-
-        await interaction.response.send_message(embed=embed_user, ephemeral=True)
-
-        # 🔹 Log embed
-        embed_log = discord.Embed(
-            title=f"{Espeon_Emoji.purple_hearts_one} Market Alert Registration",
-            description=(
-                f"- Member: {user.mention}\n"
-                f"- Total Alerts: {total_alerts}\n\n"
-                f"**{Espeon_Emoji.purple_ribbon} Alert Breakdown:**\n{role_breakdown_text}"
-            ),
-            color=0xFF99FF,
-            timestamp=datetime.now(),
-        )
-        embed_log = await design_embed(embed=embed_log, user=user)
-        await log_channel.send(embed=embed_log)
-
-        return total_alerts
+    return total_alerts

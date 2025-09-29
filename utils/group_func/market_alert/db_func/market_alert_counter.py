@@ -62,6 +62,35 @@ async def get_total_alerts(bot, user_id: int) -> int:
             "SELECT total_alerts FROM market_alert_counter WHERE user_id = $1", user_id
         )
         return row["total_alerts"] if row else 0
+    
+# 📊 Get full market alert row for a user
+async def get_alerts_row(bot, user_id: int) -> dict | None:
+    """
+    Returns the full market_alert_counter row for a user.
+
+    Returns:
+        dict with keys:
+            - user_id
+            - user_name
+            - roles
+            - server_boost_count
+            - total_alerts
+            - alerts_used
+        or None if user not found
+    """
+    async with bot.pg_pool.acquire() as conn:
+        row = await conn.fetchrow(
+            """
+            SELECT user_id, user_name, roles, server_boost_count, total_alerts, alerts_used
+            FROM market_alert_counter
+            WHERE user_id = $1
+            """,
+            user_id,
+        )
+
+        if row:
+            return dict(row)
+        return None
 
 
 # 📊 Market Alert Status
