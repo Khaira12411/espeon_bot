@@ -102,7 +102,6 @@ def format_display_name(raw_name: str) -> str:
 
 
 # ==================== 🌟 Autocomplete Functions ==================== #
-# ==================== 🌟 Autocomplete Functions ==================== #
 async def pokemon_autocomplete(
     interaction: discord.Interaction, current: str
 ) -> list[app_commands.Choice[str]]:

@@ -9,7 +9,6 @@
 #           📥 Fetch Functions
 # 🔮────────────────────────────────────────────
 
-
 async def fetch_all_market_alerts(bot):
     """Fetch all market alerts."""
     async with bot.pg_pool.acquire() as conn:
@@ -43,8 +42,6 @@ async def fetch_user_alerts(bot, user_id: int):
 # 🔮────────────────────────────────────────────
 #           ✨ Insert Functions
 # 🔮────────────────────────────────────────────
-
-
 async def insert_name_alert(
     bot,
     user_id: int,
@@ -139,8 +136,6 @@ async def remove_all_market_alerts(bot, user_id: int):
 # 🔮────────────────────────────────────────────
 #           🔔 Toggle Functions
 # 🔮────────────────────────────────────────────
-
-
 async def toggle_market_alert_notify(
     bot, user_id: int, notify: bool, pokemon: str = None
 ):
@@ -177,8 +172,6 @@ async def toggle_market_alert_notify(
 # 🔮────────────────────────────────────────────
 #           📝 Update Functions
 # 🔮────────────────────────────────────────────
-
-
 async def update_market_alert(
     bot,
     user_id: int,
@@ -233,8 +226,6 @@ async def update_market_alert(
 # 🔮────────────────────────────────────────────
 #           📝 Bulk Update Role/Channel
 # 🔮────────────────────────────────────────────
-
-
 async def update_user_alerts_channel_or_role(
     bot,
     user_id: int,

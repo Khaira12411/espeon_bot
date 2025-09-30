@@ -45,16 +45,17 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
     loader = await pretty_defer(
         interaction, content="Processing market alert removal..."
     )
+    user_alerts = await fetch_user_alerts(bot, user_id)
 
+    if not user_alerts:
+        await loader.stop(content=f"❌ You have no active market alerts.")
+        return
+    
     try:
         # 💜 SEPARATE BRANCH FOR "ALL"
         if pokemon.lower() == "all":
             # 💜 Fetch all alerts
-            user_alerts = await fetch_user_alerts(bot, user_id)
 
-            if not user_alerts:
-                await loader.stop(content=f"❌ You have no active market alerts.")
-                return
 
             removed_alerts = [
                 (alert["pokemon"].title(), alert["dex_number"]) for alert in user_alerts
