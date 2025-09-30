@@ -31,16 +31,13 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
     Removes a market alert for a user.
     Uses pretty_defer loader: runs full workflow first, then updates loader once with final result.
     """
-    from utils.cache.market_alert_cache import (
-        load_market_alert_cache,
-        remove_alert,
-        remove_all_alerts_from_user,
-    )
+    from utils.cache.market_alert_cache import remove_alert, remove_all_alerts_from_user
 
     user = interaction.user
     user_id = user.id
     removed_alerts: list[tuple[str, str]] = []
     footer_text = "💜 You will no longer receive alerts for these Pokémon"
+
     # 💜 Start loader
     loader = await pretty_defer(
         interaction, content="Processing market alert removal..."
@@ -50,32 +47,31 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
     if not user_alerts:
         await loader.stop(content=f"❌ You have no active market alerts.")
         return
-    
+
+    status_message = ""  # 💜 Initialize to empty string
+
     try:
         # 💜 SEPARATE BRANCH FOR "ALL"
         if pokemon.lower() == "all":
-            # 💜 Fetch all alerts
-
-
             removed_alerts = [
                 (alert["pokemon"].title(), alert["dex_number"]) for alert in user_alerts
             ]
 
-            # 💜 Remove all alerts
+            # 💜 Remove all alerts from DB
             await remove_all_market_alerts(bot, user_id)
 
             # 💜 Remove all alerts from cache
             remove_all_alerts_from_user(user_id=user_id)
-            status = await refund_market_alert(bot=bot, user=user)
+
+            # 💜 Set status message for "all"
+            status_message = "No Alerts Used"
 
         else:
-            # 💜 EXISTING SINGLE POKÉMON LOGIC
+            # 💜 SINGLE POKÉMON LOGIC
             pokemon_title = pokemon.title()
-            if pokemon.isdigit():
-                target_key = pokemon
-            else:
-                target_key = pokemon_title
+            target_key = pokemon if pokemon.isdigit() else pokemon_title
 
+            # 💜 Determine target_name and dex_number
             try:
                 if any(
                     pokemon_title.startswith(f"{prefix}Mega ")
@@ -95,19 +91,16 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
             except ValueError as e:
                 raise ValueError(f"{e}")
 
-            # 💜 Check if alert exists before trying to remove
+            # 💜 Check if alert exists
             user_alerts = await fetch_user_alerts(bot, user_id)
-            exists = False
-            for alert in user_alerts:
-                if pokemon.isdigit() and alert["dex_number"] == int(pokemon):
-                    exists = True
-                    break
-                elif (
+            exists = any(
+                (pokemon.isdigit() and alert["dex_number"] == int(pokemon))
+                or (
                     not pokemon.isdigit()
                     and alert["pokemon"].lower() == target_name.lower()
-                ):
-                    exists = True
-                    break
+                )
+                for alert in user_alerts
+            )
 
             if not exists:
                 await loader.stop(
@@ -115,34 +108,23 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
                 )
                 return
 
-            # 💜 Remove the alert
+            # 💜 Remove alert
             if pokemon.isdigit():
                 removed_count = await remove_market_alert(bot, user_id, pokemon)
                 if removed_count > 0:
                     removed_alerts.append((target_name.title(), pokemon))
-
-                    # 💜 Remove single alert from cache
                     alert = next(
                         (a for a in user_alerts if a["dex_number"] == int(pokemon)),
                         None,
                     )
                     if alert:
-                        remove_alert(
-                            pokemon_name=alert["pokemon"],
-                            channel_id=alert["channel_id"],
-                            user_id=user_id,
-                        )
-
+                        remove_alert(alert["pokemon"], alert["channel_id"], user_id)
             else:
                 removed_count = await remove_market_alert(
                     bot, user_id, target_name.lower()
                 )
                 if removed_count > 0:
                     removed_alerts.append((target_name.title(), dex_number))
-
-                    # 💜 Remove single alert from cache
-                    from utils.cache.market_alert_cache import remove_alert
-
                     alert = next(
                         (
                             a
@@ -152,14 +134,12 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
                         None,
                     )
                     if alert:
-                        remove_alert(
-                            pokemon_name=alert["pokemon"],
-                            channel_id=alert["channel_id"],
-                            user_id=user_id,
-                        )
+                        remove_alert(alert["pokemon"], alert["channel_id"], user_id)
 
+            # 💜 Refund used alert
             status = await refund_market_alert(bot=bot, user=user)
             status_message = status["message"]
+
     except Exception as e:
         await loader.stop(content=f"❌ Failed to remove alert: {e}")
         espeon_log("critical", f"Failed to remove alert: {e}", source="MarketAlert")
@@ -179,6 +159,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
                 + "\n".join([f"> - {name} #{dex}" for name, dex in removed_alerts])
             )
 
+        pokemon_name_for_embed = removed_alerts[0][0] if removed_alerts else None
         user_embed = discord.Embed(
             title=f"{Espeon_Emoji.purple_hearts_one} Market Alert Removed",
             description=f"{status_line}\n{member_line}\n{removed_line}",
@@ -187,7 +168,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
             embed=user_embed,
             user=user,
             footer_text=footer_text,
-            pokemon_name=name,
+            pokemon_name=pokemon_name_for_embed,
         )
     else:
         user_embed = discord.Embed(
@@ -197,12 +178,9 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
         )
 
     # 💜 Log embed
-    clan_staff = interaction.guild.get_role(STRAYMONS__ROLES.clan_staff)
-    is_staff = clan_staff in user.roles if clan_staff else False
     log_channel = get_log_channel(bot=bot)
-
     if removed_alerts and log_channel:
-        log_description = f"{Espeon_Emoji.purple_broom} Alert(s) Removed\n".join(
+        log_description = "\n".join(
             [f"> - {name} #{dex}" for name, dex in removed_alerts]
         )
         log_embed = discord.Embed(
@@ -212,12 +190,10 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
             timestamp=datetime.now(),
         )
         log_embed = await design_embed(
-            embed=log_embed,
-            user=user,
-            pokemon_name=name,
+            embed=log_embed, user=user, pokemon_name=pokemon_name_for_embed
         )
 
-    # 💜 Stop loader and show final embed
+    # 💜 Stop loader and send
     await loader.stop(content=f"{user.mention}", embed=user_embed)
     espeon_log(
         "sent",

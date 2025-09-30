@@ -124,12 +124,24 @@ async def remove_market_alert(bot, user_id: int, pokemon: str):
     return int(result.split()[-1])
 
 
+# 💙────────────────────────────────────────────
+#       🗑️ Remove all market alerts for a user
+#       and reset alerts_used in counter
+# 💙────────────────────────────────────────────
 async def remove_all_market_alerts(bot, user_id: int):
-    """Remove all market alerts for a user."""
+    """Remove all market alerts for a user and reset alerts_used to 0."""
     async with bot.pg_pool.acquire() as conn:
+        # 💙 Delete all alerts for the user
         result = await conn.execute(
             "DELETE FROM market_alerts WHERE user_id=$1", user_id
         )
+
+        # 💙 Reset alerts_used in market_alert_counter
+        await conn.execute(
+            "UPDATE market_alert_counter SET alerts_used = 0 WHERE user_id=$1", user_id
+        )
+
+    # 💙 Return number of deleted rows
     return int(result.split()[-1])
 
 
