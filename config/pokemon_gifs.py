@@ -1,21 +1,35 @@
 class REGULAR_POKEMON_URL:
     diglett = "https://media.discordapp.net/attachments/1410396560151543830/1410396591340257341/diglett.gif?ex=68b0ddaf&is=68af8c2f&hm=3a317661e11456ca87415add28cf04d3ba752402ddcf1bb594472239ce335d8a&="
+    xerneas_neutral = "https://media.discordapp.net/attachments/1410396560151543830/1414225733500272762/23jsanc8a.png?ex=68becbd9&is=68bd7a59&hm=43e62af598af5d163634419d795254aea780a228d63a948ec1fa9ca5c8ca3fec&=&format=webp&quality=lossless&width=117&height=141"
+    houndstone = "https://media.discordapp.net/attachments/1331944490935517184/1331946425390600242/972.gif?ex=68c55346&is=68c401c6&hm=308042f9c5c23a2d7cd0a2792dc25884bb09af4231067ff263a3bfd54be19beb&=&width=87&height=89"
+    gimmighoul = "https://media.discordapp.net/attachments/1154529612769009688/1392914728980054229/gimmighoul.gif?ex=68c4fbae&is=68c3aa2e&hm=f60aade84701de19a5c974eed3eb6e50734bb12fa46bf9f7a381e474911409a9&=&width=60&height=53"
+    roaring_moon = "https://media.discordapp.net/attachments/721599353688686666/1415838894586335282/roaring-moon.gif?ex=68c552f9&is=68c40179&hm=f1afd7a962c235891d1dfbf5ecffe4fbab16e150ff0e6f011ff5740e4c8d0745&=&width=196&height=78"
+    chi_yu = "https://media.discordapp.net/attachments/721599353688686666/1415838179361165342/chi-yu.gif?ex=68c5524e&is=68c400ce&hm=ce1c2d8516d210e1891ea4c2755b03d3052eea22766a0320374b22da93f429ac&=&width=61&height=59"
+    wo_chien = "https://media.discordapp.net/attachments/1249277613198016555/1400598665709486222/wo-chien.gif?ex=68c54067&is=68c3eee7&hm=0dd207caf64255fed6753f33591916da31eb7cc3f780f249b35d40db4bcdad22&=&width=88&height=102"
+    crystal_onix = "https://media.discordapp.net/attachments/1202428993408868373/1210027575221424128/crystal-onix.gif?ex=68c56a3f&is=68c418bf&hm=ba80e75421c88081f298522166f737fc1c64aec112e060203d95abe82d63a66c&=&width=101&height=129"
+    crystal_steelix = "https://media.discordapp.net/attachments/784107839609241600/1204959915517411328/crystal_steelix.gif?ex=68c56f9e&is=68c41e1e&hm=c3bd02fcf55ad4ee5ab3e624201e9294f78004584d8737abf5beb57198ae43d8&=&width=104&height=118"
+    ting_lu = "https://media.discordapp.net/attachments/1323758555605631001/1408197208414879794/ting-lu.gif?ex=68c53599&is=68c3e419&hm=41e05d76d4a8e7e24527413394b84ad749984406050549e7b60ef512290b550d&=&width=118&height=137"
+    chien_pao = "https://media.discordapp.net/attachments/703430088980430889/1408182273878130749/chien-pao.gif?ex=68c527b0&is=68c3d630&hm=759ffc76c3766757ea4f674a876ac505236b4892980cb5f0789b152e12b45d48&=&width=123&height=88"
+    gholdengo = "https://media.discordapp.net/attachments/1249277613198016555/1400597960911487196/1000.gif?ex=68c53fbf&is=68c3ee3f&hm=b9d03e5c2761f1ff1f531fd15857bfb22f2ae7dcc6fa812b474c0ee374b8534c&=&width=61&height=80"
+    gimmighoul_roaming = "https://media.discordapp.net/attachments/1323758555605631001/1400593148371275806/gimmighoul-roaming.gif?ex=68c53b44&is=68c3e9c4&hm=e494958a154258f274ef06a7953ef3381dc45735387b281801fcb7ddfd8a269a&=&width=61&height=43"
+    arctibax = "https://media.discordapp.net/attachments/1323758555605631001/1385352425610674186/997.gif?ex=68c5283c&is=68c3d6bc&hm=a0685acbedb4b1c196cdaacf430a720d63cfb96511de8bb905516c5b4ddc31ac&=&width=61&height=88"
+    frigibax = "https://media.discordapp.net/attachments/1323758555605631001/1385352094231302284/996.gif?ex=68c527ed&is=68c3d66d&hm=6f5168330311a97106647eadeb651feba250586dca09ff131663a4dea0203c5a&=&width=61&height=59"
+    brute_bonnet = "https://media.discordapp.net/attachments/673287515117191171/1362525517437468892/986.gif?ex=68c52b85&is=68c3da05&hm=1ccd5ca822c969fd4add27c0dbcaaaa3f1c6a6d20d30803550cf68417531bb48&=&width=83&height=74"
+    flutter_mane = "https://media.discordapp.net/attachments/673287515117191171/1362525768521093252/987.gif?ex=68c52bc1&is=68c3da41&hm=9a1ed14a5b09999305e117913837ac4969801ea8687310e5584fc156d9010c07&=&width=128&height=92"
+    slither_wing = "https://media.discordapp.net/attachments/673287515117191171/1362526102148485381/988.gif?ex=68c52c11&is=68c3da91&hm=0072cd100f9526b0738021985ee636d672f1017a849f8a84a5fb1f2e0d862aa7&=&width=87&height=131"
+    sandy_shocks = "https://media.discordapp.net/attachments/673287515117191171/1362526468009099284/989.gif?ex=68c52c68&is=68c3dae8&hm=dd7a0f3408e4da86bd88c746b42c4b1b3786b730c6e15174742d7b4ba925ffdb&=&width=82&height=120"
+    iron_treads = "https://media.discordapp.net/attachments/673287515117191171/1369987428257108000/990.gif?ex=68c54a38&is=68c3f8b8&hm=ddbe7c12a36ad313dad544de3ec93a30f9c98aa6d45e14ef2910ca7d941a1bcf&=&width=98&height=73"
+    iron_bundle = "https://media.discordapp.net/attachments/673287515117191171/1362526740878200842/990.gif?ex=68c52ca9&is=68c3db29&hm=d5c3952320c576da8a276078a3a2a6f7f3127858f8cf16093657e3b58801e5d7&=&width=61&height=68"
+    iron_hands = "https://media.discordapp.net/attachments/703428324822745172/1377710501802414121/992.gif?ex=68c50aa4&is=68c3b924&hm=59a43bc6885d861fde4969d5f4a23226eccc58b303be451925c2ed4fed7056e3&=&width=163&height=93"
+    iron_jugulis = "https://media.discordapp.net/attachments/703428324822745172/1377710115570061393/993.gif?ex=68c50a48&is=68c3b8c8&hm=c896e367fcdf6ff17b57415a9e7cf2a8d29eda8b41c0e0e667a4b39a706694c8&=&width=140&height=124"
+    iron_moth = "https://media.discordapp.net/attachments/1323758555605631001/1385351651115929662/994.gif?ex=68c52784&is=68c3d604&hm=04fefd317ede2991fe47319fec496a33b0c5e72d8357bc6b4e6182670fb5b2a9&=&width=132&height=98"
+    iron_thorns = "https://media.discordapp.net/attachments/1323758555605631001/1385351875657732186/995.gif?ex=68c527b9&is=68c3d639&hm=2704b36bfc72b5056ace5c9b62a76574f94d026e7308f3a79e19dabb02635b47&=&width=89&height=119"
+    iron_valiant = "https://media.discordapp.net/attachments/886725599123636225/1423382289840341123/iron-variant.gif?ex=68e0c44f&is=68df72cf&hm=debf4933fb8ce5d2b83d35a569bf6343817cfe073c0393d8197c5460748ca97e&=&width=61&height=107"
+    enamorous_therian = "https://images-ext-1.discordapp.net/external/W2twYEqZSNqd2VgdB8-h6BjWt9vNlJTcBGvIu-eWPx0/https/play.pokemonshowdown.com/sprites/ani/enamorus-therian.gif?width=83&height=80"
+    pikachu_partner = "https://images-ext-1.discordapp.net/external/PsEp46xUWCw_2pz_0h3ubj_1BX7_G_J6Bdt_BW322I0/https/play.pokemonshowdown.com/sprites/ani/pikachu-partner.gif?width=68&height=66"
 
 
-
-class GOLDEN_POKEMON_URL:
-    kyurem_black = "https://cdn.discordapp.com/attachments/1154529612769009688/1184788670956445776/kyurem-black.gif?ex=67ce07af&is=67ccb62f&hm=6f810a5bc26dd833b9a591a8ab40844f87c0a6ca1c7457f5459c11fc78b5ddac&"
-
-    kyurem_white = "https://cdn.discordapp.com/attachments/1154529612769009688/1184788892726087700/kyurem-white.gif?ex=67ce07e4&is=67ccb664&hm=67818816bcf7bc4a9f5241d421d18435e5b5a08d785b723d6d22ff9b4af4d9aa&"
-
-    giratina_origin = "https://cdn.discordapp.com/attachments/1032422074540638300/1032427748737699861/goldengiratinaorigin.gif?ex=67ce1d44&is=67cccbc4&hm=1c5a9d88bb01d847e4339908762786c96910ab0e579af9cc6637e5b44fe8a01b&"
-
-    galarian_articuno = "https://cdn.discordapp.com/attachments/1294127126387359798/1316819219794497636/galarian-articuno.gif?ex=67cdcff7&is=67cc7e77&hm=b924b6aa8c5f50d78bdf29917816583848a11cd25cb1d1670e2eaf668462a87a&"
-
-    galarian_zigzagoon = "https://cdn.discordapp.com/attachments/1278799530363719693/1278801749804585061/263-zigzagoon-galar.gif?ex=67cdeef0&is=67cc9d70&hm=786f0f6687e83c9a66a47320f4184920c1a9632634e36c7aad8979ff00bcfb58&"
-
-    galarian_linoone = "https://cdn.discordapp.com/attachments/1278799530363719693/1278802294636285963/264-linoone-galar.gif?ex=67cdef72&is=67cc9df2&hm=e347871f58e916ed67d9b1fe47c8b3732a3ae2a4dd47b046ccb9ec065ee053d0&"
-
+class GOLDEN_MEGA_POKEMON_URL:
     mega_charizard_x = "https://cdn.discordapp.com/attachments/1331944490935517184/1331991187162140755/006-mega-x.gif?ex=67ccfa36&is=67cba8b6&hm=ae7ce2e28ceae6b6552bb8438dbcd5c40688529517d871bdb366ef2083b54117&"
 
     mega_blastoise = "https://cdn.discordapp.com/attachments/1275907909393584132/1276054722037551125/009-mega.gif?ex=67cd2b11&is=67cbd991&hm=f2f1b1a67d45e8f8de461f35cb4d1360ca938b8702aeb9e312ddc3db381dc94e&"
@@ -44,13 +58,54 @@ class GOLDEN_POKEMON_URL:
 
     mega_gallade = "https://media.discordapp.net/attachments/1249277613198016555/1400609921724186634/7084.gif?ex=68b0dba3&is=68af8a23&hm=a190ee2861d5b343df2bf5958eb60aa2a496b429638005eced3130fea98240e1&="
 
-    mega_steelix = "https://media.discordapp.net/attachments/1323758555605631001/1408274210492780554/208-mega.gif?ex=68b06550&is=68af13d0&hm=5657ffc81653fec1014b3d98fdda374e5d1911d30f9e6638a98e8d8278dbbf50&="
+    mega_steelix = "https://cdn.discordapp.com/attachments/1323758555605631001/1408274210492780554/208-mega.gif?ex=68c188d0&is=68c03750&hm=6272046b1ab478aef23e166c3cd808b56deabbbaff4626f707cb7bcb7e20ab72"
 
     mega_lopunny = "https://media.discordapp.net/attachments/1323758555605631001/1362325411647983646/7048.gif?ex=68b0aaa8&is=68af5928&hm=5343a8f465b7a35dd5d836e9888a686b84c145665e4df91a0ca65cdef41adafb&="
 
     mega_rayquaza = "https://media.discordapp.net/attachments/673287515117191171/1369991880091111486/7120.gif?ex=68b0df1d&is=68af8d9d&hm=093a7c4df0ea4c5484b38eab7ef4f4ffc2a027d8948d647a0f29eb37d7ba05ef&="
 
     mega_absol = "https://media.discordapp.net/attachments/677411940989009923/1392959189508165663/7129.gif?ex=68b0b5d6&is=68af6456&hm=de2b612d02cacb43aed2ad31c08475f2122c271a64c02ca6a96a1a9398464189&="
+
+    mega_audino = "https://media.discordapp.net/attachments/1323758555605631001/1415848151725641798/mega-audino.gif?ex=68c55b98&is=68c40a18&hm=f33c7321654d8fa88852b96aa486a2dddc025e5fe1bfc1ecf148a5a41c19126f&=&width=73&height=108"
+
+    mega_slowbro = "https://media.discordapp.net/attachments/1323758555605631001/1423397032269316177/080-mega.gif?ex=68e0d209&is=68df8089&hm=8f97b0104bbe5967e3eda92b71ab7ee6447082a134d7ffe89c2e7c058f829356&=&width=84&height=98"
+
+
+class SHINY_POKEMON_URL:
+    # 🌌 Arceus Forms
+    arceus_normal = "https://images-ext-1.discordapp.net/external/5cORhDO0Vij4n3N6ILgkxkaQGpWIRsWHGsVOqPu0mtI/https/play.pokemonshowdown.com/sprites/ani-shiny/arceus.gif?width=92&height=128"
+    arceus_flying = "https://media.discordapp.net/attachments/797746750512693262/1423408415740395591/arceus-flying.gif?ex=68e0dca3&is=68df8b23&hm=a1ae90e7d4e768b94f7857177b4ad6039bb241c62b8c59ea79cc974630f213bd&=&width=97&height=131"
+    arceus_bug = "https://media.discordapp.net/attachments/1331944490935517184/1331996972588204094/7667.gif?ex=68e08919&is=68df3799&hm=a66e7ef12d543a7bcca8328a5cb32e3f5cab8935a4298b16f1b7fe16eab49cb0&=&width=97&height=131"
+    arceus_dark = "https://media.discordapp.net/attachments/1187344543750836256/1194256245926920203/arceus-dark.gif?ex=68e06a0d&is=68df188d&hm=e7b219afaac2ade669ff59b191aa9387e34790b20e8457a7c0aca429747a840b&=&width=97&height=129"
+    arceus_dragon = "https://media.discordapp.net/attachments/1202428993408868373/1212163973437460520/arceus-dragon.gif?ex=68e04dac&is=68defc2c&hm=73b991f61c67bab17b1dc2d7d8ca28c6bfeb9f9fd5d5781281d101059054befb&=&width=97&height=131"
+    arceus_electric = "https://media.discordapp.net/attachments/703428324822745172/1377686050515845351/7589.gif?ex=68e0a35e&is=68df51de&hm=3c8b4305d1f450ca084ee667517f0d437044fdd4f8137b347941e458b7883702&=&width=97&height=133"
+    arceus_fairy = "https://media.discordapp.net/attachments/1278799530363719693/1293677344686346352/arceus-ghost.gif?ex=68e0e02a&is=68df8eaa&hm=dc67a20554230caada5b63269f46d422ff30bdf6630577761bc66c62dc85d6f2&=&width=97&height=129"
+    arceus_fighting = "https://media.discordapp.net/attachments/750121802394632236/1400619960606392470/arceus-fighting.gif?ex=68e05afc&is=68df097c&hm=1ec1fa10766942f9d2d1ac1f31f92cb9408245f6065ee0dc46dd69a15258c1b2&=&width=97&height=129"
+    arceus_fire = "https://media.discordapp.net/attachments/1202428993408868373/1230627113716027522/arceus-fire.gif?ex=68e0e50f&is=68df938f&hm=94ead7aa0dfa1d06d205a7959e4b324cd631409771015a6812dcc3203d2bff96&=&width=97&height=131"
+    arceus_ghost = "https://media.discordapp.net/attachments/1278799530363719693/1293677344686346352/arceus-ghost.gif?ex=68e0e02a&is=68df8eaa&hm=dc67a20554230caada5b63269f46d422ff30bdf6630577761bc66c62dc85d6f2&=&width=97&height=129"
+    arceus_grass = "https://media.discordapp.net/attachments/1249277613198016555/1253536076719591424/shiny_arceus-grass.gif?ex=68e08572&is=68df33f2&hm=9cd604967e2996e2adcc636c08dd534204962ba931c115a1a5c087b13efb5c1e&=&width=97&height=129"
+    arceus_ice = "https://media.discordapp.net/attachments/1154529612769009688/1183661873900552282/arceus-ice.gif?ex=68e0c386&is=68df7206&hm=0f9d90d7b75d81f6230d308c5e685e487b54af270b4787a16f5c36e5821a6391&=&width=100&height=131"
+    arceus_rock = "https://media.discordapp.net/attachments/722259513612435460/1392945634591637714/arceus-rock.gif?ex=68e0c7f6&is=68df7676&hm=babe818eacf0ba0e958da821db83db096e9123eb62dc7df9be1b0d7701f170e6&=&width=97&height=129"
+    arceus_steel = "https://media.discordapp.net/attachments/1302003337272627300/1302860332888231976/arceus-steel.gif?ex=68e0aa3d&is=68df58bd&hm=e4347071633670badb269929baaffed64511df23206f0e4c512f258bdfc40573&=&width=97&height=132"
+    arceus_water = "https://media.discordapp.net/attachments/1202428993408868373/1245838801457250397/arceus-water.gif?ex=68e0dd0c&is=68df8b8c&hm=149611e86766e56bf4f30479d87fb33ec31e181f354e127e2ed2e3fab05c535f&=&width=97&height=134"
+
+
+class GOLDEN_POKEMON_URL:
+    timburr = "https://images-ext-1.discordapp.net/external/30QDCSUhTwkrG1BUlJc4rX_iDbtUzfwXjfEEVD5J5TY/https/graphics.tppcrpg.net/xy/golden/532M.gif?width=71&height=69"
+    gurdurr = "https://images-ext-1.discordapp.net/external/agrg-13k0AmU53DtldLvmeY0DQ_r07pRkvPdrB4ozuI/https/graphics.tppcrpg.net/xy/golden/533M.gif?width=110&height=88"
+    conkeldurr = "https://images-ext-1.discordapp.net/external/RbkDkXO1xn6mghaHzYkhJ6ZfJy_uoIG-doeo179Tprk/https/graphics.tppcrpg.net/xy/golden/534M.gif?width=138&height=100"
+
+    kyurem_black = "https://cdn.discordapp.com/attachments/1154529612769009688/1184788670956445776/kyurem-black.gif?ex=67ce07af&is=67ccb62f&hm=6f810a5bc26dd833b9a591a8ab40844f87c0a6ca1c7457f5459c11fc78b5ddac&"
+
+    kyurem_white = "https://cdn.discordapp.com/attachments/1154529612769009688/1184788892726087700/kyurem-white.gif?ex=67ce07e4&is=67ccb664&hm=67818816bcf7bc4a9f5241d421d18435e5b5a08d785b723d6d22ff9b4af4d9aa&"
+
+    giratina_origin = "https://cdn.discordapp.com/attachments/1032422074540638300/1032427748737699861/goldengiratinaorigin.gif?ex=67ce1d44&is=67cccbc4&hm=1c5a9d88bb01d847e4339908762786c96910ab0e579af9cc6637e5b44fe8a01b&"
+
+    galarian_articuno = "https://cdn.discordapp.com/attachments/1294127126387359798/1316819219794497636/galarian-articuno.gif?ex=67cdcff7&is=67cc7e77&hm=b924b6aa8c5f50d78bdf29917816583848a11cd25cb1d1670e2eaf668462a87a&"
+
+    galarian_zigzagoon = "https://cdn.discordapp.com/attachments/1278799530363719693/1278801749804585061/263-zigzagoon-galar.gif?ex=67cdeef0&is=67cc9d70&hm=786f0f6687e83c9a66a47320f4184920c1a9632634e36c7aad8979ff00bcfb58&"
+
+    galarian_linoone = "https://cdn.discordapp.com/attachments/1278799530363719693/1278802294636285963/264-linoone-galar.gif?ex=67cdef72&is=67cc9df2&hm=e347871f58e916ed67d9b1fe47c8b3732a3ae2a4dd47b046ccb9ec065ee053d0&"
 
     primal_kyogre = "https://media.discordapp.net/attachments/703430088980430889/1408263024657301514/7585.gif?ex=68b05ae5&is=68af0965&hm=bb39313b52d41478fcd253b8bb747f0b3e12172b48a4b375c69505f9bb82662d&="
 
@@ -657,6 +712,8 @@ class GOLDEN_POKEMON_URL:
     eiscue = "https://graphics.tppcrpg.net/xy/golden/875M.gif?quality=lossless"
 
     zacian = "https://graphics.tppcrpg.net/xy/golden/888M.gif?quality=lossless"
+
+
 class REGULAR_GMAX_URL:
     alcremie = "https://play.pokemonshowdown.com/sprites/xyani/alcremie-gmax.gif?quality=lossless"
     appletun = "https://play.pokemonshowdown.com/sprites/xyani/flapple-gmax.gif?quality=lossless"
@@ -694,6 +751,7 @@ class REGULAR_GMAX_URL:
     urs = "https://cdn.discordapp.com/attachments/1260532287729045530/1268354938455724154/gigantamax-urshifu-rapidstrike.gif"
     uss = "https://cdn.discordapp.com/attachments/1260532287729045530/1266174031577481337/gigantamax-urshifu-singlestrike.gif"
     venusaur = "https://cdn.discordapp.com/attachments/1249277613198016555/1251897414391037992/venusaur-gmax.gif"
+
 
 class SHINY_GMAX_URL:
     alcremie = "https://play.pokemonshowdown.com/sprites/xyani/alcremie-gmax.gif?quality=lossless"

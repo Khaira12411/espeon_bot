@@ -17,7 +17,7 @@ from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_de
 STAFF_LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
 from config.aesthetic import *
 from utils.visuals.gif import fetch_pokemon_gif
-
+from utils.visuals.embeds.get_pokemon_gif import get_pokemon_gif
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   ✨ Espeon Core Function › EV Tracker Reset ✨
@@ -61,7 +61,7 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
         )
 
         if tracked_list:
-            pokemon_gif_url = await fetch_pokemon_gif(pokemon=tracked_list)
+            pokemon_gif_url = await get_pokemon_gif(pokemon=tracked_list)
             if pokemon_gif_url:
                 thumbnail_url = pokemon_gif_url
 

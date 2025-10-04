@@ -4,6 +4,7 @@ from datetime import datetime
 import discord
 
 from utils.visuals.gif import fetch_pokemon_gif
+from utils.visuals.embeds.get_pokemon_gif import get_pokemon_gif
 
 
 def format_bulletin_desc(*args, key_style_override: str = None) -> str:
@@ -114,7 +115,7 @@ async def design_embed(
     embed.timestamp = datetime.now()
 
     if pokemon_name:
-        pokemon_gif = await fetch_pokemon_gif(pokemon=pokemon_name)
+        pokemon_gif = await get_pokemon_gif(pokemon=pokemon_name)
         if pokemon_gif:
             thumbnail_url = pokemon_gif
 
@@ -155,7 +156,7 @@ async def pokemon_embed(
     Logs a warning to the botlog if the GIF is invalid or missing.
     """
     # Fetch the Pokémon GIF (assume it returns a URL string or None)
-    pokemon_gif = await fetch_pokemon_gif(pokemon=pokemon_name)
+    pokemon_gif = await get_pokemon_gif(pokemon=pokemon_name)
 
     if not pokemon_gif or not isinstance(pokemon_gif, str) or not pokemon_gif.strip():
         # Send warning to botlog channel

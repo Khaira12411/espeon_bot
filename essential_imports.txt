@@ -2,7 +2,7 @@ import discord
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 from config.aesthetic import *
 from utils.visuals.embeds.get_log_channel import get_log_channel
-from utils.visuals.gif import fetch_pokemon_gif
+from utils.visuals.embeds.get_pokemon_gif import get_pokemon_gif
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.essentials.loader import pretty_defer
 from utils.essentials.role_checks import *
