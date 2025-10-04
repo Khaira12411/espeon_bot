@@ -61,7 +61,7 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
         )
 
         if tracked_list:
-            pokemon_gif_url = await get_pokemon_gif(pokemon=tracked_list)
+            pokemon_gif_url = await get_pokemon_gif(tracked_list)
             if pokemon_gif_url:
                 thumbnail_url = pokemon_gif_url
 

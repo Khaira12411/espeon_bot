@@ -32,9 +32,13 @@ async def run_command_safe(
 
     except Exception as e:
         tb_str = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+        user = interaction.user
         espeon_log(
             "error",
-            f"❌ Error in /{slash_cmd_name}{target}: {e}\nTraceback:\n{tb_str}",
+            (
+                f"❌ Error in /{slash_cmd_name}{target} by {user.name} "
+                f"({user.id}): {e}\nTraceback:\n{tb_str}"
+            ),
             context=EspeonContext.ESPEON,
         )
         try:

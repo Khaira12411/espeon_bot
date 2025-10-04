@@ -24,8 +24,7 @@ async def fetch_pokemon_gif(pokemon: str) -> str | None:
         return _pokemon_gif_cache[key]
 
     # fetch using your existing function
-    gif_data = await get_pokemon_gif(pokemon)
-    gif_url = gif_data.get("gif_url")
+    gif_url = await get_pokemon_gif(pokemon)
 
     if gif_url:
         _pokemon_gif_cache[key] = gif_url  # store in cache

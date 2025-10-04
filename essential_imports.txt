@@ -7,6 +7,10 @@ from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.essentials.loader import pretty_defer
 from utils.essentials.role_checks import *
 
+
+from utils.misc.number_parser import parse_compact_number
+from utils.misc.string_parser import parse_prefix
+
 log_channel = get_log_channel(bot=bot)
 
 from utils.visuals.pokemon_gif import insert_pokemon_gif_embed

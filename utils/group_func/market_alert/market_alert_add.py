@@ -20,7 +20,8 @@ from utils.group_func.market_alert.parsers import (
 from utils.loggers.espeon_log import espeon_log
 from utils.visuals.embeds.get_log_channel import get_log_channel
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
-
+from utils.misc.number_parser import parse_compact_number
+from utils.misc.string_parser import parse_prefix
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   ✨ Espeon Core Function › Market Alert Add ✨
@@ -29,7 +30,7 @@ async def add_market_alert_func(
     bot,
     interaction: discord.Interaction,
     pokemon: str,
-    max_price: int,
+    max_price: str,
     channel: discord.TextChannel,
     role: Optional[discord.Role] = None,
     mobile_role_input: Optional[str] = None,
@@ -51,6 +52,13 @@ async def add_market_alert_func(
     loader = await pretty_defer(
         interaction, content="Espeon is thinking...", ephemeral=False
     )
+
+    # 💜 Validate price
+    parsed_price = parse_compact_number(str(max_price))
+    if not parsed_price:
+        await loader.stop(content="❌ Invalid max price format! Use e.g. 1k, 1.5m, 2000")
+        return
+    max_price = int(parsed_price)
 
     alerts_counter = await get_alerts_row(bot=bot, user_id=user_id)
     if not alerts_counter:
@@ -144,7 +152,7 @@ async def add_market_alert_func(
     clan_staff = interaction.guild.get_role(STRAYMONS__ROLES.clan_staff)
     is_staff = clan_staff in user.roles or interaction.guild.id == STAFF_SERVER_GUILD_ID
     target_name = target_name.title()
-
+    target_name = parse_prefix(target_name)
     desc_lines = [
         f"- **Member:** {user.mention}",
         f"- **Pokemon:** {target_name} #{dex_number}",

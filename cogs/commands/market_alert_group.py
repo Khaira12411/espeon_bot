@@ -43,7 +43,7 @@ class MarketAlerts(commands.Cog):
         self,
         interaction: discord.Interaction,
         pokemon: str,
-        max_price: int,
+        max_price: str,
         channel: discord.TextChannel,
         role: Optional[discord.Role] = None,  # 👈 must stay a Role for slash commands
         mobile_role_input: str = None,
@@ -163,7 +163,7 @@ class MarketAlerts(commands.Cog):
         self,
         interaction: discord.Interaction,
         pokemon: str,
-        max_price: int | None = None,
+        max_price: str | None = None,
         channel: discord.TextChannel | None = None,
         role: discord.Role | None = None,
         mobile_role_input: str = None,

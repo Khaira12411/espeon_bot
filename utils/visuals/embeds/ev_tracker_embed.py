@@ -87,8 +87,7 @@ async def build_ev_tracker_embed(
         color=0xFF99FF,
     )
     # Use shared_utils to get the gif
-    gif_data = await get_pokemon_gif(pokemon_name)
-    gif_url = gif_data["gif_url"]
+    gif_url = await get_pokemon_gif(pokemon_name)
 
     if gif_url:
         embed.set_thumbnail(url=gif_url)
