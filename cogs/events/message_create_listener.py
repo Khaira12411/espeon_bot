@@ -31,7 +31,7 @@ MARKETFEED_CHANNELS = {
     STRAYMONS__TEXT_CHANNELS.iil_m_gmax_market_feed,
     STRAYMONS__TEXT_CHANNELS.ivgolden_market_feed,
 }
-
+bud_info_trigger = "**Level**:"
 
 class MessageCreateListener(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -96,10 +96,15 @@ class MessageCreateListener(commands.Cog):
                 STAFF_SERVER_GUILD_ID,
                 STRAYMONS_GUILD_ID,
             ):
-                # await detect_pokemeow_reply(message)
+
                 await mr_weakness_chart(bot=self.bot, message=message)
                 await handle_pokemeow_battle_message(bot=self.bot, message=message)
-                await handle_pokemeow_embed_sync(bot=self.bot, message=message)
+
+            # --- EV tracker embed sync (PokéMeow only) ---
+            if message.embeds and message.embeds[0]:
+                embed_description = message.embeds[0].description
+                if embed_description and bud_info_trigger in embed_description:
+                    await handle_pokemeow_embed_sync(bot=self.bot, message=message)
 
             # --- Market alert processing only in staff guild ---
             if (
