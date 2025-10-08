@@ -30,9 +30,14 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
     target_user = message.reference.resolved.author
     user_id = target_user.id
 
-    # Skip if user has Mr. Weakness off
-    display_type = mr_weakness_user_cache.get(user_id, "full")
+    # EARLY CHECK: Skip if user has Mr. Weakness off (before any processing)
+    display_type = mr_weakness_user_cache.get(
+        user_id, "off"
+    )  # Default to "off" if not in cache
     if display_type.lower() == "off":
+        # Clean up any existing state for this user when it's turned off
+        _user_states.pop(user_id, None)
+        _user_active_enemy.pop(user_id, None)
         return
 
     if not message.embeds:
@@ -55,7 +60,11 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
     # Gather alive enemies
     alive_enemies = []
     for field in embed.fields:
-        if "enemy" in field.name.lower() or "challenge" in field.name.lower() and not "mega" in field.name.lower():
+        if (
+            "enemy" in field.name.lower()
+            or "challenge" in field.name.lower()
+            and not "mega" in field.name.lower()
+        ):
             for line in field.value.splitlines():
                 line = line.strip()
                 if not line or "~~" in line:
@@ -116,6 +125,6 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
     except Exception as e:
         espeon_log(
             tag="error",
-            message=f"Failed to send Mr. Weakness embed to user {user_id} for {current_enemy}: {e}",
+            message=f"Failed to send Mr. Weakness embed to {user.di} for {current_enemy}: {e}",
             context=EspeonContext.STRAYMONS,
         )
