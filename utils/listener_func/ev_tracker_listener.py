@@ -16,6 +16,9 @@ EV_MAP = {
     "spe": {"trainer_name": "pie4_speed", "att_full": "Speed"},
 }
 
+# ✨───────────────────────────────────────────────✨
+# 🪻 Handle Pokemeow Battle Message
+# ✨───────────────────────────────────────────────✨
 
 async def handle_pokemeow_battle_message(bot, message: discord.Message):
     """

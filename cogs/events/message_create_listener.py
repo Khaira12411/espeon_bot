@@ -96,26 +96,39 @@ class MessageCreateListener(commands.Cog):
                 STAFF_SERVER_GUILD_ID,
                 STRAYMONS_GUILD_ID,
             ):
+                # ✨───────────────────────────────────────────────✨
+                # 🪻 MR WEAKNESS CHART
+                # ✨───────────────────────────────────────────────✨
+                if message.embeds and message.embeds[0]:
+                    embed_title = message.embeds[0].title or ""
+                    if "Wave" in embed_title:
+                        await mr_weakness_chart(bot=self.bot, message=message)
 
-                await mr_weakness_chart(bot=self.bot, message=message)
-                await handle_pokemeow_battle_message(bot=self.bot, message=message)
+                # ✨───────────────────────────────────────────────✨
+                # 🪻 EV TRAINING
+                # ✨───────────────────────────────────────────────✨
+                if message.content and "won the battle" in message.content:
+                    await handle_pokemeow_battle_message(bot=self.bot, message=message)
 
-            # --- EV tracker embed sync (PokéMeow only) ---
-            if message.embeds and message.embeds[0]:
-                embed_description = message.embeds[0].description
-                if embed_description and bud_info_trigger in embed_description:
-                    await handle_pokemeow_embed_sync(bot=self.bot, message=message)
+                # ✨───────────────────────────────────────────────✨
+                # 🪻 EV TRACKER BUD
+                # ✨───────────────────────────────────────────────✨
+                if message.embeds and message.embeds[0]:
+                    embed_description = message.embeds[0].description
+                    if embed_description and bud_info_trigger in embed_description:
+                        await handle_pokemeow_embed_sync(bot=self.bot, message=message)
 
-            # --- Market alert processing only in staff guild ---
-            if (
-                message.guild
-                and message.guild.id == STRAYMONS_GUILD_ID
-                and message.channel.id in MARKETFEED_CHANNELS
-            ):
-                await process_market_alert_message(
-                    self.bot, message, STRAYMONS__CATEGORIES.MONSTREET_EXCHANGE
-                )
-                await as_rare_ping(bot=self.bot, message=message)
+                # ✨───────────────────────────────────────────────✨
+                # 🪻 MARKET ALERT
+                # ✨───────────────────────────────────────────────✨
+                if (
+                    message.guild
+                    and message.guild.id == STRAYMONS_GUILD_ID
+                    and message.channel.id in MARKETFEED_CHANNELS
+                ):
+                    await process_market_alert_message(
+                        self.bot, message, STRAYMONS__CATEGORIES.MONSTREET_EXCHANGE
+                    )
 
         except Exception as e:
             espeon_log(
@@ -131,4 +144,3 @@ class MessageCreateListener(commands.Cog):
 # 💜────────────────────────────────────────────
 async def setup(bot: commands.Bot):
     await bot.add_cog(MessageCreateListener(bot))
-    # espeon_log("ready", "MessageCreateListener cog loaded successfully!")

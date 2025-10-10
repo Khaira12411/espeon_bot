@@ -13,7 +13,9 @@ from utils.visuals.embeds.weakness_embed import build_user_weakness_embed
 _user_states: dict[int, dict] = {}  # user_id -> {"last_seen": [], "last_wave": None}
 _user_active_enemy: dict[int, str] = {}  # user_id -> current active enemy
 
-
+# ✨───────────────────────────────────────────────✨
+# 🪻 MR Weakness Chart
+# ✨───────────────────────────────────────────────✨
 async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
     """
     Sends weakness embed only to the user who triggered/replied:
@@ -125,6 +127,6 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
     except Exception as e:
         espeon_log(
             tag="error",
-            message=f"Failed to send Mr. Weakness embed to {user.di} for {current_enemy}: {e}",
+            message=f"Failed to send Mr. Weakness embed to {target_user.display_name} for {current_enemy}: {e}",
             context=EspeonContext.STRAYMONS,
         )
