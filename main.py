@@ -19,6 +19,7 @@ from utils.essentials.role_checks import *
 from utils.loggers.espeon_log import EspeonContext  # Using Espeon logs
 from utils.loggers.espeon_log import espeon_log, set_espeon_bot
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
+import tracemalloc
 
 # ——————————————————————————————————————————————————————————————
 # Suppress discord.py logs (must be set BEFORE imports)
@@ -35,6 +36,8 @@ for logger_name in [
 logging.getLogger("discord.client").setLevel(logging.CRITICAL)
 # Suppress the noisy "Ignoring exception in autocomplete" messages
 logging.getLogger("discord.app_commands.tree").setLevel(logging.CRITICAL)
+
+tracemalloc.start()
 # ——————————————————————————————————————————————————————————————
 # 💜 Bot Setup
 # ——————————————————————————————————————————————————————————————
@@ -55,6 +58,13 @@ set_espeon_bot(bot)
 # 🪻 Hook in rate-limit logging (keeps us safe from spammy APIs)
 setup_rate_limit_logging(bot)
 
+# Example: Print top memory usage after bot setup
+snapshot = tracemalloc.take_snapshot()
+top_stats = snapshot.statistics("lineno")
+
+print("[ Top 10 memory usage ]")
+for stat in top_stats[:10]:
+    print(stat)
 # 🌸 Allowed guilds (keeps bot scoped to friendly homes only!)
 ALLOWED_GUILD_IDS = {
     STRAYMONS_GUILD_ID,
@@ -338,7 +348,6 @@ async def on_command_error(ctx: commands.Context, error):
     await handle_command_error(error, ctx, is_slash=False)
 
 
-# 💜 Startup Checklist
 # 💜 Startup Checklist
 async def startup_checklist(bot: commands.Bot):
     """Print a checklist for loaded components, caches, tasks, and slash commands with clean dividers and checks."""
