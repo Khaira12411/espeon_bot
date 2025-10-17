@@ -69,6 +69,7 @@ class GOLDEN_MEGA_POKEMON_URL:
     mega_audino = "https://media.discordapp.net/attachments/1323758555605631001/1415848151725641798/mega-audino.gif?ex=68c55b98&is=68c40a18&hm=f33c7321654d8fa88852b96aa486a2dddc025e5fe1bfc1ecf148a5a41c19126f&=&width=73&height=108"
 
     mega_slowbro = "https://media.discordapp.net/attachments/1323758555605631001/1423397032269316177/080-mega.gif?ex=68e0d209&is=68df8089&hm=8f97b0104bbe5967e3eda92b71ab7ee6447082a134d7ffe89c2e7c058f829356&=&width=84&height=98"
+    mega_banette = "https://media.discordapp.net/attachments/706993472070090855/1428626241141084200/354-mega.gif?ex=68f32f5e&is=68f1ddde&hm=c489efe5bc8461fdb387b1ccc7f4bfdc03807d2af58aa84d62b6ac4dc1cf2aae&=&width=110&height=111"
 
 
 class SHINY_POKEMON_URL:
@@ -91,6 +92,9 @@ class SHINY_POKEMON_URL:
 
 
 class GOLDEN_POKEMON_URL:
+    cofagrigus = "https://images-ext-1.discordapp.net/external/jWdJJUs7ra5BeqoRYPRK8j2a5OEdeZdI92EaFgc8UGE/https/graphics.tppcrpg.net/xy/golden/563M.gif?width=186&height=134"
+    guzzlord = "https://images-ext-1.discordapp.net/external/0Zs7SSh5ppBzvykfvQFJSlNwoMss0_evpESQEizCJ_0/https/graphics.tppcrpg.net/xy/golden/799M.gif?width=154&height=99"
+    yamask = "https://images-ext-1.discordapp.net/external/eeG-4VKrhmd82RSwqmkAGjUkS_qRIleCXdsHwe1hUc4/https/graphics.tppcrpg.net/xy/golden/562M.gif?width=72&height=75"
     timburr = "https://images-ext-1.discordapp.net/external/30QDCSUhTwkrG1BUlJc4rX_iDbtUzfwXjfEEVD5J5TY/https/graphics.tppcrpg.net/xy/golden/532M.gif?width=71&height=69"
     gurdurr = "https://images-ext-1.discordapp.net/external/agrg-13k0AmU53DtldLvmeY0DQ_r07pRkvPdrB4ozuI/https/graphics.tppcrpg.net/xy/golden/533M.gif?width=110&height=88"
     conkeldurr = "https://images-ext-1.discordapp.net/external/RbkDkXO1xn6mghaHzYkhJ6ZfJy_uoIG-doeo179Tprk/https/graphics.tppcrpg.net/xy/golden/534M.gif?width=138&height=100"
