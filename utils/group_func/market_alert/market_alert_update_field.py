@@ -8,9 +8,10 @@ from utils.group_func.market_alert.db_func.market_alert_db_func import (
 )
 from utils.group_func.market_alert.parsers import resolve_pokemon_input
 from utils.loggers.espeon_log import espeon_log
+from utils.misc.number_parser import parse_compact_number
 from utils.visuals.embeds.get_log_channel import get_log_channel
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
-from utils.misc.number_parser import parse_compact_number
+
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   ✨ Espeon Core Function › Market Alert Update ✨
@@ -77,7 +78,7 @@ async def update_market_alert_func(
         max_price = int(parsed_price)
 
     try:
-        # ── Resolve Pokémon name & Dex ──
+        # ── Resolve Pokemon name & Dex ──
         pokemon_name, dex_number = resolve_pokemon_input(pokemon)
 
         # ── Prepare updates dictionary ──

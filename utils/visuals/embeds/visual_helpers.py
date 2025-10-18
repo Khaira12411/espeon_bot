@@ -3,8 +3,8 @@ from datetime import datetime
 
 import discord
 
-from utils.visuals.gif import fetch_pokemon_gif
 from utils.visuals.embeds.get_pokemon_gif import get_pokemon_gif
+from utils.visuals.gif import fetch_pokemon_gif
 
 
 def format_bulletin_desc(*args, key_style_override: str = None) -> str:
@@ -148,14 +148,16 @@ async def design_embed(
 import discord
 
 ERROR_LOG_CHANNEL_ID = 1410202143570530375
+
+
 async def pokemon_embed(
     embed: discord.Embed, pokemon_name: str, bot: discord.Client
 ) -> discord.Embed:
     """
-    Inserts a Pokémon GIF in the embed thumbnail.
+    Inserts a Pokemon GIF in the embed thumbnail.
     Logs a warning to the botlog if the GIF is invalid or missing.
     """
-    # Fetch the Pokémon GIF (assume it returns a URL string or None)
+    # Fetch the Pokemon GIF (assume it returns a URL string or None)
     pokemon_gif = await get_pokemon_gif(pokemon_name)
 
     if not pokemon_gif or not isinstance(pokemon_gif, str) or not pokemon_gif.strip():
@@ -163,7 +165,7 @@ async def pokemon_embed(
         botlog_channel = bot.get_channel(ERROR_LOG_CHANNEL_ID)
         if botlog_channel:
             await botlog_channel.send(
-                f"⚠️ Pokémon '{pokemon_name}' does not have a proper GIF for the thumbnail."
+                f"⚠️ Pokemon '{pokemon_name}' does not have a proper GIF for the thumbnail."
             )
         return embed  # still return the embed, just without thumbnail
 

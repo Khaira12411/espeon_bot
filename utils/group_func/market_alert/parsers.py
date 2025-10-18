@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────
-# Helper: normalize Mega Pokémon name for database/display
+# Helper: normalize Mega Pokemon name for database/display
 # ─────────────────────────────────────────────
 from config.weakness_chart import weakness_chart
 from utils.loggers.espeon_log import EspeonContext, espeon_log
@@ -10,18 +10,17 @@ from config.form_base_names import FORM_BASE_NAMES
 
 
 # ─────────────────────────────────────────────
-# Helper: Resolve Pokémon Name and Dex
+# Helper: Resolve Pokemon Name and Dex
 # ─────────────────────────────────────────────
 def resolve_pokemon_input(pokemon_input: str):
     """
-    Converts any user input (name or dex) into a normalized Pokémon name and Dex number.
+    Converts any user input (name or dex) into a normalized Pokemon name and Dex number.
     Handles:
     - Numeric Dex input (normal, shiny, golden, special forms)
     - Name input (including shiny/golden prefixes, Mega forms)
     Returns: (display_name, dex_number)
     """
     pokemon_input = pokemon_input.strip().lower()
-
 
     # ── Numeric Dex input ──
     if pokemon_input.isdigit():
@@ -46,7 +45,7 @@ def resolve_pokemon_input(pokemon_input: str):
 
                 return display_name, dex_int
 
-        raise ValueError(f"No Pokémon found with Dex #{dex_int}")
+        raise ValueError(f"No Pokemon found with Dex #{dex_int}")
 
     # ── Name input ──
     else:
@@ -60,11 +59,10 @@ def resolve_pokemon_input(pokemon_input: str):
         else:
             base_name = normalize_mega_input(pokemon_input)
 
-
         chart_data = weakness_chart.get(base_name)
         if not chart_data or "dex" not in chart_data:
 
-            raise ValueError(f"No Pokémon found with name {base_name}")
+            raise ValueError(f"No Pokemon found with name {base_name}")
 
         display_name = prefix + format_mega_pokemon_name(base_name)
 
@@ -86,7 +84,7 @@ def resolve_pokemon_input(pokemon_input: str):
 
 
 def normalize_mega_input(name: str) -> str:
-    """Converts user input for Mega Pokémon into chart-friendly format."""
+    """Converts user input for Mega Pokemon into chart-friendly format."""
     name = name.strip().lower()
     if name.startswith("mega"):
         result = name.replace(" ", "-")  # replace all spaces
@@ -95,7 +93,7 @@ def normalize_mega_input(name: str) -> str:
 
 
 def parse_special_mega_input(name: str) -> int:
-    """Parses input for Pokémon, handling Shiny/Golden prefixes and Mega forms."""
+    """Parses input for Pokemon, handling Shiny/Golden prefixes and Mega forms."""
     name = name.strip().lower()
     prefix = None
 
@@ -106,15 +104,12 @@ def parse_special_mega_input(name: str) -> int:
             name = name[len(p) :].strip()
             break
 
-
     # Normalize mega forms
     if name.startswith("mega"):
         name = name.replace(" ", "-")
 
-
     # Lookup dex number
     dex_number = int(weakness_chart[name]["dex"])
-
 
     # Apply shiny/golden offset
     if prefix == "shiny":
@@ -137,8 +132,7 @@ def format_mega_pokemon_name(name: str) -> str:
 
 
 def parse_form_pokemon(dex_int: int, weakness_chart: dict):
-    """Returns display-friendly Pokémon name and dex using only weakness_chart."""
-
+    """Returns display-friendly Pokemon name and dex using only weakness_chart."""
 
     # Search for an entry in weakness_chart with matching dex
     for name, data in weakness_chart.items():

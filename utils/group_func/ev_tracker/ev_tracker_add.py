@@ -28,7 +28,7 @@ MAX_TOTAL_EVS = 510
 
 
 def build_ev_lines(evs_to_track: dict, goals_to_track: dict) -> list[str]:
-    """Builds formatted EV lines for a Pokémon."""
+    """Builds formatted EV lines for a Pokemon."""
     lines = []
     for stat, current in evs_to_track.items():
         goal = goals_to_track.get(stat)
@@ -114,7 +114,7 @@ async def ev_tracker_add_func(
         )
         return
 
-    # ✨──────── Step 2 › Resolve Pokémon ─────✨
+    # ✨──────── Step 2 › Resolve Pokemon ─────✨
     pokemon_title = pokemon.title()
     try:
         if pokemon.isdigit():
@@ -133,12 +133,12 @@ async def ev_tracker_add_func(
     except Exception as e:
         espeon_log(
             "critical",
-            f"Failed to resolve Pokémon: {e}",
+            f"Failed to resolve Pokemon: {e}",
             source="EVTracker",
             exc=e,
             include_trace=True,
         )
-        await handle.stop(content=f"❌ Could not resolve Pokémon '{pokemon}': {e}")
+        await handle.stop(content=f"❌ Could not resolve Pokemon '{pokemon}': {e}")
         return
 
     # ✨──────── Step 3 › Save to Database ─────✨
@@ -202,8 +202,9 @@ async def ev_tracker_add_func(
                 color=0xFF99FF,
                 timestamp=datetime.now(),
             )
-            staff_embed = await design_embed(embed=staff_embed, user=user, pokemon_name=pokemon_title)
-
+            staff_embed = await design_embed(
+                embed=staff_embed, user=user, pokemon_name=pokemon_title
+            )
 
             await staff_channel.send(embed=staff_embed)
 

@@ -1,10 +1,10 @@
 import discord
 from discord.ext import commands
 
-# from utils.visuals.gif import insert_pokemon_gif_embed
-from shared_utils.pokemon_utils.pokemon_gif import get_pokemon_gif
-
 from utils.loggers.espeon_log import EspeonContext, espeon_log
+
+# from utils.visuals.gif import insert_pokemon_gif_embed
+from utils.visuals.embeds.get_pokemon_gif import get_pokemon_gif
 
 
 async def build_ev_tracker_embed(
@@ -80,7 +80,7 @@ async def build_ev_tracker_embed(
         f"{stats_str}"
     )
     pokemon_name = tracked_data["pokemon"].lower()
-    #gif_url = f"https://play.pokemonshowdown.com/sprites/xyani/{pokemon_name}.gif?quality=lossless"
+    # gif_url = f"https://play.pokemonshowdown.com/sprites/xyani/{pokemon_name}.gif?quality=lossless"
 
     embed = discord.Embed(
         description=description,
@@ -94,7 +94,7 @@ async def build_ev_tracker_embed(
     else:
         espeon_log(
             tag="error",
-            message=f"Cannot find Pokémon GIF for '{pokemon_name}'",
+            message=f"Cannot find Pokemon GIF for '{pokemon_name}'",
             context=EspeonContext.STRAYMONS,
             source="GIF Embed",
         )
@@ -108,7 +108,7 @@ async def build_ev_tracker_embed(
 
     if all_completed and goals:
         embed.set_footer(
-            text="🎉 All goals completed! Use /ev-tracker reset to track a new Pokémon."
+            text="🎉 All goals completed! Use /ev-tracker reset to track a new Pokemon."
         )
 
     if summary_lines:

@@ -4,18 +4,17 @@ import sys
 import traceback
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from config.weakness_chart import weakness_chart
-from utils.log_helpers import pretty_log, ServerContext
-
-
+from utils.loggers.espeon_log import espeon_log, ServerContext
 # 🟣 Constant for form-based dex offset
 FORM_BASE_DEX_OFFSET = 7000
 
 
-# -------------------- Normal Pokémon Parsing --------------------
+# -------------------- Normal Pokemon Parsing --------------------
 def parse_normal_pokemon(dex_int: int, first_index: str, dex_count: int):
     """
-    🟪 Parse Pokémon using the normal dex system (non-form).
+    🟪 Parse Pokemon using the normal dex system (non-form).
     Handles shiny/golden variants based on dex length & prefix.
     """
     try:
@@ -40,14 +39,14 @@ def parse_normal_pokemon(dex_int: int, first_index: str, dex_count: int):
 
         return variant_name, shiny_golden_tag, base_dex
     except Exception:
-        pretty_log("error", traceback.format_exc(), ServerContext.STRAYMONS)
+        espeon_log("error", traceback.format_exc())
         return None, None, None
 
 
-# -------------------- Form Pokémon Parsing --------------------
+# -------------------- Form Pokemon Parsing --------------------
 def parse_form_pokemon(dex_int: int):
     """
-    🟪 Parse Pokémon that use form-based dex values (7000+).
+    🟪 Parse Pokemon that use form-based dex values (7000+).
     Includes shiny/golden handling depending on dex offset.
     """
     try:
@@ -74,7 +73,7 @@ def parse_form_pokemon(dex_int: int):
         base_dex = int(weakness_chart[variant_name]["dex"])
         return variant_name, shiny_golden_tag, base_dex
     except Exception:
-        pretty_log("error", traceback.format_exc(), ServerContext.STRAYMONS)
+        espeon_log("error", traceback.format_exc())
         return None, None, None
 
 
@@ -118,5 +117,5 @@ def get_pokemon_from_input(pokemon_input: str):
 
         return None, None, None
     except Exception:
-        pretty_log("error", traceback.format_exc(), ServerContext.STRAYMONS)
+        espeon_log("error", traceback.format_exc())
         return None, None, None

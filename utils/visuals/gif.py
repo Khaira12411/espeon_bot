@@ -1,11 +1,12 @@
 import discord
 from discord.ext import commands
-from utils.loggers.espeon_log import espeon_log, EspeonContext
-from config.straymons_constants import STRAYMONS__TEXT_CHANNELS
-from shared_utils.pokemon_utils.pokemon_gif import get_pokemon_gif
 
 # Example fallback list
 from config.pokemon_gifs import *
+from config.straymons_constants import STRAYMONS__TEXT_CHANNELS
+from utils.loggers.espeon_log import EspeonContext, espeon_log
+from utils.visuals.embeds.get_pokemon_gif import get_pokemon_gif
+
 error_channel_id = STRAYMONS__TEXT_CHANNELS.error_logs
 
 
@@ -14,7 +15,7 @@ _pokemon_gif_cache: dict[str, str] = {}
 
 
 async def fetch_pokemon_gif(pokemon: str) -> str | None:
-    """Fetches a Pokémon GIF URL or returns None if missing, with caching."""
+    """Fetches a Pokemon GIF URL or returns None if missing, with caching."""
 
     # normalize name
     key = pokemon.lower().replace("_", "-")
@@ -33,7 +34,7 @@ async def fetch_pokemon_gif(pokemon: str) -> str | None:
     # log if missing
     espeon_log(
         tag="error",
-        message=f"Cannot find Pokémon GIF for '{pokemon}'",
+        message=f"Cannot find Pokemon GIF for '{pokemon}'",
         context=EspeonContext.STRAYMONS,
         source="GIF Embed",
     )
@@ -49,7 +50,7 @@ async def insert_pokemon_gif_embed(
     context=None,
 ) -> discord.Embed:
     """
-    Adds a Pokémon GIF to the provided embed.
+    Adds a Pokemon GIF to the provided embed.
     - Handles shiny, mega, gmax, alolan, galarian
     - Uses hardcoded Gmax maps if Showdown URLs might not exist
     - Special Gmax cases like Urshifu
@@ -125,7 +126,7 @@ async def insert_pokemon_gif_embed(
     if not gif_url:
         espeon_log(
             "error",
-            f"Cannot find Pokémon GIF for '{original_input}'",
+            f"Cannot find Pokemon GIF for '{original_input}'",
             bot=bot,
             context=context or EspeonContext.STRAYMONS,
             source="GIF Embed",

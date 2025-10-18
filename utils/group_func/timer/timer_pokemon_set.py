@@ -1,5 +1,5 @@
 # 🟣────────────────────────────────────────────
-#        💜 Timer Pokémon Function 💜
+#        💜 Timer Pokemon Function 💜
 # ─────────────────────────────────────────────
 from datetime import datetime
 
@@ -23,18 +23,18 @@ async def timer_pokemon_set_func(
     user_id = user.id
     user_name = user.name
 
-    # 💾 Update the Pokémon timer setting in DB
+    # 💾 Update the Pokemon timer setting in DB
     await set_timer(bot=bot, user_id=user_id, pokemon_setting=mode, user_name=user_name)
     espeon_log(
         tag="db",
-        message=f"Set Pokémon timer for {user} to {mode}",
+        message=f"Set Pokemon timer for {user} to {mode}",
         context=EspeonContext.STRAYMONS,
     )
 
     # 🌸 Prepare confirmation embed
     embed = discord.Embed(
         title="💜 Timer Setting Updated",
-        description=f"Pokémon: **{mode}**",
+        description=f"Pokemon: **{mode}**",
         color=discord.Color.purple(),
         timestamp=datetime.now(),
     )
@@ -48,7 +48,7 @@ async def timer_pokemon_set_func(
             await interaction.response.send_message(embed=embed, ephemeral=True)
         espeon_log(
             tag="info",
-            message=f"Sent Pokémon timer confirmation to {user}",
+            message=f"Sent Pokemon timer confirmation to {user}",
             context=EspeonContext.STRAYMONS,
         )
         await load_timer_cache(bot)
@@ -57,6 +57,6 @@ async def timer_pokemon_set_func(
         # ⚠️ Log any errors
         espeon_log(
             tag="error",
-            message=f"Failed to send Pokémon timer confirmation for {user_id}: {e}",
+            message=f"Failed to send Pokemon timer confirmation for {user_id}: {e}",
             context=EspeonContext.STRAYMONS,
         )

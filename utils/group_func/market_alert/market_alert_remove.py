@@ -36,7 +36,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
     user = interaction.user
     user_id = user.id
     removed_alerts: list[tuple[str, str]] = []
-    footer_text = "💜 You will no longer receive alerts for these Pokémon"
+    footer_text = "💜 You will no longer receive alerts for these Pokemon"
 
     # 💜 Start loader
     loader = await pretty_defer(
@@ -67,7 +67,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
             status_message = "No Alerts Used"
 
         else:
-            # 💜 SINGLE POKÉMON LOGIC
+            # 💜 SINGLE Pokemon LOGIC
             pokemon_title = pokemon.title()
             target_key = pokemon if pokemon.isdigit() else pokemon_title
 
@@ -152,10 +152,10 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
     if removed_alerts:
         if len(removed_alerts) == 1:
             name, dex = removed_alerts[0]
-            removed_line = f"- Removed Pokémon: {name} #{dex}"
+            removed_line = f"- Removed Pokemon: {name} #{dex}"
         else:
             removed_line = (
-                f"{Espeon_Emoji.purple_broom} Removed Pokémon(s):\n"
+                f"{Espeon_Emoji.purple_broom} Removed Pokemon(s):\n"
                 + "\n".join([f"> - {name} #{dex}" for name, dex in removed_alerts])
             )
 

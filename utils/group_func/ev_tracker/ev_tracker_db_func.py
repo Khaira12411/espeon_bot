@@ -1,7 +1,7 @@
 # 🟣────────────────────────────────────────────
 #           💜 EV Tracker DB Helpers (Current/Goal) 💜
 # 🟣────────────────────────────────────────────
-from utils.loggers.espeon_log import espeon_log, EspeonContext
+from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 
 # -------------------- Fetch All Tracked EVs --------------------
@@ -42,7 +42,7 @@ async def add_or_update_ev(
     dex_number: int = None,
 ):
     """
-    Add or update a tracked Pokémon with current and goal EVs.
+    Add or update a tracked Pokemon with current and goal EVs.
     """
     goals = goals or {}
     try:
@@ -108,7 +108,7 @@ async def add_or_update_ev(
 # -------------------- Get Tracked EV --------------------
 async def get_tracked_ev(bot, user_id: int):
     """
-    Get the tracked Pokémon, dex_number, user_name, current EVs, and goal EVs.
+    Get the tracked Pokemon, dex_number, user_name, current EVs, and goal EVs.
     Returns {"user_name": str, "pokemon": str, "dex_number": int, "evs": {...}, "goals": {...}} or None
     """
     try:
@@ -156,7 +156,7 @@ async def get_tracked_ev(bot, user_id: int):
 # -------------------- Delete Tracked EV --------------------
 async def delete_tracked_ev(bot, user_id: int):
     """
-    Delete the tracked Pokémon for a user.
+    Delete the tracked Pokemon for a user.
     Returns True if deleted, False otherwise.
     """
     try:

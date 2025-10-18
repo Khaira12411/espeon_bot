@@ -16,20 +16,21 @@ from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_de
 
 STAFF_LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
 from config.aesthetic import *
-from utils.visuals.gif import fetch_pokemon_gif
 from utils.visuals.embeds.get_pokemon_gif import get_pokemon_gif
+from utils.visuals.gif import fetch_pokemon_gif
+
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   ✨ Espeon Core Function › EV Tracker Reset ✨
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
-    from utils.cache.ev_tracker_cache import remove_ev_tracker_cache, get_ev_tracker
+    from utils.cache.ev_tracker_cache import get_ev_tracker, remove_ev_tracker_cache
 
     user = interaction.user
     user_id = user.id
 
     try:
-        # ✨──────── Step 0 › Defer & Fetch Tracked Pokémon ─────✨
+        # ✨──────── Step 0 › Defer & Fetch Tracked Pokemon ─────✨
         handle = await pretty_defer(
             interaction=interaction, content="Resetting your EV Tracker..."
         )
@@ -57,7 +58,7 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
         description = (
             f"✅ Your current EV tracker for **{tracked_list}** has been reset!"
             if tracked_list
-            else "✅ Your EV tracker has been reset! Use `/ev-tracker add` to track a new Pokémon!"
+            else "✅ Your EV tracker has been reset! Use `/ev-tracker add` to track a new Pokemon!"
         )
 
         if tracked_list:
@@ -74,7 +75,7 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
             embed=embed,
             user=user,
             thumbnail_url=thumbnail_url,
-            footer_text="Use `/ev-tracker add` to track a new Pokémon!",
+            footer_text="Use `/ev-tracker add` to track a new Pokemon!",
         )
         await handle.stop(embed=embed)
 

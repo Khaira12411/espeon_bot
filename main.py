@@ -236,7 +236,7 @@ async def startup_tasks():
     print()
     print("✿ ─── · ─── · ─── · ─── · [🌻 CHANGE LOG ] · ─── · ─── · ─── · ─── ✿")
     print()
-    await auto_log_new_commands(bot, dry_run=False)
+    await auto_log_new_commands(bot, dry_run=False, enabled=False)
     print()
     print("✿ ─── · ─── · ─── · ─── · [🪐 CHECKLIST ] · ─── · ─── · ─── · ─── ✿")
 

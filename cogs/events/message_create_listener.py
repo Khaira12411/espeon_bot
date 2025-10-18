@@ -13,10 +13,8 @@ from config.current_setup import (
     STAFF_SERVER_GUILD_ID,
     STRAYMONS_GUILD_ID,
 )
-from config.staffmons_constants import STAFFMONS_CATEGORIES
 from config.straymons_constants import STRAYMONS__CATEGORIES, STRAYMONS__TEXT_CHANNELS
 from utils.listener_func.afk import afk_reply_on_mention
-from utils.listener_func.as_ping import as_rare_ping
 from utils.listener_func.bud_ev_listener import handle_pokemeow_embed_sync
 from utils.listener_func.ev_tracker_listener import handle_pokemeow_battle_message
 from utils.listener_func.market_alert import process_market_alert_message
@@ -92,8 +90,6 @@ class MessageCreateListener(commands.Cog):
 
             # --- Weakness chart processing (Active + Staff Guilds) ---
             if message.guild and message.guild.id in (
-                ACTIVE_GUILD_ID,
-                STAFF_SERVER_GUILD_ID,
                 STRAYMONS_GUILD_ID,
             ):
                 # ✨───────────────────────────────────────────────✨

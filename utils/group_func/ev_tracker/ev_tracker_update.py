@@ -42,11 +42,11 @@ async def ev_tracker_update_func(
     user = interaction.user
     user_id = user.id
 
-    # -------------------- Step 1: Determine Pokémon --------------------
+    # -------------------- Step 1: Determine Pokemon --------------------
     tracked = ev_tracker_cache.get(user_id)
     if not tracked:
         await handle.stop(
-            content="❌ You have no Pokémon currently being tracked. Use `/ev-tracker add` first.",
+            content="❌ You have no Pokemon currently being tracked. Use `/ev-tracker add` first.",
         )
         return
 
@@ -127,7 +127,11 @@ async def ev_tracker_update_func(
         )
 
         # 💜 Update cache directly for this user instead of full reload
-        from utils.cache.ev_tracker_cache import update_ev_tracker_cache, insert_ev_tracker_cache, get_ev_tracker
+        from utils.cache.ev_tracker_cache import (
+            get_ev_tracker,
+            insert_ev_tracker_cache,
+            update_ev_tracker_cache,
+        )
 
         cached_user = get_ev_tracker(user_id)
         if cached_user:
@@ -138,14 +142,16 @@ async def ev_tracker_update_func(
                 update_ev_tracker_cache(user_id, stat, goal, is_goal=True)
         else:
             # User not in cache? Insert full row
-            insert_ev_tracker_cache({
-                "user_id": user_id,
-                "user_name": user.name,
-                "pokemon": pokemon_title,
-                "dex_number": dex_number,
-                **evs_to_track,
-                **{f"{k}_goal": v for k, v in goals_to_track.items()},
-            })
+            insert_ev_tracker_cache(
+                {
+                    "user_id": user_id,
+                    "user_name": user.name,
+                    "pokemon": pokemon_title,
+                    "dex_number": dex_number,
+                    **evs_to_track,
+                    **{f"{k}_goal": v for k, v in goals_to_track.items()},
+                }
+            )
 
         # Build embed for user confirmation
         description_lines = [
@@ -155,7 +161,9 @@ async def ev_tracker_update_func(
             goal = goals_to_track.get(stat)
             display_current = current if current is not None else "-"
             display_goal = goal if goal is not None else "-"
-            description_lines.append(f"- {stat.upper()}: {display_current}/{display_goal}")
+            description_lines.append(
+                f"- {stat.upper()}: {display_current}/{display_goal}"
+            )
         description_text = "\n".join(description_lines)
 
         embed = discord.Embed(

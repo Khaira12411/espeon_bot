@@ -1,5 +1,5 @@
 # 🟣────────────────────────────────────────────
-#        Timer Pokémon View Function
+#        Timer Pokemon View Function
 # 🟣────────────────────────────────────────────
 
 import discord
@@ -12,7 +12,7 @@ from utils.visuals.embeds.visual_helpers import design_embed
 
 async def timer_pokemon_view_func(bot: commands.Bot, interaction: discord.Interaction):
     """
-    Show the user's current Pokémon timer settings in a cute embed.
+    Show the user's current Pokemon timer settings in a cute embed.
     """
     user = interaction.user
     user_id = user.id
@@ -27,7 +27,7 @@ async def timer_pokemon_view_func(bot: commands.Bot, interaction: discord.Intera
     # 🌸 Build embed
     embed = discord.Embed(
         title="💜 Current Timer Settings",
-        description=f"Pokémon: **{pokemon_setting.title()}**",
+        description=f"Pokemon: **{pokemon_setting.title()}**",
         color=0x9B59B6,  # purple Wooper color
     )
     embed = await design_embed(embed=embed, user=user)
@@ -37,12 +37,12 @@ async def timer_pokemon_view_func(bot: commands.Bot, interaction: discord.Intera
         await interaction.response.send_message(embed=embed, ephemeral=True)
         espeon_log(
             tag="info",
-            message=f"Displayed Pokémon timer settings for user {user_id}: {pokemon_setting}",
+            message=f"Displayed Pokemon timer settings for user {user_id}: {pokemon_setting}",
             context=EspeonContext.STRAYMONS,
         )
     except Exception as e:
         espeon_log(
             tag="error",
-            message=f"Failed to send Pokémon timer view for user {user_id}: {e}",
+            message=f"Failed to send Pokemon timer view for user {user_id}: {e}",
             context=EspeonContext.STRAYMONS,
         )

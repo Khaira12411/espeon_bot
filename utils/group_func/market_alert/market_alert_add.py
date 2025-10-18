@@ -18,10 +18,11 @@ from utils.group_func.market_alert.parsers import (
     resolve_pokemon_input,
 )
 from utils.loggers.espeon_log import espeon_log
-from utils.visuals.embeds.get_log_channel import get_log_channel
-from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 from utils.misc.number_parser import parse_compact_number
 from utils.misc.string_parser import parse_prefix
+from utils.visuals.embeds.get_log_channel import get_log_channel
+from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
+
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   ✨ Espeon Core Function › Market Alert Add ✨
@@ -56,7 +57,9 @@ async def add_market_alert_func(
     # 💜 Validate price
     parsed_price = parse_compact_number(str(max_price))
     if not parsed_price:
-        await loader.stop(content="❌ Invalid max price format! Use e.g. 1k, 1.5m, 2000")
+        await loader.stop(
+            content="❌ Invalid max price format! Use e.g. 1k, 1.5m, 2000"
+        )
         return
     max_price = int(parsed_price)
 
@@ -69,7 +72,9 @@ async def add_market_alert_func(
     alerts_used = alerts_counter["alerts_used"]
 
     if total_alerts == alerts_used:
-        await loader.stop(content=f"❌ You have used up all of your {total_alerts} market alerts")
+        await loader.stop(
+            content=f"❌ You have used up all of your {total_alerts} market alerts"
+        )
         return
 
     # 💜 Normalize role
@@ -94,8 +99,8 @@ async def add_market_alert_func(
     pokemon_title = pokemon.title()
 
     try:
-        # 🔹 Step 1: Resolve Pokémon
-        await loader.edit(content="Resolving Pokémon...")
+        # 🔹 Step 1: Resolve Pokemon
+        await loader.edit(content="Resolving Pokemon...")
         if pokemon.isdigit():
             if len(pokemon) == 4 and not pokemon.startswith(("1", "7", "9")):
                 raise ValueError("Invalid 4-digit Dex number.")
@@ -171,7 +176,7 @@ async def add_market_alert_func(
         description=f"{status['message']}\n{full_desc}",
     )
 
-    footer_text = "You'll be notified when a Pokémon matches your alert 💜"
+    footer_text = "You'll be notified when a Pokemon matches your alert 💜"
     user_embed = await design_embed(
         embed=user_embed,
         user=user,
@@ -181,8 +186,7 @@ async def add_market_alert_func(
 
     if log_channel:
         desc_lines = [
-            f"{status['message']}\n"
-            f"- **Member:** {user.mention}",
+            f"{status['message']}\n" f"- **Member:** {user.mention}",
             f"- **Pokemon:** {target_name} #{dex_number}",
             f"- **Max Price:** {PokeCoin} {max_price_int:,}",
             f"- **Channel:** {channel.mention}",

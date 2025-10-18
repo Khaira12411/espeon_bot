@@ -22,7 +22,7 @@ async def load_market_alert_cache(bot):
     _market_alert_index.clear()
 
     active_alerts = await fetch_active_market_alerts(bot)
-    #espeon_log("info", f"[Market Alert Cache] DB returned {len(active_alerts)} alerts")
+    # espeon_log("info", f"[Market Alert Cache] DB returned {len(active_alerts)} alerts")
 
     for alert in active_alerts:
         alert_entry = {
@@ -157,6 +157,7 @@ def fetch_user_alerts_from_cache(user_id: int) -> list[dict]:
     user_alerts = [a for a in market_alert_cache if a["user_id"] == user_id]
     return user_alerts
 
+
 # -------------------- Bulk Update (Channel/Role) --------------------
 
 
@@ -170,7 +171,7 @@ def update_user_alerts_in_cache(
     """
     Update alerts in cache for a given user.
     - If target_pokemon is None → update all of the user’s alerts.
-    - If target_pokemon is provided → update only that Pokémon’s alert.
+    - If target_pokemon is provided → update only that Pokemon’s alert.
     Works on both the main cache list and the index.
     """
     updated = 0

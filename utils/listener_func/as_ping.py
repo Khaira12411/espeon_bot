@@ -15,7 +15,7 @@ from utils.loggers.espeon_log import espeon_log  # Using Espeon logs
 AUTO_SPAWN_ROLE_ID = STAFFMONS_ROLES.as_spawn
 RARE_SPAWNS_CHANNEL_ID = STAFFMONS__TEXT_CHANNELS.rare_spawn
 
-# Colors corresponding to special rare/legendary Pokémon embed colors
+# Colors corresponding to special rare/legendary Pokemon embed colors
 LEGENDARY_COLORS = {
     rarity_meta["legendary"]["color"],
     rarity_meta["shiny"]["color"],
@@ -58,7 +58,7 @@ async def as_rare_ping(bot: discord.Client, message: discord.Message):
         dex_number = int(dex_match.group(1))
 
     pokemon_name = paldea_galar_dict.get(dex_number) or dex.get(
-        dex_number, "Unknown Pokémon"
+        dex_number, "Unknown Pokemon"
     )
     shiny_text = "shiny " if rarity_key == "shiny" else ""
     is_paldean = dex_number and dex_number in paldea_galar_dict
@@ -92,7 +92,7 @@ async def as_rare_ping(bot: discord.Client, message: discord.Message):
     message_link = f"https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id}"
     desc = f"### {rarity_info['emoji']} {pokemon_name} #{dex_number}\n- [Jump to Message]({message_link})"
     rare_spawn_embed = discord.Embed(
-        title="A Pokémon has spawned", description=desc, color=rarity_color
+        title="A Pokemon has spawned", description=desc, color=rarity_color
     )
 
     # 🟪──────────────── Embed GIF & Footer ────────────────

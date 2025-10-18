@@ -84,7 +84,7 @@ for name, dex in POKEMON_LIST:
 
 def format_display_name(raw_name: str) -> str:
     """
-    Clean up Pokémon display names for autocomplete:
+    Clean up Pokemon display names for autocomplete:
     - Remove dash only for Mega forms (Mega-Abomasnow → Mega Abomasnow)
     - Capitalize properly
     - Keep golden/shiny prefixes untouched
@@ -106,7 +106,7 @@ async def pokemon_autocomplete(
     interaction: discord.Interaction, current: str
 ) -> list[app_commands.Choice[str]]:
     """
-    Autocomplete Pokémon names with #Dex display.
+    Autocomplete Pokemon names with #Dex display.
     Matches both names and dex numbers.
     """
     current_simple = re.sub(r"[^\w\s]", "", (current or "").lower()).replace(" ", "")

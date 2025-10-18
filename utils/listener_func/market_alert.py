@@ -7,7 +7,7 @@ import re
 import discord
 from discord import Embed
 
-from config.current_setup import STRAYMONS_GUILD_ID, STAFF_SERVER_GUILD_ID
+from config.current_setup import STAFF_SERVER_GUILD_ID, STRAYMONS_GUILD_ID
 from config.emojis import PokeCoin
 from utils.cache.market_alert_cache import market_alert_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
@@ -21,7 +21,7 @@ STAFFMONS_ALLOWED_WEBHOOKS = {
 
 ALLOWED_WEBHOOKS = {
     1301883013571022892,  # Shiny
-    1301882441547513879,  # Regular 
+    1301882441547513879,  # Regular
     1301882823631966280,  # Legendary
     1301883351359164486,  # Golden
 }
@@ -61,7 +61,7 @@ async def process_market_alert_message(
     if not _market_alert_index:
         _market_alert_index.clear()
         for alert in market_alert_cache:
-            # key by pokemon.lower() only, keep list for multiple alerts per Pokémon
+            # key by pokemon.lower() only, keep list for multiple alerts per Pokemon
             key = alert["pokemon"].lower()
             _market_alert_index.setdefault(key, []).append(alert)
 

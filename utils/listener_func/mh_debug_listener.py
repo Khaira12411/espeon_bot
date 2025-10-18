@@ -18,7 +18,7 @@ async def process_market_alert_message(
 ):
     """
     Processes MeowHelper market embeds and sends alerts to users
-    whose alerts match the Pokémon name/Dex and price.
+    whose alerts match the Pokemon name/Dex and price.
     """
 
     print(
@@ -41,7 +41,7 @@ async def process_market_alert_message(
 
     embed = message.embeds[0]
 
-    # ── Parse Pokémon name & Dex from embed author field ──
+    # ── Parse Pokemon name & Dex from embed author field ──
     embed_author_name = embed.author.name if embed.author else ""
     match = re.match(r"(.+?)\s+#(\d+)", embed_author_name)
     if not match:
@@ -52,7 +52,7 @@ async def process_market_alert_message(
 
     poke_name = match.group(1)
     poke_dex = int(match.group(2))
-    print(f"[DEBUG] Parsed Pokémon: {poke_name} (Dex #{poke_dex})")
+    print(f"[DEBUG] Parsed Pokemon: {poke_name} (Dex #{poke_dex})")
 
     # ── Parse listed price ──
     fields = {f.name: f.value for f in embed.fields}

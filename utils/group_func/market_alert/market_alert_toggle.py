@@ -19,7 +19,7 @@ async def toggle_market_alert_func(
     bot, interaction: discord.Interaction, pokemon: str, value: bool
 ):
     """
-    Toggle 'notify' on/off for a specific Pokémon/Dex alert or all alerts.
+    Toggle 'notify' on/off for a specific Pokemon/Dex alert or all alerts.
     Sends the resulting embed directly to the interaction.
     """
     from utils.cache.market_alert_cache import update_user_alerts_in_cache
@@ -47,7 +47,7 @@ async def toggle_market_alert_func(
             )
             return
 
-        # ── Resolve Pokémon name & Dex ──
+        # ── Resolve Pokemon name & Dex ──
         pokemon_title = pokemon.title()
         if any(
             pokemon_title.startswith(f"{prefix}Mega ")

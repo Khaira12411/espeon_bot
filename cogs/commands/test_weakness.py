@@ -18,9 +18,9 @@ class Weakness(commands.Cog):
         self.bot = bot
 
     @app_commands.command(
-        name="test-weakness", description="Show a Pokémon's type weaknesses"
+        name="test-weakness", description="Show a Pokemon's type weaknesses"
     )
-    @app_commands.describe(pokemon="The Pokémon name or dex number")
+    @app_commands.describe(pokemon="The Pokemon name or dex number")
     @app_commands.autocomplete(pokemon=pokemon_autocomplete)  # 👈 attach autocomplete
     async def test_weakness(self, interaction: discord.Interaction, pokemon: str):
         # pokemon here is already the Choice.value you set in autocomplete
@@ -28,7 +28,7 @@ class Weakness(commands.Cog):
 
         if not embed:
             await interaction.response.send_message(
-                f"❌ Pokémon `{pokemon}` not found in weakness chart.",
+                f"❌ Pokemon `{pokemon}` not found in weakness chart.",
                 ephemeral=True,
             )
             return

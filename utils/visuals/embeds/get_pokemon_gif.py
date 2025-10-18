@@ -1,6 +1,8 @@
 # inside get_pokemon_gif.py
 from typing import Literal
+
 from config.pokemon_gifs import *
+
 
 async def get_pokemon_gif(input_name: str):
     """
@@ -91,6 +93,6 @@ async def get_pokemon_gif(input_name: str):
 
     error = None
     if not gif_url:
-        error = f"Cannot find Pokémon GIF for '{original_input}'"
+        error = f"Cannot find Pokemon GIF for '{original_input}'"
 
     return gif_url

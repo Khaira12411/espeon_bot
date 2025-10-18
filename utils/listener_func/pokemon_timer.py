@@ -17,7 +17,7 @@ ready_tasks = {}
 async def detect_pokemeow_reply(message: discord.Message):
     """
     Triggered on any message.
-    Handles Pokémon ready notifications depending on user's timer cache settings:
+    Handles Pokemon ready notifications depending on user's timer cache settings:
       - off → ignore
       - on → ping them in channel
       - on w/o pings → send message w/o mention
@@ -70,18 +70,18 @@ async def detect_pokemeow_reply(message: discord.Message):
 
                 if setting == "on":
                     await message.channel.send(
-                        f"{Espeon_Emoji.pokeball} {member.mention}, your Pokémon command is ready! {Espeon_Emoji.purple_pawprints}"
+                        f"{Espeon_Emoji.pokeball} {member.mention}, your Pokemon command is ready! {Espeon_Emoji.purple_pawprints}"
                     )
                 elif setting == "on w/o pings":
                     await message.channel.send(
-                        f"{Espeon_Emoji.pokeball} {member.display_name}, your Pokémon command is ready {Espeon_Emoji.purple_pawprints}!"
+                        f"{Espeon_Emoji.pokeball} {member.display_name}, your Pokemon command is ready {Espeon_Emoji.purple_pawprints}!"
                     )
                 elif setting == "react":
                     await message.add_reaction(Espeon_Emoji.purple_check2)
 
                 """espeon_log(
                     "info",
-                    f"Executed Pokémon timer action '{setting}' for {member}",
+                    f"Executed Pokemon timer action '{setting}' for {member}",
                     source="PokeMeow Timer",
                 )"""
             except asyncio.CancelledError:
@@ -93,7 +93,7 @@ async def detect_pokemeow_reply(message: discord.Message):
             except Exception as e:
                 espeon_log(
                     "error",
-                    f"Error in Pokémon timer action for {member}: {e}",
+                    f"Error in Pokemon timer action for {member}: {e}",
                     include_trace=True,
                     source="PokeMeow Timer",
                 )

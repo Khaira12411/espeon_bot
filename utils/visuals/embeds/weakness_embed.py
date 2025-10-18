@@ -55,7 +55,7 @@ FORM_BASE_DEX_OFFSET = 7000
 
 # -------------------- Reusable Parsing Functions --------------------
 def parse_normal_pokemon(dex_int: int, first_index: str, dex_count: int):
-    """Handles regular Pokémon input (1-6999, or weighted 1001/9001 style for shiny/golden)"""
+    """Handles regular Pokemon input (1-6999, or weighted 1001/9001 style for shiny/golden)"""
 
     # If first digit is 7 and dex has 4 digits, use it as-is
     if first_index == "7" and dex_count == 4:
@@ -92,7 +92,7 @@ def parse_normal_pokemon(dex_int: int, first_index: str, dex_count: int):
     if not variant_name:
         espeon_log(
             "warn",
-            f"Failed to resolve normal Pokémon for dex {dex_int}",
+            f"Failed to resolve normal Pokemon for dex {dex_int}",
             context=EspeonContext.ESPEON,
         )
 
@@ -115,7 +115,6 @@ def parse_form_pokemon(dex_int: int):
     base_index = index // 3
     variant_offset = index % 3
 
-
     if base_index >= len(FORM_BASE_NAMES):
         espeon_log(
             "warn", f"Form dex {dex_int} is out of range.", context=EspeonContext.ESPEON
@@ -133,7 +132,6 @@ def parse_form_pokemon(dex_int: int):
         shiny_golden_tag = "Golden"
 
     base_dex = FORM_BASE_DEX_OFFSET + base_index * 3
-
 
     return base_name, shiny_golden_tag, base_dex
 
@@ -168,7 +166,7 @@ def get_pokemon_from_input(pokemon_input: str):
 
     espeon_log(
         "error",
-        f"Unresolved Pokémon input: '{pokemon_input}'",
+        f"Unresolved Pokemon input: '{pokemon_input}'",
         context=EspeonContext.ESPEON,
     )
     return None, None, None
@@ -176,7 +174,7 @@ def get_pokemon_from_input(pokemon_input: str):
 
 def clean_display_name(variant_name: str, shiny_golden_tag: str | None = None) -> str:
     """
-    Format Pokémon display name:
+    Format Pokemon display name:
     - Remove dash for Mega forms (Mega-Abomasnow → Mega Abomasnow)
     - Handle special cases like Mega-Charizard-X → Mega Charizard X
     - Keep Shiny/Golden tags intact

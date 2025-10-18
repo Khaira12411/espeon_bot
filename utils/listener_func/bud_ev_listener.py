@@ -7,7 +7,7 @@ from utils.cache.ev_tracker_cache import ev_tracker_cache
 from utils.group_func.ev_tracker.ev_tracker_db_func import add_or_update_ev
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.ev_tracker_embed import build_ev_tracker_embed
-
+from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   ✨ Espeon Core Function › EV Tracker Embed Sync Handler ✨
@@ -23,12 +23,19 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
     Only updates stats the user is tracking.
     """
 
-    # Must be from a bot, have an embed, and be a reply
-    if not message.author.bot or not message.embeds or not message.reference:
-        return
-
     embed = message.embeds[0]
     title = embed.title or ""
+
+    user = await get_pokemeow_reply_member(message)
+    if not user:
+        return
+
+    user_id = user.id
+
+    #Check if user is in EV tracker cache
+    user_ev_data = ev_tracker_cache.get(user_id)
+    if not user_ev_data:
+        return
 
     # -------------------- STEP 1: Extract username, dex emoji, and pokemon name --------------------
     match = re.match(r"<:.*?:\d+> (\S+)'s <:([0-9]+):\d+> (.*)", title)
@@ -55,8 +62,8 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
     if tracked_pokemon != pokemon_name.lower():
         return
 
-    # -------------------- STEP 4: Extract Pokémon EVs field --------------------
-    ev_field = next((f for f in embed.fields if "Pokémon EVs" in f.name), None)
+    # -------------------- STEP 4: Extract Pokemon EVs field --------------------
+    ev_field = next((f for f in embed.fields if "Pokemon EVs" in f.name), None)
     if not ev_field:
         return
 

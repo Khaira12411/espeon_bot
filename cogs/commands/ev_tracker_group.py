@@ -99,7 +99,7 @@ class EvTrackerGroup(commands.Cog):
     # 🟡────────────────────────────────────────────
     @ev_tracker_group.command(
         name="update",
-        description="Add or update EVs for your current tracked Pokémon",
+        description="Add or update EVs for your current tracked Pokemon",
     )
     @espeon_roles_only()
     @app_commands.describe(
