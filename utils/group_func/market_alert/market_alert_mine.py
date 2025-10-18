@@ -76,7 +76,7 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
                 description="You don’t have any active market alerts right now.",
                 color=0xAA88FF,
             )
-            embed = await design_embed(
+            embed = design_embed(
                 embed=embed,
                 user=user,
                 footer_text="Use /market-alert add to create one ✨",

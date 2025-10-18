@@ -4,7 +4,7 @@ from typing import Literal
 from config.pokemon_gifs import *
 
 
-async def get_pokemon_gif(input_name: str):
+def get_pokemon_gif(input_name: str):
     """
     Returns the pokemon gif
     """

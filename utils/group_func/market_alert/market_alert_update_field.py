@@ -184,7 +184,7 @@ async def update_market_alert_func(
     )
 
     footer_text = "You'll be notified according to your updated alert settings"
-    embed = await design_embed(
+    embed = design_embed(
         embed=embed, user=user, pokemon_name=pokemon_name, footer_text=footer_text
     )
 

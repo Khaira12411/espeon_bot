@@ -3,6 +3,7 @@ import logging
 import os
 import random
 import time
+import tracemalloc
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -19,7 +20,6 @@ from utils.essentials.role_checks import *
 from utils.loggers.espeon_log import EspeonContext  # Using Espeon logs
 from utils.loggers.espeon_log import espeon_log, set_espeon_bot
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
-import tracemalloc
 
 # ——————————————————————————————————————————————————————————————
 # Suppress discord.py logs (must be set BEFORE imports)
@@ -249,6 +249,7 @@ async def startup_tasks():
     print()
     print("✿ ─── · ─── · ─── · ─── · [☀️  ESPEON BOT ] · ─── · ─── · ─── · ─── ✿")
     print()
+
 
 from discord.errors import NotFound
 

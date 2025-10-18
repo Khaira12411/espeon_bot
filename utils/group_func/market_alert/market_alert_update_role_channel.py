@@ -95,7 +95,7 @@ async def update_market_alert_role_channel_func(
         color=0xFF99FF,
     )
     footer_text = "You'll be notified according to your updated alert settings"
-    embed = await design_embed(
+    embed = design_embed(
         embed=embed,
         user=user,
         thumbnail_url=Espeon_Thumbnail.pink_purple_message,

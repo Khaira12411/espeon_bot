@@ -62,7 +62,7 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
         )
 
         if tracked_list:
-            pokemon_gif_url = await get_pokemon_gif(tracked_list)
+            pokemon_gif_url = get_pokemon_gif(tracked_list)
             if pokemon_gif_url:
                 thumbnail_url = pokemon_gif_url
 
@@ -71,7 +71,7 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
             description=description,
             color=0xFF99FF,
         )
-        embed = await design_embed(
+        embed = design_embed(
             embed=embed,
             user=user,
             thumbnail_url=thumbnail_url,
@@ -87,7 +87,7 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
                 title=f"{Espeon_Emoji.purple_broom} EV Tracker Reset",
                 description=desc,
             )
-            staff_embed = await design_embed(
+            staff_embed = design_embed(
                 embed=staff_embed, user=user, thumbnail_url=thumbnail_url
             )
             await staff_channel.send(embed=staff_embed)

@@ -178,7 +178,7 @@ async def ev_tracker_add_func(
             description="\n".join(user_desc_lines),
             color=0xFF99FF,
         )
-        embed = await design_embed(embed=embed, user=user, pokemon_name=pokemon_title)
+        embed = design_embed(embed=embed, user=user, pokemon_name=pokemon_title)
 
         await handle.stop(embed=embed)
 
@@ -202,7 +202,7 @@ async def ev_tracker_add_func(
                 color=0xFF99FF,
                 timestamp=datetime.now(),
             )
-            staff_embed = await design_embed(
+            staff_embed = design_embed(
                 embed=staff_embed, user=user, pokemon_name=pokemon_title
             )
 

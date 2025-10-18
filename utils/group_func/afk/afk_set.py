@@ -79,7 +79,7 @@ async def afk_set_func(
         )
 
         footer_text = "🦋 AFK mode enabled — stay cozy!"
-        embed = await design_embed(
+        embed = design_embed(
             embed=embed,
             user=user,
             footer_text=footer_text,

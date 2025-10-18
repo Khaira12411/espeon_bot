@@ -177,7 +177,7 @@ async def add_market_alert_func(
     )
 
     footer_text = "You'll be notified when a Pokemon matches your alert 💜"
-    user_embed = await design_embed(
+    user_embed = design_embed(
         embed=user_embed,
         user=user,
         pokemon_name=target_name,
@@ -201,9 +201,7 @@ async def add_market_alert_func(
             color=0xFF99FF,
             timestamp=datetime.now(),
         )
-        log_embed = await design_embed(
-            embed=log_embed, user=user, pokemon_name=target_name
-        )
+        log_embed = design_embed(embed=log_embed, user=user, pokemon_name=target_name)
 
     # 💜 Stop loader and show final embed
     await loader.stop(embed=user_embed, delete=False)

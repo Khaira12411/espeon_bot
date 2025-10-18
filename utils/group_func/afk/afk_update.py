@@ -1,4 +1,3 @@
-
 # 🤍────────────────────────────────────────────
 #   AFK Update Function (Slash Command Helper)
 # 🤍────────────────────────────────────────────
@@ -50,7 +49,7 @@ async def afk_update_func(
             ),
         )
         footer_text = "🌸 New AFK note saved — soft & simple"
-        embed = await design_embed(
+        embed = design_embed(
             embed=embed,
             user=user,
             footer_text=footer_text,

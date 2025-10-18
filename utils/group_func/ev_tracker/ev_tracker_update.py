@@ -171,7 +171,7 @@ async def ev_tracker_update_func(
             description=description_text,
             color=0xFF99FF,
         )
-        embed = await design_embed(embed=embed, user=user, pokemon_name=pokemon_title)
+        embed = design_embed(embed=embed, user=user, pokemon_name=pokemon_title)
 
         # Sends final embed
         await handle.stop(embed=embed)
