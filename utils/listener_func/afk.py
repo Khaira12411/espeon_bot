@@ -1,9 +1,18 @@
 import re
+
 import discord
-from utils.loggers.espeon_log import espeon_log, EspeonContext
+
 from config.aesthetic import *
+from utils.cache.afk_user_cache import AFK_CACHE
+from utils.loggers.espeon_log import EspeonContext, espeon_log
+
+afk_users_seen = set()
+afk_users_to_reply = []
 
 
+# ✨───────────────────────────────────────────────✨
+# 🌙 AFK Reply on Mention Handler
+# ✨───────────────────────────────────────────────✨
 async def afk_reply_on_mention(message: discord.Message):
     """
     Checks if any mentioned or replied-to user is AFK.
@@ -17,8 +26,20 @@ async def afk_reply_on_mention(message: discord.Message):
         if message.author.bot:
             return  # Ignore bot messages
 
-        afk_users_seen = set()
-        afk_users_to_reply = []
+        # Clear state at the start of each call
+        afk_users_seen.clear()
+        afk_users_to_reply.clear()
+
+        # Early check: if no mentioned or replied-to user is in AFK cache, exit
+        mentioned_ids = {user.id for user in message.mentions}
+        replied_id = None
+        if message.reference and message.reference.resolved:
+            replied_id = message.reference.resolved.author.id
+        ids_to_check = set(mentioned_ids)
+        if replied_id:
+            ids_to_check.add(replied_id)
+        if not any(afk_cache_fetch_user(uid) for uid in ids_to_check):
+            return
 
         # 1️⃣ Check mentions
         for user in message.mentions:

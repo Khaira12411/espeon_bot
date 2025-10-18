@@ -3,8 +3,13 @@ from typing import Dict
 
 import discord
 
-from config.wb_constants import *
 from config.aesthetic import *
+from config.wb_constants import *
+from utils.cache.cache_list import WB_PING_CACHE
+
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━
+#   ✨ Espeon Core Function › WB SUB PINGER ✨
+# 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
     """
@@ -12,7 +17,6 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
     Handles variants (regular/shiny/both) and sends in the correct channels or DMs.
     Fully defensive with debug logging for cache issues.
     """
-    from utils.cache.wb_sub_cache import WB_PING_CACHE
 
     try:
         content = str(message.content).lower()
@@ -65,7 +69,7 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
                     print(
                         f"[ping_wb_subscribers] Skipping subscription for user {user_id}, boss '{sub_boss_name_raw}': {inner_e}\nEntry: {info}"
                     )
-#
+        #
         # Send pings
         for channel_id, user_ids in pings_by_channel.items():
             try:

@@ -3,10 +3,9 @@ import discord
 from discord.ext import commands
 
 from utils.visuals.embeds.ev_tracker_embed import build_ev_tracker_embed
-
+from utils.cache.cache_list import ev_tracker_cache
 
 async def ev_tracker_view_func(bot: commands.Bot, interaction: discord.Interaction):
-    from utils.cache.ev_tracker_cache import ev_tracker_cache
 
     channel = interaction.channel
     user_id = interaction.user.id

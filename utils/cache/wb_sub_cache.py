@@ -1,36 +1,11 @@
-import json
 
+from utils.cache.cache_list import WB_PING_CACHE
 from utils.group_func.wb_sub.wb_sub_db_func import fetch_all_wb_pings
-from utils.loggers.espeon_log import espeon_log, EspeonContext
-
-# 💜────────────────────────────────────────────
-#       🟣 WB Ping Cache Loader
-# 💜────────────────────────────────────────────
-
-WB_PING_CACHE: dict[int, dict[str, dict]] = {}
-# Structure:
-# {
-#   user_id: {
-#       boss_name: {
-#           "user_id": ..,
-#           "user_name": ..,
-#           "variant": ..,
-#           "boss_name": ..,
-#           "mode": ..,
-#           "channel_id": ..,
-#           "created_at": ..
-#       },
-#       ...
-#   },
-#   ...
-# }
-
+from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 # 💜────────────────────────────────────────────
 #   🟣 WB Ping Cache (Single Source of Truth)
 # 💜────────────────────────────────────────────
-import json
-from utils.loggers.espeon_log import espeon_log, EspeonContext
 
 
 async def load_wb_ping_cache(bot):

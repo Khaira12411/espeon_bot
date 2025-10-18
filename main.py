@@ -17,6 +17,7 @@ from utils.essentials.command_tracker import auto_log_new_commands
 from utils.essentials.error_handler import on_app_command_error
 from utils.essentials.get_pg_pool import get_pg_pool
 from utils.essentials.role_checks import *
+from utils.listener_func.afk import afk_users_seen, afk_users_to_reply
 from utils.loggers.espeon_log import EspeonContext  # Using Espeon logs
 from utils.loggers.espeon_log import espeon_log, set_espeon_bot
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
@@ -219,6 +220,13 @@ async def refresh_all_caches():
         refresh_all_caches.already_ran = True
         return  # 🚫 Skip the first run
     await load_all_caches(bot)
+    afk_users_seen.clear()
+    afk_users_to_reply.clear()
+    espeon_log(
+        tag="",
+        label="🕐 HOURLY CACHE REFRESH",
+        message="All caches refreshed and AFK users cleared.",
+    )
 
 
 # ====================
@@ -354,6 +362,13 @@ async def startup_checklist(bot: commands.Bot):
     """Print a checklist for loaded components, caches, tasks, and slash commands with clean dividers and checks."""
 
     checklist = []
+    from utils.cache.cache_list import (
+        AFK_CACHE,
+        WB_PING_CACHE,
+        ev_tracker_cache,
+        market_alert_cache,
+        mr_weakness_user_cache,
+    )
 
     # Divider
     divider = "★━━━━━━━━━━━━━━━━━━━━★"
@@ -364,19 +379,21 @@ async def startup_checklist(bot: commands.Bot):
     checklist.append(f"✅ {loaded_cogs_count} 🌼 Cogs Loaded")
 
     # 🟣 Market alerts
-    from utils.cache.market_alert_cache import market_alert_cache
 
     checklist.append(f"✅ {len(market_alert_cache)} 🦄 Market Alerts Loaded")
 
     # 🌸 Mr. Weakness cache
-    from utils.cache.mr_weakness_cache import mr_weakness_user_cache
 
     checklist.append(f"✅ {len(mr_weakness_user_cache)} 🌸 MR Weakness Users")
 
     # 🐼 Mr. Weakness cache
-    from utils.cache.ev_tracker_cache import ev_tracker_cache
-
     checklist.append(f"✅ {len(ev_tracker_cache)} 🐼 EV Tracker Users")
+
+    # 🫧 AFK cache
+    checklist.append(f"✅ {len(AFK_CACHE)} 🫧 AFK Users")
+
+    # 🦩 World Boss ping cache
+    checklist.append(f"✅ {len(WB_PING_CACHE)} 🦩 World Boss Ping Users")
 
     # 💛 Status rotator
     checklist.append(f"✅ {status_rotator.is_running()} ✨ Status Rotator Running")

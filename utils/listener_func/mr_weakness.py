@@ -3,7 +3,7 @@ import re
 import discord
 from discord.ext import commands
 
-from utils.cache.mr_weakness_cache import mr_weakness_user_cache
+from utils.cache.cache_list import mr_weakness_user_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.weakness_embed import build_user_weakness_embed
 

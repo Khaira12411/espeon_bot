@@ -12,7 +12,7 @@ from utils.group_func.ev_tracker.ev_tracker_db_func import add_or_update_ev
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 from utils.visuals.gif import fetch_pokemon_gif
-
+from utils.cache.cache_list import ev_tracker_cache
 MAX_EVS_PER_STAT = 252
 MAX_TOTAL_EVS = 510
 STAFF_LOG_CHANNEL_ID = (
@@ -33,7 +33,7 @@ async def ev_tracker_update_func(
     spd=None,
     spe=None,
 ):
-    from utils.cache.ev_tracker_cache import ev_tracker_cache, load_ev_tracker_cache
+    from utils.cache.ev_tracker_cache import load_ev_tracker_cache
 
     # ⏳ Pretty loader while fetching
     handle = await pretty_defer(

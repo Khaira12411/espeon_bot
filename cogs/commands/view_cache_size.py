@@ -11,18 +11,14 @@ class ViewCacheSize(commands.Cog):
         name="view-cache-size", description="Show the size of key caches and indexes"
     )
     async def view_cache_size_slash(self, interaction: discord.Interaction):
-        from utils.cache.market_alert_cache import (
+        from utils.cache.cache_list import (
             _market_alert_index,
             market_alert_cache,
+            mr_weakness_user_cache,
+            ev_tracker_cache
         )
-        from utils.cache.mr_weakness_cache import mr_weakness_user_cache
 
         try:
-            ev_tracker_cache = None
-            try:
-                from utils.cache.ev_tracker_cache import ev_tracker_cache
-            except ImportError:
-                pass
             # Import caches from pokemon_autocomplete.py
             from utils.essentials.pokemon_autocomplete import (
                 DEX_TO_KEY,

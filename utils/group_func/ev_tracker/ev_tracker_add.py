@@ -15,8 +15,7 @@ from utils.group_func.market_alert.parsers import (
 )
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed
-from utils.visuals.gif import insert_pokemon_gif_embed
-
+from utils.cache.cache_list import ev_tracker_cache
 STAFF_LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
 
 MAX_EVS_PER_STAT = 252
@@ -53,7 +52,7 @@ async def ev_tracker_add_func(
     spd=None,
     spe=None,
 ):
-    from utils.cache.ev_tracker_cache import ev_tracker_cache, load_ev_tracker_cache
+    from utils.cache.ev_tracker_cache import load_ev_tracker_cache
 
     user = interaction.user
     user_id = user.id

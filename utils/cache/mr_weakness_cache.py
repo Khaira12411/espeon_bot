@@ -2,12 +2,11 @@ from utils.loggers.espeon_log import espeon_log, EspeonContext
 from utils.group_func.mr_weakness.mr_weakness_db_func import (
     fetch_all_mr_user_settings,
 )
-
+from utils.cache.cache_list import mr_weakness_user_cache
 # 🟣────────────────────────────────────────────
 #       💜 MR Weakness User Cache Loader 💜
 # ─────────────────────────────────────────────
 
-mr_weakness_user_cache = {}  # user_id -> display_type
 
 
 async def load_mr_weakness_user_cache(bot):

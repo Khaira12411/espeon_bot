@@ -9,7 +9,7 @@ from discord import Embed
 
 from config.current_setup import STAFF_SERVER_GUILD_ID, STRAYMONS_GUILD_ID
 from config.emojis import PokeCoin
-from utils.cache.market_alert_cache import market_alert_cache
+from utils.cache.cache_list import market_alert_cache, _market_alert_index, _role_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 STAFFMONS_ALLOWED_WEBHOOKS = {
@@ -26,14 +26,11 @@ ALLOWED_WEBHOOKS = {
     1301883351359164486,  # Golden
 }
 
-# 🔹 Global role cache (guild_id, role_id) -> discord.Role
-_role_cache: dict[tuple[int, int], discord.Role] = {}
 
 
 async def process_market_alert_message(
     bot: discord.Client, message: discord.Message, market_category_id: int
 ):
-    from utils.cache.market_alert_cache import _market_alert_index
 
     if message.channel.category_id != market_category_id:
         return

@@ -1,12 +1,9 @@
 from utils.group_func.ev_tracker.ev_tracker_db_func import fetch_all_tracked_evs
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
+from utils.cache.cache_list import ev_tracker_cache
 # 🟣────────────────────────────────────────────
 #       💜 EV Tracker Cache System 💜
 # ─────────────────────────────────────────────
-
-ev_tracker_cache: dict[int, dict] = {}
-# user_id -> {"user_name": str, "pokemon": str, "dex_number": int, "evs": dict, "goals": dict}
 
 
 # 🌸 1️⃣ Load everything on startup

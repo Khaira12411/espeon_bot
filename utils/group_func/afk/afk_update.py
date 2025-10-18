@@ -10,7 +10,7 @@ from config.aesthetic import *
 from utils.essentials.loader import pretty_defer
 from utils.group_func.afk.afk_db_func import *
 from utils.visuals.embeds.visual_helpers import design_embed
-
+from utils.cache.cache_list import AFK_CACHE
 
 async def afk_update_func(
     bot: commands.Bot, interaction: discord.Interaction, reason: str
@@ -25,7 +25,6 @@ async def afk_update_func(
     )
     try:
         # 📌 Check if user already has AFK row
-        from utils.cache.afk_user_cache import AFK_CACHE
 
         afk_row = AFK_CACHE.get(user.id)
         if not afk_row:

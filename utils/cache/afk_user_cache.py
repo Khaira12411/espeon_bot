@@ -1,24 +1,6 @@
 import json
 from utils.loggers.espeon_log import espeon_log, EspeonContext
-
-
-# 💙────────────────────────────────────────────
-#       🤍 AFK Cache Loader
-# 💙────────────────────────────────────────────
-
-AFK_CACHE: dict[int, dict] = {}
-# Structure:
-# {
-#   user_id: {
-#       "user_id": ..,
-#       "user_name": ..,
-#       "reason": ..,
-#       "started_at": ..
-#   },
-#   ...
-# }
-
-
+from utils.cache.cache_list import AFK_CACHE
 # 💙────────────────────────────────────────────
 #   🤍 AFK Cache (Single Source of Truth)
 # 💙────────────────────────────────────────────

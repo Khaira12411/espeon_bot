@@ -8,18 +8,14 @@ from utils.group_func.market_alert.db_func.market_alert_db_func import (
     fetch_active_market_alerts,
 )
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
-# Global cache list & index
-market_alert_cache: list[dict] = []
-_market_alert_index: dict[tuple[str, int], dict] = (
-    {}
-)  # key = (pokemon.lower(), channel_id)
+from utils.cache.cache_list import market_alert_cache, _market_alert_index, _role_cache
 
 
 # -------------------- Load Cache --------------------
 async def load_market_alert_cache(bot):
     market_alert_cache.clear()
     _market_alert_index.clear()
+    _role_cache.clear()
 
     active_alerts = await fetch_active_market_alerts(bot)
     # espeon_log("info", f"[Market Alert Cache] DB returned {len(active_alerts)} alerts")

@@ -5,7 +5,7 @@ from discord.ext import commands
 from config.aesthetic import *
 from config.wb_constants import WBEmojis
 from utils.essentials.loader import pretty_defer
-
+from utils.cache.cache_list import WB_PING_CACHE
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   ✨ Espeon Core Function › WB VIEW ✨
@@ -18,7 +18,7 @@ async def wb_view_func(bot: commands.Bot, interaction: discord.Interaction):
     user = interaction.user
     guild = interaction.guild
 
-    from utils.cache.wb_sub_cache import WB_PING_CACHE, load_wb_ping_cache
+    from utils.cache.wb_sub_cache import load_wb_ping_cache
 
     handler = await pretty_defer(
         interaction=interaction, content="Fetching your WB pings...", ephemeral=False

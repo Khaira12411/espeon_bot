@@ -6,7 +6,7 @@ import re
 
 import discord
 
-from utils.cache.market_alert_cache import market_alert_cache
+from utils.cache.cache_list import market_alert_cache
 
 MEOWHELPER_NAME = "MeowHelper Market"
 
