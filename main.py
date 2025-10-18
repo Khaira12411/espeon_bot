@@ -17,7 +17,6 @@ from utils.essentials.command_tracker import auto_log_new_commands
 from utils.essentials.error_handler import on_app_command_error
 from utils.essentials.get_pg_pool import get_pg_pool
 from utils.essentials.role_checks import *
-from utils.listener_func.afk import afk_users_seen, afk_users_to_reply
 from utils.loggers.espeon_log import EspeonContext  # Using Espeon logs
 from utils.loggers.espeon_log import espeon_log, set_espeon_bot
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
@@ -220,13 +219,6 @@ async def refresh_all_caches():
         refresh_all_caches.already_ran = True
         return  # 🚫 Skip the first run
     await load_all_caches(bot)
-    afk_users_seen.clear()
-    afk_users_to_reply.clear()
-    espeon_log(
-        tag="",
-        label="🕐 HOURLY CACHE REFRESH",
-        message="All caches refreshed and AFK users cleared.",
-    )
 
 
 # ====================

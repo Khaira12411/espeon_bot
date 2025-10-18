@@ -26,6 +26,10 @@ async def afk_reply_on_mention(message: discord.Message):
         if message.author.bot:
             return  # Ignore bot messages
 
+        # Early exit if AFK_CACHE is empty
+        if not AFK_CACHE:
+            return
+
         # Clear state at the start of each call
         afk_users_seen.clear()
         afk_users_to_reply.clear()
