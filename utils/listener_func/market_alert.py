@@ -12,13 +12,6 @@ from config.emojis import PokeCoin
 from utils.cache.cache_list import market_alert_cache, _market_alert_index, _role_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
-STAFFMONS_ALLOWED_WEBHOOKS = {
-    1407471446023868416,  # Shiny
-    1407470834251206677,  # Regular
-    1407471147695476776,  # Legendary
-    1407471632368402514,  # Golden
-}
-
 ALLOWED_WEBHOOKS = {
     1301883013571022892,  # Shiny
     1301882441547513879,  # Regular

@@ -6,12 +6,14 @@ from discord.ext import commands
 from utils.cache.cache_list import mr_weakness_user_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.weakness_embed import build_user_weakness_embed
+from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 
 # ─────────────────────────────────────────────
 # Track last seen enemies per user
 # ─────────────────────────────────────────────
 _user_states: dict[int, dict] = {}  # user_id -> {"last_seen": [], "last_wave": None}
 _user_active_enemy: dict[int, str] = {}  # user_id -> current active enemy
+
 
 # ✨───────────────────────────────────────────────✨
 # 🪻 MR Weakness Chart
@@ -27,9 +29,10 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
         return
 
     # Must be a reply to a user
-    if not message.reference or not message.reference.resolved:
+    target_user = await get_pokemeow_reply_member(message)
+    if not target_user:
         return
-    target_user = message.reference.resolved.author
+    
     user_id = target_user.id
 
     # EARLY CHECK: Skip if user has Mr. Weakness off (before any processing)

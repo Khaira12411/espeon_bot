@@ -8,9 +8,7 @@ import discord
 from discord.ext import commands
 
 from config.current_setup import (
-    ACTIVE_GUILD_ID,
     POKEMEOW_APPLICATION_ID,
-    STAFF_SERVER_GUILD_ID,
     STRAYMONS_GUILD_ID,
 )
 from config.straymons_constants import STRAYMONS__CATEGORIES, STRAYMONS__TEXT_CHANNELS
@@ -19,7 +17,6 @@ from utils.listener_func.bud_ev_listener import handle_pokemeow_embed_sync
 from utils.listener_func.ev_tracker_listener import handle_pokemeow_battle_message
 from utils.listener_func.market_alert import process_market_alert_message
 from utils.listener_func.mr_weakness import mr_weakness_chart
-from utils.listener_func.pokemon_timer import *
 from utils.listener_func.wb_sub import ping_wb_subscribers
 from utils.loggers.espeon_log import espeon_log
 
@@ -30,6 +27,7 @@ MARKETFEED_CHANNELS = {
     STRAYMONS__TEXT_CHANNELS.ivgolden_market_feed,
 }
 bud_info_trigger = "**Level**:"
+
 
 class MessageCreateListener(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -67,10 +65,10 @@ class MessageCreateListener(commands.Cog):
                     await ping_wb_subscribers(bot=self.bot, message=message)
 
                 except Exception as e:
-                    import traceback
-
-                    print(f"[WB SUB PING ERROR] Failed to ping subscribers: {e}")
-                    traceback.print_exc()
+                    espeon_log(
+                        "error",
+                        f"WB Sub ping failed for message {message.id}: {e}",
+                    )
             # 🚫 Ignore bots except PokéMeow, but allow webhooks
             if (
                 message.author.bot
@@ -89,9 +87,7 @@ class MessageCreateListener(commands.Cog):
                 )
 
             # --- Weakness chart processing (Active + Staff Guilds) ---
-            if message.guild and message.guild.id in (
-                STRAYMONS_GUILD_ID,
-            ):
+            if message.guild and message.guild.id == STRAYMONS_GUILD_ID:
                 # ✨───────────────────────────────────────────────✨
                 # 🪻 MR WEAKNESS CHART
                 # ✨───────────────────────────────────────────────✨
@@ -117,11 +113,7 @@ class MessageCreateListener(commands.Cog):
                 # ✨───────────────────────────────────────────────✨
                 # 🪻 MARKET ALERT
                 # ✨───────────────────────────────────────────────✨
-                if (
-                    message.guild
-                    and message.guild.id == STRAYMONS_GUILD_ID
-                    and message.channel.id in MARKETFEED_CHANNELS
-                ):
+                if message.channel.id in MARKETFEED_CHANNELS:
                     await process_market_alert_message(
                         self.bot, message, STRAYMONS__CATEGORIES.MONSTREET_EXCHANGE
                     )

@@ -19,6 +19,10 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
     """
 
     try:
+        # Early exit if cache is empty
+        if not WB_PING_CACHE:
+            return # no subscribers
+        
         content = str(message.content).lower()
 
         # Extract boss_name after 'gigantamax-'
