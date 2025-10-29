@@ -62,9 +62,9 @@ setup_rate_limit_logging(bot)
 snapshot = tracemalloc.take_snapshot()
 top_stats = snapshot.statistics("lineno")
 
-print("[ Top 10 memory usage ]")
-for stat in top_stats[:10]:
-    print(stat)
+#print("[ Top 10 memory usage ]")
+"""for stat in top_stats[:10]:
+    print(stat)"""
 # 🌸 Allowed guilds (keeps bot scoped to friendly homes only!)
 ALLOWED_GUILD_IDS = {
     STRAYMONS_GUILD_ID,
