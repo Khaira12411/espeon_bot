@@ -388,7 +388,7 @@ async def startup_checklist(bot: commands.Bot):
     checklist.append(f"✅ {len(WB_PING_CACHE)} 🦩 World Boss Ping Users")
 
     # 💛 Status rotator
-    checklist.append(f"✅ {status_rotator.is_running()} ✨ Status Rotator Running")
+    #checklist.append(f"✅ {status_rotator.is_running()} ✨ Status Rotator Running")
 
     # 🔴 Startup tasks
     checklist.append(f"✅ {startup_tasks.is_running()} 🖌️ Startup Tasks Running")
@@ -423,13 +423,14 @@ async def on_ready():
     await bot.tree.sync()
     # espeon_log("ready", "Slash commands synced with Discord successfully!")
 
-    # Status rotator
-    if not status_rotator.is_running():
+    # Just one time status set on startup
+    """if not status_rotator.is_running():
         status_rotator.start()
     activity_type, message = pick_status_tuple()
     await bot.change_presence(
         activity=discord.Activity(type=activity_type, name=message)
-    )
+    )"""
+    await bot.change_presence(activity=discord.Game(name="☀️ /commands"))
 
     if not startup_tasks.is_running():
         startup_tasks.start()
