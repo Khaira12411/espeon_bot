@@ -7,6 +7,7 @@ import re
 import discord
 from discord import app_commands
 
+from config.weakness_chart import weakness_chart
 from utils.group_func.market_alert.db_func.market_alert_db_func import *
 
 # ==================== 💠 Config ==================== #
@@ -23,24 +24,7 @@ def format_price(n: int) -> str:
 
 
 # ==================== 📖 Load Weakness Chart ==================== #
-def load_weakness_chart():
-    with open(WEAKNESS_CHART_FILE, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    parsed = ast.parse(content)
-    weakness_chart = None
-    for node in parsed.body:
-        if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
-            if node.targets[0].id == "weakness_chart":
-                weakness_chart = ast.literal_eval(node.value)
-
-    if weakness_chart is None:
-        raise ValueError("Could not find weakness_chart dict in the file.")
-
-    return weakness_chart
-
-
-WEAKNESS_CHART = load_weakness_chart()
+from config.weakness_chart import weakness_chart as WEAKNESS_CHART
 
 
 # ==================== 🗂 Build Weakness Indexes ==================== #

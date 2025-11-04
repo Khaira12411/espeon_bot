@@ -5,6 +5,8 @@ import discord
 
 from utils.visuals.embeds.get_pokemon_gif import get_pokemon_gif
 
+ERROR_LOG_CHANNEL_ID = 1410202143570530375
+
 
 def format_bulletin_desc(*args, key_style_override: str = None) -> str:
     """
@@ -142,11 +144,6 @@ def design_embed(
         embed.color = 11500229
 
     return embed
-
-
-import discord
-
-ERROR_LOG_CHANNEL_ID = 1410202143570530375
 
 
 async def pokemon_embed(
