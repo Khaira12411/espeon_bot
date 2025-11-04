@@ -82,7 +82,7 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
                 footer_text="Use /market-alert add to create one ✨",
                 thumbnail_url=Espeon_Thumbnail.purple_list,
             )
-            await handle.stop(embed=embed)
+            await handle.success(embed=embed, content="")
             return
 
         # 🟣 Build alert embeds
@@ -100,7 +100,7 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
         for alert in alerts:
             field_name = f"{Espeon_Emoji.purple_plushie} {alert['pokemon'].title()} (Dex #{alert['dex_number']})"
             role_mention = f"<@&{alert['role_id']}>" if alert.get("role_id") else "None"
-            notify_status = "✅ Enabled" if alert.get("notify", True) else "❌ Disabled"
+            notify_status = "✅ Enabled" if alert.get("notify", True) else "Disabled"
             field_value = (
                 f"> - **Max Price:** {PokeCoin} {alert['max_price']:,}\n"
                 f"> - **Channel:** <#{alert['channel_id']}>\n"
@@ -134,10 +134,10 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
 
         # 🟢 Send single or paginated embed
         if len(embeds) == 1:
-            await handle.stop(embed=embeds[0])
+            await handle.success(content="", embed=embeds[0])
         else:
             view = MarketAlertPaginator(embeds)
-            await handle.stop(embed=embeds[0], view=view)
+            await handle.success(content="", embed=embeds[0], view=view)
 
         # 📦 Log success
         espeon_log(
@@ -147,7 +147,7 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
         )
 
     except Exception as e:
-        # ❌ Error handling
+        # Error handling
         espeon_log(
             "error",
             f"Failed to fetch or send market alerts: {e}",
@@ -155,6 +155,4 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
             exc=e,
             include_trace=True,
         )
-        await interaction.followup.send(
-            f"❌ Failed to fetch market alerts: {e}", ephemeral=True
-        )
+        await handle.error(f"Failed to fetch market alerts: {e}")

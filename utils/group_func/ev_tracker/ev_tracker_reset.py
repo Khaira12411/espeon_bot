@@ -47,7 +47,7 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
         # ✨──────── Step 1 › Remove from DB ─────✨
         deleted = await delete_tracked_ev(bot, user_id)
         if not deleted:
-            await handle.stop(content="❌ You aren't EV tracking any mons!")
+            await handle.error(content="You aren't EV tracking any mons!")
             return
 
         # 💜 Remove from cache immediately
@@ -77,7 +77,7 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
             thumbnail_url=thumbnail_url,
             footer_text="Use `/ev-tracker add` to track a new Pokemon!",
         )
-        await handle.stop(embed=embed)
+        await handle.success(content="", embed=embed)
 
         # ✨──────── Step 3 › Staff log ─────✨
         staff_channel = bot.get_channel(STAFF_LOG_CHANNEL_ID)
@@ -98,6 +98,4 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
             message=f"Failed to reset EVs for user {user_id}: {e}",
             context=EspeonContext.STRAYMONS,
         )
-        await interaction.response.send_message(
-            f"❌ Failed to reset your EVs: {e}", ephemeral=True
-        )
+        await handle.error(content=f"Failed to reset your EVs: {e}")

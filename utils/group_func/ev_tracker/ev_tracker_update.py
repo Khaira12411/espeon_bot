@@ -7,12 +7,13 @@ import discord
 
 from config.aesthetic import *
 from config.straymons_constants import STRAYMONS__TEXT_CHANNELS
+from utils.cache.cache_list import ev_tracker_cache
 from utils.essentials.loader import pretty_defer
 from utils.group_func.ev_tracker.ev_tracker_db_func import add_or_update_ev
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
 from utils.visuals.gif import fetch_pokemon_gif
-from utils.cache.cache_list import ev_tracker_cache
+
 MAX_EVS_PER_STAT = 252
 MAX_TOTAL_EVS = 510
 STAFF_LOG_CHANNEL_ID = (
@@ -45,8 +46,8 @@ async def ev_tracker_update_func(
     # -------------------- Step 1: Determine Pokemon --------------------
     tracked = ev_tracker_cache.get(user_id)
     if not tracked:
-        await handle.stop(
-            content="❌ You have no Pokemon currently being tracked. Use `/ev-tracker add` first.",
+        await handle.error(
+            content="You have no Pokemon currently being tracked. Use `/ev-tracker add` first.",
         )
         return
 
@@ -78,8 +79,8 @@ async def ev_tracker_update_func(
                 continue
 
             if "/" not in val_str:
-                await handle.stop(
-                    content=f"❌ Invalid format for **{stat.upper()}**. Use `current/goal` (e.g., 0/252)."
+                await handle.error(
+                    content=f"Invalid format for **{stat.upper()}**. Use `current/goal` (e.g., 0/252)."
                 )
                 return
             parts = val_str.split("/")
@@ -88,15 +89,15 @@ async def ev_tracker_update_func(
                 goal = int(parts[1].strip()) if len(parts) > 1 else None
             except ValueError:
                 content = (
-                    f"❌ Invalid number for **{stat.upper()}**. Use integers only."
+                    f"Invalid number for **{stat.upper()}**. Use integers only."
                 )
-                await handle.stop(content=content)
+                await handle.error(content=content)
                 return
             if goal is not None and goal > MAX_EVS_PER_STAT:
                 content = (
-                    f"❌ Goal for **{stat.upper()}** cannot exceed {MAX_EVS_PER_STAT}.",
+                    f"Goal for **{stat.upper()}** cannot exceed {MAX_EVS_PER_STAT}.",
                 )
-                await handle.stop(content=content)
+                await handle.error(content=content)
                 return
             evs_to_track[stat] = current
             if goal is not None:
@@ -104,12 +105,12 @@ async def ev_tracker_update_func(
                 total_goal_sum += goal
 
     if not evs_to_track:
-        await handle.stop(content="❌ You must provide at least one EV to update.")
+        await handle.error(content="You must provide at least one EV to update.")
         return
 
     if total_goal_sum > MAX_TOTAL_EVS:
-        await handle.stop(
-            content=f"❌ Total EV goal ({total_goal_sum}) exceeds {MAX_TOTAL_EVS}.",
+        await handle.error(
+            content=f"Total EV goal ({total_goal_sum}) exceeds {MAX_TOTAL_EVS}.",
         )
         return
 
@@ -174,7 +175,7 @@ async def ev_tracker_update_func(
         embed = design_embed(embed=embed, user=user, pokemon_name=pokemon_title)
 
         # Sends final embed
-        await handle.stop(embed=embed)
+        await handle.success(content="", embed=embed)
 
         espeon_log(
             tag="sent",
@@ -188,6 +189,4 @@ async def ev_tracker_update_func(
             message=f"Failed to update EVs for user {user_id}: {e}",
             context=EspeonContext.STRAYMONS,
         )
-        await interaction.response.send_message(
-            f"❌ Failed to update EVs: {e}", ephemeral=True
-        )
+        await handle.error(f"Failed to update EVs: {e}")

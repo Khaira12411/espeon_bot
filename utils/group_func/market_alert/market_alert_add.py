@@ -57,23 +57,23 @@ async def add_market_alert_func(
     # 💜 Validate price
     parsed_price = parse_compact_number(str(max_price))
     if not parsed_price:
-        await loader.stop(
-            content="❌ Invalid max price format! Use e.g. 1k, 1.5m, 2000"
+        await loader.error(
+            content="Invalid max price format! Use e.g. 1k, 1.5m, 2000"
         )
         return
     max_price = int(parsed_price)
 
     alerts_counter = await get_alerts_row(bot=bot, user_id=user_id)
     if not alerts_counter:
-        await loader.stop(content="❌ Do `/market-alert register` first!")
+        await loader.error(content="Do `/market-alert register` first!")
         return
 
     total_alerts = alerts_counter["total_alerts"]
     alerts_used = alerts_counter["alerts_used"]
 
     if total_alerts == alerts_used:
-        await loader.stop(
-            content=f"❌ You have used up all of your {total_alerts} market alerts"
+        await loader.error(
+            content=f"You have used up all of your {total_alerts} market alerts"
         )
         return
 
@@ -88,8 +88,8 @@ async def add_market_alert_func(
             if role_obj is None:
                 raise ValueError(f"Role ID {mobile_id} not found in guild.")
         except Exception as e:
-            await loader.stop(
-                content=f"❌ Invalid mobile role input: {e}",
+            await loader.error(
+                content=f"Invalid mobile role input: {e}",
             )
             return
     if role_obj:
@@ -149,8 +149,8 @@ async def add_market_alert_func(
 
     except Exception as e:
         espeon_log("critical", f"Market alert failed: {e}", source="MarketAlert", exc=e)
-        await loader.stop(
-            content=f"❌ Market alert Add failed: {e}",
+        await loader.error(
+            content=f"Market alert Add failed: {e}",
         )
         return
 
@@ -180,7 +180,7 @@ async def add_market_alert_func(
     user_embed = design_embed(
         embed=user_embed,
         user=user,
-        pokemon_name=target_name,
+        pokemon_name=target_name.lower(),
         footer_text=footer_text,
     )
 
@@ -201,10 +201,10 @@ async def add_market_alert_func(
             color=0xFF99FF,
             timestamp=datetime.now(),
         )
-        log_embed = design_embed(embed=log_embed, user=user, pokemon_name=target_name)
+        log_embed = design_embed(embed=log_embed, user=user, pokemon_name=target_name.lower())
 
     # 💜 Stop loader and show final embed
-    await loader.stop(embed=user_embed, delete=False)
+    await loader.success(embed=user_embed, content="")
 
     # 💜 Log to staff channel
     try:

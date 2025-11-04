@@ -52,13 +52,13 @@ async def update_market_alert_func(
             role_id = role_obj.id
         except Exception as e:
             await interaction.response.send_message(
-                f"❌ Invalid mobile role input: {e}", ephemeral=True
+                f"Invalid mobile role input: {e}", ephemeral=True
             )
             return
 
     if all(v is None for v in [max_price, channel_id, role_id, notify]):
         await interaction.response.send_message(
-            "❌ No new values provided for update.", ephemeral=True
+            "No new values provided for update.", ephemeral=True
         )
         return
 
@@ -71,8 +71,8 @@ async def update_market_alert_func(
     if max_price:
         parsed_price = parse_compact_number(str(max_price))
         if not parsed_price:
-            await loader.stop(
-                content="❌ Invalid max price format! Use e.g. 1k, 1.5m, 2000"
+            await loader.error(
+                content="Invalid max price format! Use e.g. 1k, 1.5m, 2000"
             )
             return
         max_price = int(parsed_price)
@@ -153,7 +153,7 @@ async def update_market_alert_func(
             exc=e,
             include_trace=True,
         )
-        await loader.stop(content=f"❌ An unexpected error occurred: {e}")
+        await loader.error(content=f"An unexpected error occurred: {e}")
         return
 
     # ── Build confirmation embed ──
@@ -189,7 +189,7 @@ async def update_market_alert_func(
     )
 
     # ── Stop loader and show final embed ──
-    await loader.stop(embed=embed, delete=False)
+    await loader.success(embed=embed, content="")
 
     espeon_log(
         "sent",

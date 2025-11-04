@@ -1,27 +1,45 @@
 import discord
-from config.aesthetic import Espeon_Emoji
-from utils.loggers.espeon_log import espeon_log, EspeonContext
+
+from config.aesthetic import *
+from utils.loggers.espeon_log import EspeonContext, espeon_log
+
+LOADING_EMOJI = Espeon_Emoji.heart_loading
+CHECK_EMOJI = Espeon_Emoji.purple_check3
+ERROR_EMOJI = Espeon_Emoji.error
 
 
 async def pretty_defer(
     interaction: discord.Interaction,
+    view: discord.ui.View | None = None,
     content: str = "Please wait while Espeon thinks...",
     embed: discord.Embed | None = None,
     ephemeral: bool = True,
 ):
     """
-    Defer an interaction with a styled loading message.
-    Returns a handle for safely editing, stopping, or completing the message.
+    Fully safe Espeon loader for interactions.
+    - Don't forget to await
+    - Always prefers editing the original response.
+    - Sends a public fallback message if editing is not possible.
+    - Success can override ephemeral by deleting it and sending a public message.
     """
 
     class PrettyDeferHandle:
-        def __init__(self, interaction: discord.Interaction, message: discord.Message):
+        def __init__(
+            self,
+            interaction: discord.Interaction,
+            message: discord.Message | None,
+            ephemeral: bool,
+        ):
             self.interaction = interaction
             self.message = message
+            self.message_id = message.id if message else None
             self.stopped = False
+            self._emoji_added = False
+            self.ephemeral = ephemeral
+            self.error_emoji = "❌"  # Replaceable error emoji
 
         async def _resolve_message(self) -> discord.Message | None:
-            """Ensure we always have the original message if possible."""
+            """Try to ensure we always have the original response if possible."""
             if self.message:
                 return self.message
             try:
@@ -31,132 +49,109 @@ async def pretty_defer(
                 return None
 
         async def edit(
-            self,
-            content: str | None = None,
-            embed: discord.Embed | None = None,
-            view: discord.ui.View | None = None,
+            self, content=None, embed=None, view=None, with_emoji: bool = True
         ):
             if self.stopped:
                 return
             msg = await self._resolve_message()
             if not msg:
                 try:
-                    self.message = await self.interaction.followup.send(
+                    msg = await self.interaction.followup.send(
                         content=(
-                            f"{Espeon_Emoji.heart_loading} {content}"
-                            if content
-                            else None
+                            f"{LOADING_EMOJI} {content}"
+                            if content and with_emoji
+                            else content
                         ),
                         embed=embed,
                         view=view,
-                        ephemeral=ephemeral,
+                        ephemeral=self.ephemeral,
                     )
+                    self.message = msg
+                    self.message_id = msg.id
+                    return
                 except Exception as e:
                     espeon_log(
-                        "error",
-                        f"Failed to send followup edit: {e}",
-                        exc=e,
-                        context=EspeonContext.ESPEON,
+                        "❌ ERROR",
+                        f"[pretty_defer.edit] followup failed: {e}",
                     )
-                return
+                    return
+
+            if content and with_emoji:
+                content = f"{LOADING_EMOJI} {content}"
+
             kwargs = {
                 k: v
-                for k, v in {
-                    "content": (
-                        f"{Espeon_Emoji.heart_loading} {content}" if content else None
-                    ),
-                    "embed": embed,
-                    "view": view,
-                }.items()
+                for k, v in {"content": content, "embed": embed, "view": view}.items()
                 if v is not None
             }
             try:
-                if kwargs:
-                    await msg.edit(**kwargs)
-                    espeon_log(
-                        "cmd",
-                        f"Loader edited → {content or 'embed/view'}",
-                        context=EspeonContext.ESPEON,
-                    )
-            except discord.NotFound:
-                pass
+                await msg.edit(**kwargs)
+            except Exception as e:
+                espeon_log(
+                    "❌ ERROR",
+                    f"[pretty_defer.edit] {e}",
+                )
 
-        async def stop(
-            self,
-            content: str | None = None,
-            embed: discord.Embed | None = None,
-            view: discord.ui.View | None = None,
-            delete: bool = False,
-        ):
+        async def stop(self, content=None, embed=None, view=None):
             if self.stopped:
                 return
             self.stopped = True
             msg = await self._resolve_message()
             if not msg:
                 return
-            try:
-                if content or embed or view:
-                    await msg.edit(content=content, embed=embed, view=view)
+            kwargs = {
+                k: v
+                for k, v in {"content": content, "embed": embed, "view": view}.items()
+                if v is not None
+            }
+            if kwargs:
+                try:
+                    await msg.edit(**kwargs)
+                except Exception as e:
                     espeon_log(
-                        "cmd",
-                        f"Loader stopped → {content or 'embed/view'}",
-                        context=EspeonContext.ESPEON,
+                        "❌ ERROR",
+                        f"[pretty_defer.stop] {e}",
                     )
-                if delete:
-                    await msg.delete()
-                    espeon_log(
-                        "cmd", "Loader message deleted", context=EspeonContext.ESPEON
-                    )
-            except discord.NotFound:
-                espeon_log(
-                    "warn",
-                    "Loader message not found when stopping",
-                    context=EspeonContext.ESPEON,
-                )
-            except Exception as e:
-                espeon_log(
-                    "error",
-                    f"Failed to stop loader: {e}",
-                    exc=e,
-                    context=EspeonContext.ESPEON,
-                )
 
         async def success(
             self,
             content: str | None = "Done!",
             embed: discord.Embed | None = None,
             view: discord.ui.View | None = None,
-            ephemeral: bool | None = None,
-            override_public: bool = False,
-            delete: bool = False,
+            ephemeral: bool | None = None,  # override ephemeral flag
+            override_public: bool = False,  # force public even if initial was ephemeral
+            delete: bool = False,  # if True, deletes the loader message instead of editing
         ):
-            """Mark interaction as completed; always tries to edit original response first."""
+            """Mark interaction as completed."""
             if self.stopped:
                 return
             self.stopped = True
             msg = await self._resolve_message()
-            final_ephemeral = ephemeral if ephemeral is not None else True
-            content_with_emoji = (
-                f"{Espeon_Emoji.purple_check3} {content}" if content else None
-            )
+
+            if delete and msg:
+                try:
+                    await msg.delete()
+                except Exception as e:
+                    espeon_log(
+                        "❌ ERROR",
+                        f"[pretty_defer.success] delete failed: {e}",
+                    )
+                return
+
+            final_ephemeral = ephemeral if ephemeral is not None else self.ephemeral
+            base_content = content or ""
+            content_with_emoji = f"{CHECK_EMOJI} {base_content}" if base_content else ""
 
             try:
-                if delete and msg:
-                    await msg.delete()
-                    return
-
-                # --- Always try to edit the original message first ---
-                if msg:
-                    try:
-                        await msg.edit(
-                            content=content_with_emoji, embed=embed, view=view
-                        )
-                        return
-                    except Exception:
-                        pass  # fallback if edit fails
-
-                # --- Fallbacks ---
                 if final_ephemeral and not override_public:
+                    if msg:
+                        try:
+                            await msg.edit(
+                                content=content_with_emoji, embed=embed, view=view
+                            )
+                            return
+                        except Exception:
+                            pass
                     await self.interaction.followup.send(
                         content=content_with_emoji,
                         embed=embed,
@@ -164,21 +159,29 @@ async def pretty_defer(
                         ephemeral=True,
                     )
                 else:
-                    if override_public and msg:
+                    if override_public and self.ephemeral:
+                        if msg:
+                            try:
+                                await msg.delete()
+                            except Exception:
+                                pass
+                    if msg:
                         try:
-                            await msg.delete()
+                            await msg.edit(
+                                content=content_with_emoji, embed=embed, view=view
+                            )
+                            return
                         except Exception:
                             pass
                     if getattr(self.interaction, "channel", None):
                         await self.interaction.channel.send(
                             content=content_with_emoji, embed=embed, view=view
                         )
+
             except Exception as e:
                 espeon_log(
-                    "error",
-                    f"[pretty_defer.success] Failed to send success: {e}",
-                    exc=e,
-                    context=EspeonContext.ESPEON,
+                    "❌ ERROR",
+                    f"[pretty_defer.success] {e}",
                 )
 
         async def error(
@@ -186,75 +189,102 @@ async def pretty_defer(
             content: str = "An error occurred.",
             embed: discord.Embed | None = None,
         ):
+            """Immediately mark loader as error, always ephemeral, then return."""
             if self.stopped:
                 return
             self.stopped = True
-            content_with_emoji = f"{Espeon_Emoji.error} {content}"
             msg = await self._resolve_message()
+            content_with_emoji = f"{ERROR_EMOJI} {content}"
+
             try:
                 if msg:
-                    await msg.edit(content=content_with_emoji, embed=embed)
+                    if self.ephemeral:
+                        await msg.edit(content=content_with_emoji, embed=embed)
+                    else:
+                        # public initial → send ephemeral followup then delete initial
+                        await self.interaction.followup.send(
+                            content=content_with_emoji, embed=embed, ephemeral=True
+                        )
+                        try:
+                            await msg.delete()
+                        except Exception:
+                            pass
                 else:
                     await self.interaction.followup.send(
                         content=content_with_emoji, embed=embed, ephemeral=True
                     )
             except Exception as e:
                 espeon_log(
-                    "error",
-                    f"Failed to send error: {e}",
-                    exc=e,
-                    context=EspeonContext.ESPEON,
+                    "❌ ERROR",
+                    f"[pretty_defer.error] {e}",
                 )
+            return  # always return immediately
 
     # ----------------- Send initial loader -----------------
-    msg_content = f"{Espeon_Emoji.heart_loading} {content}"
+    msg: discord.Message | None = None
+    msg_content = f"{LOADING_EMOJI} {content}"
+
     try:
-        if not interaction.response.is_done():
+        if (
+            getattr(interaction, "response", None)
+            and not interaction.response.is_done()
+        ):
             await interaction.response.send_message(
-                content=msg_content, embed=embed, ephemeral=ephemeral
+                content=msg_content, embed=embed, view=view, ephemeral=ephemeral
             )
-            msg = await interaction.original_response()
+            try:
+                msg = await interaction.original_response()
+            except Exception:
+                pass
         else:
             msg = await interaction.followup.send(
-                content=msg_content, embed=embed, ephemeral=ephemeral
+                content=msg_content, embed=embed, view=view, ephemeral=ephemeral
             )
-        espeon_log(
-            "cmd",
-            f"Loader started for {interaction.user}",
-            context=EspeonContext.ESPEON,
-        )
-    except Exception as e:
-        espeon_log(
-            "error", f"Failed to start loader: {e}", exc=e, context=EspeonContext.ESPEON
-        )
-        raise
+    except Exception:
+        pass
 
-    return PrettyDeferHandle(interaction, msg)
+    handle = PrettyDeferHandle(interaction, msg, ephemeral=ephemeral)
+    if view:
+        setattr(view, "defer_handle", handle)
+
+    return handle
 
 
 # ╭───────────────────────────────╮
-#   🌊 Standalone Pretty Error Helper
+#   🌊 Pretty Error Helper
 # ╰───────────────────────────────╯
 async def pretty_error(
     interaction: discord.Interaction,
     content: str = "An error occurred.",
     embed: discord.Embed | None = None,
 ):
-    """Send a standalone ephemeral error using Espeon style."""
-    content_with_emoji = f"{Espeon_Emoji.error} {content}"
+    """
+    Standalone ephemeral error sender for Espeon.
+    - Always ephemeral.
+    - Uses Espeon's error emoji.
+    - Returns early (no loader needed).
+    """
+
+    content_with_emoji = f"{ERROR_EMOJI} {content}"
+
     try:
-        if not interaction.response.is_done():
+        if (
+            getattr(interaction, "response", None)
+            and not interaction.response.is_done()
+        ):
             await interaction.response.send_message(
-                content=content_with_emoji, embed=embed, ephemeral=True
+                content=content_with_emoji,
+                embed=embed,
+                ephemeral=True,
             )
         else:
             await interaction.followup.send(
-                content=content_with_emoji, embed=embed, ephemeral=True
+                content=content_with_emoji,
+                embed=embed,
+                ephemeral=True,
             )
     except Exception as e:
         espeon_log(
-            "error",
-            f"[pretty_error] Failed to send error: {e}",
-            exc=e,
-            context=EspeonContext.ESPEON,
+            "❌ ERROR",
+            f"[pretty_error] Failed to send error message: {e}",
         )

@@ -9,7 +9,7 @@ from discord import Embed
 
 from config.current_setup import STAFF_SERVER_GUILD_ID, STRAYMONS_GUILD_ID
 from config.emojis import PokeCoin
-from utils.cache.cache_list import market_alert_cache, _market_alert_index, _role_cache
+from utils.cache.cache_list import _market_alert_index, _role_cache, market_alert_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 ALLOWED_WEBHOOKS = {
@@ -18,7 +18,6 @@ ALLOWED_WEBHOOKS = {
     1301882823631966280,  # Legendary
     1301883351359164486,  # Golden
 }
-
 
 
 async def process_market_alert_message(
@@ -100,10 +99,10 @@ async def process_market_alert_message(
 
         # Buy commands
         new_embed.add_field(
-            name="Buy Command (iPhone)", value=f"`;m b {original_id}`", inline=False
+            name="Buy Command (Android)", value=f";m b {original_id}", inline=False
         )
         new_embed.add_field(
-            name="Buy Command (Android)", value=f";m b {original_id}", inline=False
+            name="Buy Command (iPhone)", value=f"`;m b {original_id}`", inline=False
         )
 
         # Copy & clean other fields
@@ -112,11 +111,8 @@ async def process_market_alert_message(
             new_embed.add_field(name=name, value=value_cleaned)
 
         new_embed.set_footer(
-            text=(
-                embed.footer.text
-                if embed.footer
-                else "Please check listing before purchase"
-            )
+            text="Please check listing before purchase. 🪻",
+            icon_url=message.guild.icon.url,
         )
 
         # --- inside your for alert in alerts_to_check loop ---

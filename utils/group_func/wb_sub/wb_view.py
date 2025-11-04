@@ -39,7 +39,7 @@ async def wb_view_func(bot: commands.Bot, interaction: discord.Interaction):
         )
         embed.set_thumbnail(url=thumbnail_url)
         embed.set_author(name=user.display_name, icon_url=user.display_avatar)
-        handler.stop(embed=embed)
+        handler.success(embed=embed, content="")
         return
 
     # Build description

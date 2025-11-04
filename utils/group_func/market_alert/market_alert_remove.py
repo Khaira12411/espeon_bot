@@ -45,7 +45,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
     user_alerts = await fetch_user_alerts(bot, user_id)
 
     if not user_alerts:
-        await loader.stop(content=f"❌ You have no active market alerts.")
+        await loader.error(content=f"You have no active market alerts.")
         return
 
     status_message = ""  # 💜 Initialize to empty string
@@ -103,8 +103,8 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
             )
 
             if not exists:
-                await loader.stop(
-                    content=f"❌ No active alert found for **{pokemon_title}**."
+                await loader.error(
+                    content=f"No active alert found for **{pokemon_title}**."
                 )
                 return
 
@@ -141,7 +141,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
             status_message = status["message"]
 
     except Exception as e:
-        await loader.stop(content=f"❌ Failed to remove alert: {e}")
+        await loader.error(content=f"Failed to remove alert: {e}")
         espeon_log("critical", f"Failed to remove alert: {e}", source="MarketAlert")
         return
 
@@ -194,7 +194,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
         )
 
     # 💜 Stop loader and send
-    await loader.stop(content=f"{user.mention}", embed=user_embed)
+    await loader.success(content=f"{user.mention}", embed=user_embed)
     espeon_log(
         "sent",
         f"Removed {len(removed_alerts)} market alert(s) for user {user_id}",

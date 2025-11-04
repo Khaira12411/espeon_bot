@@ -45,7 +45,7 @@ async def update_market_alert_role_channel_func(
                 raise ValueError(f"Role ID {mobile_id} not found in guild.")
             role_id = role_obj.id
         except Exception as e:
-            await loader.stop(content=f"❌ Invalid role input: {e}")
+            await loader.error(content=f"Invalid role input: {e}")
             return
     # Else role is None or "none", leave role_id as None to remove
 
@@ -53,8 +53,8 @@ async def update_market_alert_role_channel_func(
     channel_id = channel.id if channel else None
 
     if channel_id is None and role_id is None and role != "none":
-        await loader.stop(
-            content="❌ You must provide at least a new channel or role to update."
+        await loader.error(
+            content="You must provide at least a new channel or role to update."
         )
         return
 
@@ -76,7 +76,7 @@ async def update_market_alert_role_channel_func(
             exc=e,
             include_trace=True,
         )
-        await loader.stop(content=f"❌ An unexpected error occurred: {e}")
+        await loader.error(content=f"An unexpected error occurred: {e}")
         return
 
     # ── Build confirmation embed ──
@@ -102,7 +102,7 @@ async def update_market_alert_role_channel_func(
         footer_text=footer_text,
     )
     # 💜 Stop loader and show final embed
-    await loader.stop(embed=embed, delete=False)
+    await loader.success(embed=embed, content="")
 
     espeon_log(
         "sent",
