@@ -1,12 +1,10 @@
 # 🟪 parse_pokemon.py
-import os
-import sys
+
 import traceback
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from config.weakness_chart import weakness_chart
-from utils.loggers.espeon_log import espeon_log, ServerContext
+from utils.loggers.espeon_log import ServerContext, espeon_log
+
 # 🟣 Constant for form-based dex offset
 FORM_BASE_DEX_OFFSET = 7000
 

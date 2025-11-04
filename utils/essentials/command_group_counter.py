@@ -8,7 +8,7 @@ from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 FORCE_COMMAND_CACHE_FILE = "data/force_logged_commands.json"
 KNOWN_COMMAND_CACHE_FILE = "data/known_commands.json"
-
+LOG_GROUP_COMMANDS_STATUS = False
 
 def log_command_group_counter(group: app_commands.Group):
     """
@@ -17,6 +17,8 @@ def log_command_group_counter(group: app_commands.Group):
     Example output:
     💙🎐 Staff Command Group 🎐💙 top:1/9 | warning 🔹 3, channel 🔹 2, view 🔹 3
     """
+
+
     # Count top-level commands (excluding subgroups)
     top_count = sum(1 for c in group.commands if not isinstance(c, app_commands.Group))
     total_commands = top_count
@@ -205,7 +207,10 @@ async def log_command_group_full_paths_to_cache(
     Updates KNOWN_COMMAND_CACHE_FILE and FORCE_COMMAND_CACHE_FILE for force-true commands.
     Only writes to files if there are actual changes.
     """
-
+    # Don't log if disabled
+    if not LOG_GROUP_COMMANDS_STATUS:
+        return
+    
     # Quick one-line summary of the group
     log_command_group_counter(group)
 

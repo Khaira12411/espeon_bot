@@ -1,17 +1,15 @@
 # -------------------- 🐾 Pokemon Autocomplete Module -------------------- #
 
-import ast
-import os
+
 import re
 
 import discord
 from discord import app_commands
 
-from config.weakness_chart import weakness_chart
 from utils.group_func.market_alert.db_func.market_alert_db_func import *
 
 # ==================== 💠 Config ==================== #
-WEAKNESS_CHART_FILE = os.path.join("config", "weakness_chart.py")
+# WEAKNESS_CHART_FILE = os.path.join("config", "weakness_chart.py")
 
 
 def format_price(n: int) -> str:
