@@ -1,0 +1,191 @@
+import discord
+from discord import app_commands
+from discord.ext import commands
+
+from config.current_setup import CC_GUILD_ID
+from utils.database.server_shop import shop_item_autocomplete
+from utils.essentials.command_safe import run_command_safe
+from utils.group_func.server_shop import *
+
+
+# 🪻────────────────────────────────────────────
+#           ✨ ServerShop Cog Setup ✨
+# ─────────────────────────────────────────────
+class ServerShop(commands.Cog):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+
+    # 🪻────────────────────────────────────────────
+    #           ✨ Slash Command Group ✨
+    # 🪻────────────────────────────────────────────
+    shop_group = app_commands.Group(
+        name="shop",
+        description="Commands related to the server shop",
+        guild_ids=[CC_GUILD_ID],
+    )
+
+    # 🪻────────────────────────────────────────────
+    #           ✨ /shop view✨
+    # 🪻────────────────────────────────────────────
+    @shop_group.command(name="view", description="View all items in the server shop")
+    async def view_shop(
+        self,
+        interaction: discord.Interaction,
+    ):
+        slash_cmd_name = "shop view"
+
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=shop_view_func,
+        )
+
+    view_shop.extras = {"category": "Public"}
+
+    # 🪻────────────────────────────────────────────
+    #           ✨ /shop add-item✨
+    # 🪻────────────────────────────────────────────
+    @shop_group.command(
+        name="add-item", description="Add an item in the server shop"
+    )
+    @app_commands.describe(
+        item_name="Name of the item to add",
+        price="Price of the item in Cherry Pins",
+        stock="Stock of the item (-1 for unlimited)",
+    )
+    async def add_shop_item(
+        self,
+        interaction: discord.Interaction,
+        item_name: str,
+        price: int,
+        stock: int,
+    ):
+        slash_cmd_name = "shop add-item"
+
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=add_item_func,
+            item_name=item_name,
+            price=price,
+            stock=stock,
+        )
+
+    add_shop_item.extras = {"category": "Staff"}
+
+# 🪻────────────────────────────────────────────
+#           ✨ /shop edit-item✨
+# 🪻────────────────────────────────────────────
+    @shop_group.command(
+        name="edit-item", description="Edit an item in the server shop"
+    )
+    @app_commands.autocomplete(item_name=shop_item_autocomplete)  # 👈 attach autocomplete
+    @app_commands.describe(
+        item_name="Name of the item to edit",
+        new_item_name="New name for the item",
+        new_price="New price for the item in Cherry Pins",
+        new_stock="New stock for the item (-1 for unlimited)",
+    )
+    async def edit_shop_item(
+        self,
+        interaction: discord.Interaction,
+        item_name: str,
+        new_item_name: str = None,
+        new_price: int = None,
+        new_stock: int = None,
+    ):
+        slash_cmd_name = "shop edit-item"
+
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=edit_item_func,
+            item_name=item_name,
+            new_item_name=new_item_name,
+            new_price=new_price,
+            new_stock=new_stock,
+        )
+    edit_shop_item.extras = {"category": "Staff"}
+
+    # 🪻────────────────────────────────────────────
+    #           ✨ /shop buy-item✨
+    # 🪻────────────────────────────────────────────
+    @shop_group.command(
+        name="buy-item", description="Buy an item from the server shop"
+    )
+    @app_commands.autocomplete(item_name=shop_item_autocomplete)  # 👈 attach autocomplete
+    @app_commands.describe(
+        item_name="Name of the item to buy",
+    )
+    async def buy_shop_item(
+        self,
+        interaction: discord.Interaction,
+        item_name: str,
+    ):
+        slash_cmd_name = "shop buy-item"
+
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=buy_item_func,
+            item_name=item_name,
+        )
+    buy_shop_item.extras = {"category": "Public"}
+
+    # 🪻────────────────────────────────────────────
+    #          ✨ /shop remove-item ✨
+    # 🪻────────────────────────────────────────────
+    @shop_group.command(
+        name="remove-item", description="Remove an item from the server shop"
+    )
+    @app_commands.autocomplete(item_name=shop_item_autocomplete)  # 👈 attach autocomplete
+    @app_commands.describe(
+        item_name="Name of the item to remove",
+    )
+    async def remove_shop_item(
+        self,
+        interaction: discord.Interaction,
+        item_name: str,
+    ):
+        slash_cmd_name = "shop remove-item"
+
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=remove_item_func,
+            item_name=item_name,
+        )
+    remove_shop_item.extras = {"category": "Staff"}
+
+
+    # 🪻────────────────────────────────────────────
+    #          ✨ /shop clear ✨
+    # 🪻────────────────────────────────────────────
+    @shop_group.command(
+        name="clear", description="Clear all items from the server shop"
+    )
+    async def clear_shop(
+        self,
+        interaction: discord.Interaction,
+    ):
+        slash_cmd_name = "shop clear"
+
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=shop_clear_func,
+        )
+
+    clear_shop.extras = {"category": "Staff"}
+
+# 🪻────────────────────────────────────────────
+#           ✨ Cog Setup Function ✨
+# ─────────────────────────────────────────────
+async def setup(bot: commands.Bot):
+    await bot.add_cog(ServerShop(bot))

@@ -116,3 +116,18 @@ AFK_CACHE: dict[int, dict] = {}
 #   },
 #   ...
 # }
+
+# 💜────────────────────────────────────────────
+#       🟣 Server Shop Cache 🌸
+# 💜────────────────────────────────────────────
+server_shop_cache: dict[int, dict] = {}
+# Structure:
+# {
+#   item_id: {
+#       "item_name": str,
+#       "price": int,
+#       "stock": int,
+#       "image_link": str,
+#   },
+#   ...
+# }
