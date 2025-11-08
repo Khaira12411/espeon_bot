@@ -107,6 +107,7 @@ async def event_checklist_caught(
         pokemon_name = pokemon_name.title()
 
         display_pokemon_name = f"{rarity_emoji} {pokemon_name}"
+        source_image_url = embed.image.url if embed.image else None
 
         # Log the rare catch for debug for now
         # TODO Add points to user balance
@@ -127,7 +128,6 @@ async def event_checklist_caught(
                     color=embed_color,
                 )
                 embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
-                image_url = embed.image.url if embed.image else None
-                if image_url:
-                    embed.set_thumbnail(url=image_url)
+                if source_image_url:
+                    embed.set_thumbnail(url=source_image_url)
                 await bot_log_channel.send(embed=embed)
