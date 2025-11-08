@@ -132,7 +132,7 @@ async def reset_balance_func(
     bot: commands.Bot,
     interaction: discord.Interaction,
     member: discord.Member = None,
-    all_users: bool = False,
+    all_users: str = None,
 ):
     """Function to reset balance for a user or all users in server currency."""
 
@@ -144,7 +144,7 @@ async def reset_balance_func(
     )
 
 
-    if all_users:
+    if all_users.lower() == "yes":
         # Reset balance for all users
         await reset_all_balances(bot=bot)
         description = "Successfully reset balance for all users to 0."

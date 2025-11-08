@@ -123,7 +123,7 @@ class Balance_Group_Command(commands.Cog):
         self,
         interaction: discord.Interaction,
         member: Optional[discord.Member] = None,
-        all_users: Literal[True, False] = False,
+        all_users: Literal["Yes", "No"] = None,
     ):
         slash_cmd_name = "balance reset"
 
