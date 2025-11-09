@@ -20,6 +20,7 @@ from utils.essentials.role_checks import *
 from utils.loggers.espeon_log import EspeonContext  # Using Espeon logs
 from utils.loggers.espeon_log import espeon_log, set_espeon_bot
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
+from utils.listener_func.event_checklist_caught import processed_rare_catches
 
 # ——————————————————————————————————————————————————————————————
 # Suppress discord.py logs (must be set BEFORE imports)
@@ -62,7 +63,7 @@ setup_rate_limit_logging(bot)
 snapshot = tracemalloc.take_snapshot()
 top_stats = snapshot.statistics("lineno")
 
-#print("[ Top 10 memory usage ]")
+# print("[ Top 10 memory usage ]")
 """for stat in top_stats[:10]:
     print(stat)"""
 # 🌸 Allowed guilds (keeps bot scoped to friendly homes only!)
@@ -219,6 +220,7 @@ async def refresh_all_caches():
         refresh_all_caches.already_ran = True
         return  # 🚫 Skip the first run
     await load_all_caches(bot)
+    processed_rare_catches.clear()  # Clear processed catches every hour
 
 
 # ====================

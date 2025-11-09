@@ -67,6 +67,11 @@ async def event_checklist_caught(
 
         # TODO Member is only valid if they have the hershey role
 
+        if after_message.id in processed_rare_catches:
+            return  # Already processed this message
+
+        processed_rare_catches.add(after_message.id)
+
         # Extract Pokémon name
         pokemon_name = ""
         catch_match = re.search(r"You caught a.*?\*\*([^*]+)\*\*", embed_description)
@@ -127,7 +132,9 @@ async def event_checklist_caught(
                     description=desc,
                     color=embed_color,
                 )
-                embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
+                embed.set_author(
+                    name=member.display_name, icon_url=member.display_avatar.url
+                )
                 if source_image_url:
                     embed.set_thumbnail(url=source_image_url)
                 await bot_log_channel.send(embed=embed)
