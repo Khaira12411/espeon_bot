@@ -9,7 +9,12 @@ from discord import Embed
 
 from config.current_setup import STAFF_SERVER_GUILD_ID, STRAYMONS_GUILD_ID
 from config.emojis import PokeCoin
-from config.paldea_galar_dict import Legendary_icon_url, get_rarity_by_color
+from config.paldea_galar_dict import (
+    Legendary_icon_url,
+    get_rarity_by_color,
+    icon_url_map,
+    paldean_mons,
+)
 from config.straymons_constants import (
     STRAYMONS__EMOJIS,
     STRAYMONS__ROLES,
@@ -35,6 +40,7 @@ SNIPE_MAP = {
     "golden": {"role": STRAYMONS__ROLES.golden_snipe},
     "gmax": {"role": STRAYMONS__ROLES.gmax_snipe},
     "mega": {"role": STRAYMONS__ROLES.mega_snipe},
+    "event_exclusive": {"role": STRAYMONS__ROLES.event_exclusive_snipe},
 }
 
 
@@ -51,7 +57,7 @@ async def snipe_handler(
     embed = message.embeds[0]
     embed_color = embed.color.value
     rarity = get_rarity_by_color(embed_color)
-
+    second_snipe_rarity_role = None
     if rarity == "unknown":
         if "shiny" in poke_name.lower():
             rarity = "shiny"
@@ -61,6 +67,21 @@ async def snipe_handler(
             rarity = "gmax"
         elif embed.author and embed.author.icon_url == Legendary_icon_url:
             rarity = "legendary"
+    elif rarity == "event_exclusive":
+        icon_url = embed.author.icon_url
+        if poke_name.title() in paldean_mons:
+            second_rarity_role_id = STRAYMONS__ROLES.paldean_snipe
+            second_snipe_rarity_role = message.guild.get_role(second_rarity_role_id)
+        else:
+            second_snipe_rarity = icon_url_map.get(icon_url)
+            if second_snipe_rarity:
+                second_rarity_role_id = SNIPE_MAP.get(second_snipe_rarity, {}).get(
+                    "role"
+                )
+                if second_rarity_role_id:
+                    second_snipe_rarity_role = message.guild.get_role(
+                        second_rarity_role_id
+                    )
 
     ping_role_id = SNIPE_MAP.get(rarity, {}).get("role")
     if ping_role_id:
@@ -70,7 +91,12 @@ async def snipe_handler(
         snipe_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.test_snipe)
         if role and snipe_channel:
             display_pokemon_name = poke_name.title()
-            content = f"{role.mention} {display_pokemon_name} listed for {PokeCoin} {listed_price:,} each"
+            if second_snipe_rarity_role:
+                content = content = (
+                    f"{role.mention} {second_snipe_rarity_role.mention} {display_pokemon_name} listed for {PokeCoin} {listed_price:,} each"
+                )
+            else:
+                content = f"{role.mention} {display_pokemon_name} listed for {PokeCoin} {listed_price:,} each"
 
             # Build embed
             snipe_embed = Embed(color=embed.color or 0x0855FB)

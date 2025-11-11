@@ -2,9 +2,32 @@
 # just replace the emojis at the bottom with infusion emoji
 from config.emojis import RarityEmojis
 
+common_icon_url = (
+    "https://cdn.discordapp.com/emojis/834533715295600690.webp?size=96&quality=lossless"
+)
+uncommon_icon_url = (
+    "https://cdn.discordapp.com/emojis/834534158285537300.webp?size=96&quality=lossless"
+)
+rare_icon_url = (
+    "https://cdn.discordapp.com/emojis/834534205794287696.webp?size=96&quality=lossless"
+)
+superrare_icon_url = (
+    "https://cdn.discordapp.com/emojis/834534205701881866.webp?size=96&quality=lossless"
+)
 Legendary_icon_url = (
     "https://cdn.discordapp.com/emojis/834534206007803984.webp?size=96&quality=lossless"
 )
+shiny_icon_url = (
+    "https://cdn.discordapp.com/emojis/834534205651419137.webp?size=96&quality=lossless"
+)
+icon_url_map = {
+    common_icon_url: "common",
+    uncommon_icon_url: "uncommon",
+    rare_icon_url: "rare",
+    superrare_icon_url: "superrare",
+    Legendary_icon_url: "legendary",
+    shiny_icon_url: "shiny",
+}
 rarity_meta = {
     "common": {
         "color": 0x0855FB,
@@ -38,7 +61,10 @@ rarity_meta = {
         "color": 0x95A5A6,
         # "emoji": "❓",
     },
+    "event_exclusive": {"color": 15345163},
 }
+
+
 def get_rarity_by_color(color_value):
     """
     🎨 Reverse lookup: Get rarity name from color value
@@ -60,6 +86,103 @@ def get_rarity_by_color(color_value):
             return rarity_name
     return "unknown"
 
+
+paldean_mons = [
+    "Sprigatito",
+    "Floragato",
+    "Meowscarada",
+    "Fuecoco",
+    "Crocalor",
+    "Skeledirge",
+    "Quaxly",
+    "Quaxwell",
+    "Quaquaval",
+    "Lechonk",
+    "Oinkologne",
+    "Tarountula",
+    "Spidops",
+    "Nymble",
+    "Lokix",
+    "Pawmi",
+    "Pawmo",
+    "Pawmot",
+    "Tandemaus",
+    "Maushold",
+    "Fidough",
+    "Dachsbun",
+    "Smoliv",
+    "Dolliv",
+    "Arboliva",
+    "Squawkabilly",
+    "Nacli",
+    "Naclstack",
+    "Garganacl",
+    "Charcadet",
+    "Armarouge",
+    "Ceruledge",
+    "Tadbulb",
+    "Bellibolt",
+    "Wattrel",
+    "Kilowattrel",
+    "Maschiff",
+    "Mabosstiff",
+    "Shroodle",
+    "Grafaiai",
+    "Bramblin",
+    "Brambleghast",
+    "Toedscool",
+    "Toedscruel",
+    "Klawf",
+    "Capsakid",
+    "Scovillain",
+    "Rellor",
+    "Rabsca",
+    "Flittle",
+    "Espathra",
+    "Tinkatink",
+    "Tinkatuff",
+    "Tinkaton",
+    "Wiglett",
+    "Wugtrio",
+    "Bombirdier",
+    "Finizen",
+    "Palafin",
+    "Varoom",
+    "Revavroom",
+    "Cyclizar",
+    "Orthworm",
+    "Glimmet",
+    "Glimmora",
+    "Greavard",
+    "Houndstone",
+    "Flamigo",
+    "Cetoddle",
+    "Cetitan",
+    "Veluza",
+    "Dondozo",
+    "Tatsugiri",
+    "Annihilape",
+    "Clodsire",
+    "Farigiraf",
+    "Dudunsparce",
+    "Kingambit",
+    "Great-tusk",
+    "Scream-tail",
+    "Brute-bonnet",
+    "Flutter-mane",
+    "Slither-wing",
+    "Sandy-shocks",
+    "Iron-treads",
+    "Iron-bundle",
+    "Iron-hands",
+    "Iron-jugulis",
+    "Iron-moth",
+    "Iron-thorns",
+    "Frigibax",
+    "Arctibax",
+    "Baxcalibur",
+    "Gimmighoul",
+]
 
 paldea_galar_dict = {
     888: "Zacian",
