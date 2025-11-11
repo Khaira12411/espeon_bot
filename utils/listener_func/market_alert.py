@@ -9,6 +9,12 @@ from discord import Embed
 
 from config.current_setup import STAFF_SERVER_GUILD_ID, STRAYMONS_GUILD_ID
 from config.emojis import PokeCoin
+from config.paldea_galar_dict import Legendary_icon_url, get_rarity_by_color
+from config.straymons_constants import (
+    STRAYMONS__EMOJIS,
+    STRAYMONS__ROLES,
+    STRAYMONS__TEXT_CHANNELS,
+)
 from utils.cache.cache_list import _market_alert_index, _role_cache, market_alert_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
@@ -18,6 +24,86 @@ ALLOWED_WEBHOOKS = {
     1301882823631966280,  # Legendary
     1301883351359164486,  # Golden
 }
+
+SNIPE_MAP = {
+    "common": {"role": STRAYMONS__ROLES.basic_snipe},
+    "uncommon": {"role": STRAYMONS__ROLES.basic_snipe},
+    "rare": {"role": STRAYMONS__ROLES.basic_snipe},
+    "superrare": {"role": STRAYMONS__ROLES.super_rare_snipe},
+    "legendary": {"role": STRAYMONS__ROLES.legendary_snipe},
+    "shiny": {"role": STRAYMONS__ROLES.shiny_snipe},
+    "golden": {"role": STRAYMONS__ROLES.golden_snipe},
+    "gmax": {"role": STRAYMONS__ROLES.gmax_snipe},
+    "mega": {"role": STRAYMONS__ROLES.mega_snipe},
+}
+
+
+async def snipe_handler(
+    bot: discord.Client,
+    poke_name: str,
+    listed_price: int,
+    id: str,
+    lowest_market: int,
+    amount: int,
+    listing_seen: str,
+    message: discord.Message,
+):
+    embed = message.embeds[0]
+    embed_color = embed.color.value
+    rarity = get_rarity_by_color(embed_color)
+
+    if rarity == "unknown":
+        if "shiny" in poke_name.lower():
+            rarity = "shiny"
+        elif "mega" in poke_name.lower():
+            rarity = "mega"
+        elif "gigantamax-" in poke_name.lower() or "eternamax-" in poke_name.lower():
+            rarity = "gmax"
+        elif embed.author and embed.author.icon_url == Legendary_icon_url:
+            rarity = "legendary"
+
+    ping_role_id = SNIPE_MAP.get(rarity, {}).get("role")
+    if ping_role_id:
+        guild = message.guild
+        role = guild.get_role(ping_role_id)
+        # snipe_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.market_snipe)
+        snipe_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.test_snipe)
+        if role and snipe_channel:
+            display_pokemon_name = poke_name.title()
+            content = f"{role.mention} {display_pokemon_name} listed for {PokeCoin} {listed_price:,} each"
+
+            # Build embed
+            snipe_embed = Embed(color=embed.color or 0x0855FB)
+            if embed.thumbnail:
+                snipe_embed.set_thumbnail(url=embed.thumbnail.url)
+            snipe_embed.set_author(
+                name=embed.author.name, icon_url=embed.author.icon_url
+            )
+            snipe_embed.add_field(
+                name="Buy Command (Android)", value=f";m b {id}", inline=False
+            )
+            snipe_embed.add_field(
+                name="Buy Command (iPhone)", value=f"`;m b {id}`", inline=False
+            )
+            snipe_embed.add_field(name="ID", value=id, inline=True)
+            snipe_embed.add_field(
+                name="Listed Price", value=f"{PokeCoin} {listed_price:,}", inline=True
+            )
+            snipe_embed.add_field(name="Amount", value=amount, inline=True)
+            snipe_embed.add_field(
+                name="Lowest Market", value=f"{PokeCoin} {lowest_market:,}", inline=True
+            )
+            snipe_embed.add_field(name="Listing Seen", value=listing_seen, inline=True)
+            snipe_embed.set_footer(
+                text="Please check listing before purchase. 🪻",
+                icon_url=message.guild.icon.url,
+            )
+            await snipe_channel.send(content=content, embed=snipe_embed)
+            espeon_log(
+                "sent",
+                f"Sent snipe alert for {display_pokemon_name} to channel {snipe_channel.id}",
+                context=EspeonContext.STRAYMONS,
+            )
 
 
 async def process_market_alert_message(
@@ -44,6 +130,13 @@ async def process_market_alert_message(
     listed_price_str = re.sub(r"<a?:\w+:\d+>", "", fields.get("Listed Price", "0"))
     match_price = re.search(r"(\d[\d,]*)", listed_price_str)
     listed_price = int(match_price.group(1).replace(",", "")) if match_price else 0
+    lowest_market_str = re.sub(r"<a?:\w+:\d+>", "", fields.get("Lowest Market", "0"))
+    lowest_market_match = re.search(r"(\d[\d,]*)", lowest_market_str)
+    lowest_market = (
+        int(lowest_market_match.group(1).replace(",", "")) if lowest_market_match else 0
+    )
+    listing_seen = fields.get("Listing Seen", "N/A")
+    amount = fields.get("Amount", "1")
 
     author_icon_url = embed.author.icon_url if embed.author else None
     # Rebuild index if empty
@@ -67,6 +160,24 @@ async def process_market_alert_message(
             for alert in market_alert_cache
             if alert["pokemon"].lower() == poke_name.lower()
         ]
+
+    # If listed Price is 30% or more below lowest market, its a snipe
+    if lowest_market > 0 and listed_price <= lowest_market * 0.7:
+        espeon_log(
+            "info",
+            f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market: {lowest_market})",
+            context=EspeonContext.STRAYMONS,
+        )
+        await snipe_handler(
+            bot,
+            poke_name,
+            listed_price,
+            original_id,
+            lowest_market,
+            amount,
+            listing_seen,
+            message,
+        )
 
     for alert in alerts_to_check:
         if not alert.get("notify", True):

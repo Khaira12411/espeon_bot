@@ -2,6 +2,9 @@
 # just replace the emojis at the bottom with infusion emoji
 from config.emojis import RarityEmojis
 
+Legendary_icon_url = (
+    "https://cdn.discordapp.com/emojis/834534206007803984.webp?size=96&quality=lossless"
+)
 rarity_meta = {
     "common": {
         "color": 0x0855FB,
@@ -36,6 +39,27 @@ rarity_meta = {
         # "emoji": "❓",
     },
 }
+def get_rarity_by_color(color_value):
+    """
+    🎨 Reverse lookup: Get rarity name from color value
+
+    Args:
+        color_value (int): The color value to look up
+
+    Returns:
+        str: The rarity name, or "unknown" if not found
+
+    Example:
+        >>> get_rarity_by_color(810198)
+        'common'
+        >>> get_rarity_by_color(16550924)
+        'rare'
+    """
+    for rarity_name, rarity_data in rarity_meta.items():
+        if rarity_data["color"] == color_value:
+            return rarity_name
+    return "unknown"
+
 
 paldea_galar_dict = {
     888: "Zacian",

@@ -131,3 +131,35 @@ server_shop_cache: dict[int, dict] = {}
 #   },
 #   ...
 # }
+
+# 💜────────────────────────────────────────────
+#      🟣 Catch Contest Event
+# 💜────────────────────────────────────────────
+catch_contest_event_cache: dict[int, dict] = {}
+# Structure:
+# {
+#   event_id: {
+#       "pokemon": str,
+#       "catch_goal": int,
+#       "ends_on": int,
+#   },
+#   ...
+# }
+
+# 💜────────────────────────────────────────────
+#   🟣 Catch Contest Participants Cache
+# 💜────────────────────────────────────────────
+catch_contest_participants_cache: dict[
+    tuple[int, int], dict
+] = {}
+# Structure:
+# {
+#   (event_id, user_id): {
+#       "event_id": int,
+#       "user_id": int,
+#       "user_name": str,
+#       "pokemon": str,
+#       "pokemon_caught": int,
+#   },
+#   ...
+# }

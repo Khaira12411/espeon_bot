@@ -5,6 +5,7 @@
 #       STRAYMONS__TEXT_CHANNELS
 # 💦☁────────────────────────────────────────────💦☁
 class STRAYMONS__TEXT_CHANNELS:
+    test_snipe = 1437742079475318894
 
     # 🌊💙🤍───────────── _Ai_Systems ─────────────💙🤍🌊
     error_logs = 1410202143570530375
@@ -403,7 +404,7 @@ class STRAYMONS__CATEGORIES:
 #       STRAYMONS__ROLES
 # 💦☁────────────────────────────────────────────💦☁
 class STRAYMONS__ROLES:
-
+    event_exclusive_snipe = 1437742219489443924
     xeno = 1258992854764621835
     straymons_overseer = 1282129009970380853
     pokémeow = 1050318651301056554

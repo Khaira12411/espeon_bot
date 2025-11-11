@@ -90,12 +90,12 @@ async def afk_reply_on_mention(message: discord.Message):
         # Strip last newline and send reply
         await message.reply(reply_text.strip())
 
-        espeon_log(
+        """espeon_log(
             tag="info",
             message=f"AFK reply sent for users {[u.id for u, _ in afk_users_to_reply]} to {message.author.id}",
             label="🌙 AFK REPLY",
             context=EspeonContext.STRAYMONS,
-        )
+        )"""
 
     except Exception as e:
         espeon_log(
