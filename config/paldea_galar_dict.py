@@ -42,7 +42,7 @@ rarity_meta = {
         "emoji": RarityEmojis.Rare,
     },
     "superrare": {
-        "color": 0xF6F507,
+        "color": 0xF8F407,
         "emoji": RarityEmojis.SuperRare,
     },
     "legendary": {
