@@ -43,7 +43,7 @@ SNIPE_MAP = {
     "event_exclusive": {"role": STRAYMONS__ROLES.event_exclusive_snipe},
 }
 
-
+processed_market_feed_message_ids = set()
 async def snipe_handler(
     bot: discord.Client,
     poke_name: str,
@@ -143,155 +143,159 @@ async def process_market_alert_message(
     if not message.embeds:
         return
 
-    embed = message.embeds[0]
-    embed_author_name = embed.author.name if embed.author else ""
-    match = re.match(r"(.+?)\s+#(\d+)", embed_author_name)
-    if not match:
+    if message.id in processed_market_feed_message_ids:
         return
+    processed_market_feed_message_ids.add(message.id)
 
-    poke_name = match.group(1)
-    poke_dex = int(match.group(2))
+    for embed in message.embeds:
+        embed_author_name = embed.author.name if embed.author else ""
+        match = re.match(r"(.+?)\s+#(\d+)", embed_author_name)
+        if not match:
+            continue
 
-    fields = {f.name: f.value for f in embed.fields}
-    listed_price_str = re.sub(r"<a?:\w+:\d+>", "", fields.get("Listed Price", "0"))
-    match_price = re.search(r"(\d[\d,]*)", listed_price_str)
-    listed_price = int(match_price.group(1).replace(",", "")) if match_price else 0
-    lowest_market_str = re.sub(r"<a?:\w+:\d+>", "", fields.get("Lowest Market", "0"))
-    lowest_market_match = re.search(r"(\d[\d,]*)", lowest_market_str)
-    lowest_market = (
-        int(lowest_market_match.group(1).replace(",", "")) if lowest_market_match else 0
-    )
-    listing_seen = fields.get("Listing Seen", "N/A")
-    amount = fields.get("Amount", "1")
+        poke_name = match.group(1)
+        poke_dex = int(match.group(2))
 
-    author_icon_url = embed.author.icon_url if embed.author else None
-    # Rebuild index if empty
-    if not _market_alert_index:
-        _market_alert_index.clear()
-        for alert in market_alert_cache:
-            # key by pokemon.lower() only, keep list for multiple alerts per Pokemon
-            key = alert["pokemon"].lower()
-            _market_alert_index.setdefault(key, []).append(alert)
-
-    original_id = fields.get("ID", "0")
-
-    # ✅ O(1) lookup using indexed cache
-    alerts_to_check = _market_alert_index.get(poke_name.lower(), [])
-
-    # --- Fallback to linear search if index is empty ---
-    if not alerts_to_check:
-
-        alerts_to_check = [
-            alert
-            for alert in market_alert_cache
-            if alert["pokemon"].lower() == poke_name.lower()
-        ]
-
-    # If listed Price is 30% or more below lowest market, its a snipe
-    if lowest_market > 0 and listed_price <= lowest_market * 0.7:
-        espeon_log(
-            "info",
-            f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market: {lowest_market})",
-            context=EspeonContext.STRAYMONS,
+        fields = {f.name: f.value for f in embed.fields}
+        listed_price_str = re.sub(r"<a?:\w+:\d+>", "", fields.get("Listed Price", "0"))
+        match_price = re.search(r"(\d[\d,]*)", listed_price_str)
+        listed_price = int(match_price.group(1).replace(",", "")) if match_price else 0
+        lowest_market_str = re.sub(r"<a?:\w+:\d+>", "", fields.get("Lowest Market", "0"))
+        lowest_market_match = re.search(r"(\d[\d,]*)", lowest_market_str)
+        lowest_market = (
+            int(lowest_market_match.group(1).replace(",", "")) if lowest_market_match else 0
         )
-        await snipe_handler(
-            bot,
-            poke_name,
-            listed_price,
-            original_id,
-            lowest_market,
-            amount,
-            listing_seen,
-            message,
-        )
+        listing_seen = fields.get("Listing Seen", "N/A")
+        amount = fields.get("Amount", "1")
 
-    for alert in alerts_to_check:
-        if not alert.get("notify", True):
-            continue
+        author_icon_url = embed.author.icon_url if embed.author else None
+        # Rebuild index if empty
+        if not _market_alert_index:
+            _market_alert_index.clear()
+            for alert in market_alert_cache:
+                # key by pokemon.lower() only, keep list for multiple alerts per Pokemon
+                key = alert["pokemon"].lower()
+                _market_alert_index.setdefault(key, []).append(alert)
 
-        if int(alert["dex_number"]) != poke_dex:
-            continue
+        original_id = fields.get("ID", "0")
 
-        if listed_price > alert["max_price"]:
-            continue
+        # ✅ O(1) lookup using indexed cache
+        alerts_to_check = _market_alert_index.get(poke_name.lower(), [])
 
-        # Fetch channel
-        channel = bot.get_channel(alert["channel_id"])
-        if not channel:
-            try:
-                channel = await bot.fetch_channel(alert["channel_id"])
-            except Exception as e:
-                espeon_log(
-                    "warn",
-                    f"Failed to fetch channel {alert['channel_id']}: {e}",
-                    context=EspeonContext.STRAYMONS,
-                )
+        # --- Fallback to linear search if index is empty ---
+        if not alerts_to_check:
+
+            alerts_to_check = [
+                alert
+                for alert in market_alert_cache
+                if alert["pokemon"].lower() == poke_name.lower()
+            ]
+
+        # If listed Price is 30% or more below lowest market, its a snipe
+        if lowest_market > 0 and listed_price <= lowest_market * 0.7:
+            espeon_log(
+                "info",
+                f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market: {lowest_market})",
+                context=EspeonContext.STRAYMONS,
+            )
+            await snipe_handler(
+                bot,
+                poke_name,
+                listed_price,
+                original_id,
+                lowest_market,
+                amount,
+                listing_seen,
+                message,
+            )
+
+        for alert in alerts_to_check:
+            if not alert.get("notify", True):
                 continue
 
-        # Build embed
-        new_embed = discord.Embed(color=embed.color or 0x0855FB)
-        if embed.thumbnail:
-            new_embed.set_thumbnail(url=embed.thumbnail.url)
-        new_embed.set_author(name=embed_author_name, icon_url=author_icon_url)
+            if int(alert["dex_number"]) != poke_dex:
+                continue
 
-        # Buy commands
-        new_embed.add_field(
-            name="Buy Command (Android)", value=f";m b {original_id}", inline=False
-        )
-        new_embed.add_field(
-            name="Buy Command (iPhone)", value=f"`;m b {original_id}`", inline=False
-        )
+            if listed_price > alert["max_price"]:
+                continue
 
-        # Copy & clean other fields
-        for name, value in fields.items():
-            value_cleaned = re.sub(r"<a?:\w+:\d+>", PokeCoin, value)
-            new_embed.add_field(name=name, value=value_cleaned)
+            # Fetch channel
+            channel = bot.get_channel(alert["channel_id"])
+            if not channel:
+                try:
+                    channel = await bot.fetch_channel(alert["channel_id"])
+                except Exception as e:
+                    espeon_log(
+                        "warn",
+                        f"Failed to fetch channel {alert['channel_id']}: {e}",
+                        context=EspeonContext.STRAYMONS,
+                    )
+                    continue
 
-        new_embed.set_footer(
-            text="Please check listing before purchase. 🪻",
-            icon_url=message.guild.icon.url,
-        )
+            # Build embed
+            new_embed = discord.Embed(color=embed.color or 0x0855FB)
+            if embed.thumbnail:
+                new_embed.set_thumbnail(url=embed.thumbnail.url)
+            new_embed.set_author(name=embed_author_name, icon_url=author_icon_url)
 
-        # --- inside your for alert in alerts_to_check loop ---
-        content = ""
-        if alert.get("role_id"):
-            role = None
-            # First check Straymons guild
-            guild = bot.get_guild(STRAYMONS_GUILD_ID)
-            if guild:
-                role_key = (guild.id, alert["role_id"])
-                role = _role_cache.get(role_key)
-                if not role:
-                    role = guild.get_role(alert["role_id"])
-                    if role:
-                        _role_cache[role_key] = role  # cache it
+            # Buy commands
+            new_embed.add_field(
+                name="Buy Command (Android)", value=f";m b {original_id}", inline=False
+            )
+            new_embed.add_field(
+                name="Buy Command (iPhone)", value=f"`;m b {original_id}`", inline=False
+            )
 
-            # Fallback: Staff guild
-            if not role:
-                staff_guild = bot.get_guild(STAFF_SERVER_GUILD_ID)
-                if staff_guild:
-                    role_key = (staff_guild.id, alert["role_id"])
+            # Copy & clean other fields
+            for name, value in fields.items():
+                value_cleaned = re.sub(r"<a?:\w+:\d+>", PokeCoin, value)
+                new_embed.add_field(name=name, value=value_cleaned)
+
+            new_embed.set_footer(
+                text="Please check listing before purchase. 🪻",
+                icon_url=message.guild.icon.url,
+            )
+
+            # --- inside your for alert in alerts_to_check loop ---
+            content = ""
+            if alert.get("role_id"):
+                role = None
+                # First check Straymons guild
+                guild = bot.get_guild(STRAYMONS_GUILD_ID)
+                if guild:
+                    role_key = (guild.id, alert["role_id"])
                     role = _role_cache.get(role_key)
                     if not role:
-                        role = staff_guild.get_role(alert["role_id"])
+                        role = guild.get_role(alert["role_id"])
                         if role:
                             _role_cache[role_key] = role  # cache it
 
-            if role:
-                content += role.mention + " "
+                # Fallback: Staff guild
+                if not role:
+                    staff_guild = bot.get_guild(STAFF_SERVER_GUILD_ID)
+                    if staff_guild:
+                        role_key = (staff_guild.id, alert["role_id"])
+                        role = _role_cache.get(role_key)
+                        if not role:
+                            role = staff_guild.get_role(alert["role_id"])
+                            if role:
+                                _role_cache[role_key] = role  # cache it
 
-        content += f"{poke_name} on market for {PokeCoin} {listed_price:,}"
-        # Send
-        try:
-            await channel.send(content=content, embed=new_embed)
-            espeon_log(
-                "info",
-                f"Sent market alert for {poke_name} #{poke_dex} to channel {alert['channel_id']}",
-                context=EspeonContext.STRAYMONS,
-            )
-        except Exception as e:
-            espeon_log(
-                "error",
-                f"Failed to send market alert: {e}",
-                context=EspeonContext.STRAYMONS,
-            )
+                if role:
+                    content += role.mention + " "
+
+            content += f"{poke_name} on market for {PokeCoin} {listed_price:,}"
+            # Send
+            try:
+                await channel.send(content=content, embed=new_embed)
+                espeon_log(
+                    "info",
+                    f"Sent market alert for {poke_name} #{poke_dex} to channel {alert['channel_id']}",
+                    context=EspeonContext.STRAYMONS,
+                )
+            except Exception as e:
+                espeon_log(
+                    "error",
+                    f"Failed to send market alert: {e}",
+                    context=EspeonContext.STRAYMONS,
+                )
