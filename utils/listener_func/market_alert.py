@@ -44,6 +44,8 @@ SNIPE_MAP = {
 }
 
 processed_market_feed_message_ids = set()
+
+
 async def snipe_handler(
     bot: discord.Client,
     poke_name: str,
@@ -98,6 +100,12 @@ async def snipe_handler(
             else:
                 content = f"{role.mention} {display_pokemon_name} listed for {PokeCoin} {listed_price:,} each"
 
+            # Check if lowest market is int or "?"
+            if isinstance(lowest_market, int):
+                lowest_market_str = f"{PokeCoin} {lowest_market:,}"
+            else:
+                lowest_market_str = f"{PokeCoin} {lowest_market}"
+
             # Build embed
             snipe_embed = Embed(color=embed.color or 0x0855FB)
             if embed.thumbnail:
@@ -117,7 +125,7 @@ async def snipe_handler(
             )
             snipe_embed.add_field(name="Amount", value=amount, inline=True)
             snipe_embed.add_field(
-                name="Lowest Market", value=f"{PokeCoin} {lowest_market:,}", inline=True
+                name="Lowest Market", value=lowest_market_str, inline=True
             )
             snipe_embed.add_field(name="Listing Seen", value=listing_seen, inline=True)
             snipe_embed.set_footer(
@@ -160,10 +168,14 @@ async def process_market_alert_message(
         listed_price_str = re.sub(r"<a?:\w+:\d+>", "", fields.get("Listed Price", "0"))
         match_price = re.search(r"(\d[\d,]*)", listed_price_str)
         listed_price = int(match_price.group(1).replace(",", "")) if match_price else 0
-        lowest_market_str = re.sub(r"<a?:\w+:\d+>", "", fields.get("Lowest Market", "0"))
+        lowest_market_str = re.sub(
+            r"<a?:\w+:\d+>", "", fields.get("Lowest Market", "0")
+        )
         lowest_market_match = re.search(r"(\d[\d,]*)", lowest_market_str)
         lowest_market = (
-            int(lowest_market_match.group(1).replace(",", "")) if lowest_market_match else 0
+            int(lowest_market_match.group(1).replace(",", ""))
+            if lowest_market_match
+            else 0
         )
         listing_seen = fields.get("Listing Seen", "N/A")
         amount = fields.get("Amount", "1")
@@ -208,7 +220,24 @@ async def process_market_alert_message(
                 listing_seen,
                 message,
             )
-
+        # Trigger snipe if lowest market is unknown (0) or first listing
+        elif lowest_market == 0:
+            espeon_log(
+                "info",
+                f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market unknown)",
+                context=EspeonContext.STRAYMONS,
+            )
+            lowest_market = "?"
+            await snipe_handler(
+                bot,
+                poke_name,
+                listed_price,
+                original_id,
+                lowest_market,
+                amount,
+                listing_seen,
+                message,
+            )
         for alert in alerts_to_check:
             if not alert.get("notify", True):
                 continue
