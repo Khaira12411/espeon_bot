@@ -429,7 +429,7 @@ async def on_ready():
 
     # Just one time status set on startup
     """if not status_rotator.is_running():
-        status_rotator.start()
+        status_rotator.start()w
     activity_type, message = pick_status_tuple()
     await bot.change_presence(
         activity=discord.Activity(type=activity_type, name=message)

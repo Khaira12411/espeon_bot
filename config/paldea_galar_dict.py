@@ -1,7 +1,98 @@
+# List of legendary and mythical Pokémon (by name) from dex dict
+legendary_mons = [
+    # Kanto
+    "Articuno",
+    "Zapdos",
+    "Moltres",
+    "Mewtwo",
+    "Mew",
+    # Johto
+    "Raikou",
+    "Entei",
+    "Suicune",
+    "Lugia",
+    "Ho-oh",
+    "Celebi",
+    # Hoenn
+    "Regirock",
+    "Regice",
+    "Registeel",
+    "Latias",
+    "Latios",
+    "Kyogre",
+    "Groudon",
+    "Rayquaza",
+    "Jirachi",
+    "Deoxys",
+    # Sinnoh
+    "Uxie",
+    "Mesprit",
+    "Azelf",
+    "Dialga",
+    "Palkia",
+    "Heatran",
+    "Regigigas",
+    "Giratina",
+    "Cresselia",
+    "Phione",
+    "Manaphy",
+    "Darkrai",
+    "Shaymin",
+    "Arceus",
+    # Unova
+    "Victini",
+    "Cobalion",
+    "Terrakion",
+    "Virizion",
+    "Tornadus",
+    "Thundurus",
+    "Reshiram",
+    "Zekrom",
+    "Landorus",
+    "Kyurem",
+    "Keldeo",
+    "Meloetta",
+    "Genesect",
+    # Kalos
+    "Xerneas",
+    "Yveltal",
+    "Zygarde",
+    "Diancie",
+    "Hoopa",
+    "Volcanion",
+    # Alola
+    "Tapu-Koko",
+    "Tapu-Lele",
+    "Tapu-Bulu",
+    "Tapu-Fini",
+    "Cosmog",
+    "Cosmoem",
+    "Solgaleo",
+    "Lunala",
+    "Necrozma",
+    "Magearna",
+    "Marshadow",
+    "Zeraora",
+    "Meltan",
+    "Melmetal",
+    # Galar
+    "Zacian",
+    "Zamazenta",
+    "Eternatus",
+    "Kubfu",
+    "Urshifu",
+    "Zarude",
+    "Regieleki",
+    "Regidrago",
+    "Glastrier",
+    "Spectrier",
+    "Calyrex",
+    # Paldea (add new legendaries/mythicals here as needed)
+]
 # palar_galar_dict
 # just replace the emojis at the bottom with infusion emoji
 from config.emojis import RarityEmojis
-
+FISHING_COLOR = 0x87CEFA
 common_icon_url = (
     "https://cdn.discordapp.com/emojis/834533715295600690.webp?size=96&quality=lossless"
 )

@@ -5,7 +5,30 @@ from typing import List
 import asyncpg
 import discord
 
+from config.paldea_galar_dict import rarity_meta
 from utils.loggers.espeon_log import EspeonContext, espeon_log
+
+
+def format_item_name(item_name: str) -> str:
+    """
+    Format the item name for display.
+    """
+    LEGENDARY_ITEMS = ["Zacian", "Zamazenta", "MissingNo", "Arceus"]
+    if "coin" in item_name.lower():
+        return item_name  # No special formatting for currency items
+    
+    rarity = None
+    if item_name in LEGENDARY_ITEMS:
+        rarity = "legendary"
+    elif "Shiny" in item_name:
+        rarity = "shiny"
+        item_name = item_name.replace("Shiny ", "")
+    elif "Golden" in item_name:
+        rarity = "golden"
+        item_name = item_name.replace("Golden ", "")
+    rarity_emoji = rarity_meta.get(rarity, {}).get("emoji", "") if rarity else ""
+    display_name = f"{rarity_emoji} {item_name}"
+    return display_name
 
 
 def generate_item_id(length=8):
@@ -26,13 +49,15 @@ async def shop_item_autocomplete(
 
     try:
         items = fetch_all_shop_items()
-    except Exception:
-        items = {}
+    except Exception as e:
         espeon_log(
             tag="warn",
-            message="⚠️ Failed to fetch server shop items from cache for autocomplete.",
-            context=EspeonContext.STRAYMONS,
+            message=f"⚠️ Failed to fetch shop items from cache: {e}",
+            exc=e,
+            label="🛒 SERVER SHOP",
+            context=EspeonContext.ESPEON,
         )
+        items = {}
 
     current = (current or "").lower().strip()
     results: List[discord.app_commands.Choice[str]] = []
@@ -100,7 +125,7 @@ async def upsert_item(
             # Upsert in cache as well
             from utils.cache.server_shop_cache import upsert_shop_item
 
-            upsert_shop_item(item_id, item_name, price, stock)
+            upsert_shop_item(item_id, item_name, price, stock, image_link)
 
         return item_id
     except Exception as e:

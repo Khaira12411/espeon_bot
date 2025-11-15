@@ -1,19 +1,22 @@
-import datetime
+from datetime import datetime
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
+from config.straymons_constants import STRAYMONS__ROLES
 from utils.cache.cache_list import server_shop_cache
 from utils.database.server_currency import (
     get_user_balance,
     reset_all_balances,
     update_user_balance,
+    upsert_user,
 )
 from utils.essentials.loader import pretty_defer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from config.straymons_constants import STRAYMONS__ROLES
+
+
 # 🟣────────────────────────────────────────────
 #           💜 Add Balance
 # ─────────────────────────────────────────────
@@ -37,26 +40,34 @@ async def add_balance_func(
         bot=bot,
         user_id=member.id,
     )
-
-    # Update balance
-    new_balance = current_balance + amount
-    await update_user_balance(
-        bot=bot,
-        user_id=member.id,
-        new_balance=new_balance,
-    )
+    if current_balance is None:
+        # Upsert user with initial balance if not found
+        await upsert_user(bot, member.id, member.name, amount)
+        new_balance = amount
+    else:
+        # Update balance
+        new_balance = current_balance + amount
+        await update_user_balance(
+            bot=bot,
+            user_id=member.id,
+            new_balance=new_balance,
+        )
 
     # Send confirmation message
     embed = discord.Embed(
         title="Balance Updated",
         description=(
-            f"Successfully added {CHERRY_PIN}{amount} to {member.mention}'s account.\n"
-            f"New Balance: {CHERRY_PIN}{new_balance}"
+            f"Successfully added {amount} {CHERRY_PIN} to {member.mention}'s account.\n"
+            f"New Balance: {new_balance} {CHERRY_PIN}"
         ),
         color=COLOR,
-        timestamp=datetime.datetime.utcnow(),
+        timestamp=datetime.now(),
     )
-    embed.set_footer(text=DIVIDER)
+    embed.set_author(
+        name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url
+    )
+    embed.set_thumbnail(url=member.display_avatar.url)
+    embed.set_image(url=DIVIDER)
     await loader.success(embed=embed, content="")
     espeon_log(
         tag="info",
@@ -64,7 +75,6 @@ async def add_balance_func(
             f"✅ {interaction.user.name} added {amount} to {member.name} "
             f"in server currency. New balance: {new_balance}."
         ),
-        context=EspeonContext.SERVER_CURRENCY,
     )
 
     # TODO Log the balance update action
@@ -93,6 +103,15 @@ async def remove_balance_func(
         bot=bot,
         user_id=member.id,
     )
+    if current_balance is None:
+        current_balance = 0
+        # Upsert user with 0 balance if not found
+        await upsert_user(bot, member.id, member.name)
+        # Exit early since balance is already 0
+        await loader.error(
+            content=f"{member.mention} has a balance of 0 {CHERRY_PIN}. Cannot remove balance."
+        )
+        return
 
     # Update balance
     new_balance = max(0, current_balance - amount)  # Prevent negative balance
@@ -106,13 +125,17 @@ async def remove_balance_func(
     embed = discord.Embed(
         title="Balance Updated",
         description=(
-            f"Successfully removed {CHERRY_PIN}{amount} from {member.mention}'s account.\n"
-            f"New Balance: {CHERRY_PIN}{new_balance}"
+            f"Successfully removed {amount} {CHERRY_PIN} from {member.mention}'s account.\n"
+            f"New Balance: {new_balance} {CHERRY_PIN}"
         ),
         color=COLOR,
-        timestamp=datetime.datetime.utcnow(),
+        timestamp=datetime.now(),
     )
-    embed.set_footer(text=DIVIDER)
+    embed.set_author(
+        name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url
+    )
+    embed.set_thumbnail(url=member.display_avatar.url)
+    embed.set_image(url=DIVIDER)
     await loader.success(embed=embed, content="")
     espeon_log(
         tag="info",
@@ -120,10 +143,10 @@ async def remove_balance_func(
             f"✅ {interaction.user.name} removed {amount} from {member.name} "
             f"in server currency. New balance: {new_balance}."
         ),
-        context=EspeonContext.SERVER_CURRENCY,
     )
 
     # TODO Log the balance update action
+
 
 # 🟣────────────────────────────────────────────
 #           💜 Reset Balance
@@ -143,7 +166,6 @@ async def reset_balance_func(
         ephemeral=False,
     )
 
-
     if all_users.lower() == "yes":
         # Reset balance for all users
         await reset_all_balances(bot=bot)
@@ -151,14 +173,11 @@ async def reset_balance_func(
         espeon_log(
             tag="info",
             message=f"✅ {interaction.user.name} reset balance for all users.",
-            context=EspeonContext.SERVER_CURRENCY,
         )
     else:
         # Reset balance for a specific user
         if member is None:
-            await loader.error(
-                content="Error: No member specified for balance reset."
-            )
+            await loader.error(content="Error: No member specified for balance reset.")
             return
 
         await update_user_balance(
@@ -166,11 +185,10 @@ async def reset_balance_func(
             user_id=member.id,
             new_balance=0,
         )
-        description = f"Successfully reset {member.mention}'s balance to 0."
+        description = f"Successfully reset {member.mention}'s {CHERRY_PIN} to 0."
         espeon_log(
             tag="info",
             message=f"✅ {interaction.user.name} reset balance for {member.name}.",
-            context=EspeonContext.SERVER_CURRENCY,
         )
 
     # Send confirmation message
@@ -178,12 +196,20 @@ async def reset_balance_func(
         title="Balance Reset",
         description=description,
         color=COLOR,
-        timestamp=datetime.datetime.utcnow(),
+        timestamp=datetime.now(),
     )
-    embed.set_footer(text=DIVIDER)
+    embed.set_image(url=DIVIDER)
+    if all_users.lower() != "yes":
+        embed.set_author(
+            name=interaction.user.display_name,
+            icon_url=interaction.user.display_avatar.url,
+        )
+        if member:
+            embed.set_thumbnail(url=member.display_avatar.url)
     await loader.success(embed=embed, content="")
 
     # TODO Log the balance reset action
+
 
 # 🟣────────────────────────────────────────────
 #           💜 View Balance
@@ -202,32 +228,47 @@ async def view_balance_func(
     target_user = interaction.user if member is None else member
     # Defer
     loader = await pretty_defer(
-        interaction=interaction, content=f"Fetching {user_str} balance...", ephemeral=True
+        interaction=interaction,
+        content=f"Fetching {user_str} balance...",
+        ephemeral=False,
     )
 
     # Fetch user balance
     user_id = target_user.id
     user_balance = await get_user_balance(bot, user_id)
+    if user_balance is None:
+        user_balance = 0
+        # Upsert user with 0 balance if not found
+        await upsert_user(bot, user_id, target_user.name)
 
     # Build embed
     title_str = "Your" if member is None else f"{member.display_name}'s"
-    desc_str = "You currently have" if member is None else f"{member.display_name} currently has"
     embed = discord.Embed(
         title=f"🍒 {title_str} Cherry Pin Balance 🍒",
-        description=f"{desc_str} **{CHERRY_PIN} {user_balance}**.",
+        description=f"**{user_balance} {CHERRY_PIN}**.",
         color=COLOR,
-        timestamp=datetime.datetime.now(),
+        timestamp=datetime.now(),
     )
+    author_name = (
+        interaction.user.display_name if member is None else member.display_name
+    )
+    author_icon_url = (
+        interaction.user.display_avatar.url
+        if member is None
+        else member.display_avatar.url
+    )
+    embed.set_author(name=author_name, icon_url=author_icon_url)
     embed.set_image(url=DIVIDER)
 
     await loader.success(embed=embed, content="")
     if not member:
         log_str = f"✅ {interaction.user.name} viewed their balance: {user_balance}."
     else:
-        log_str = f"✅ {interaction.user.name} viewed {user_str} balance: {user_balance}."
+        log_str = (
+            f"✅ {interaction.user.name} viewed {user_str} balance: {user_balance}."
+        )
 
     espeon_log(
         tag="info",
         message=log_str,
-        context=EspeonContext.SERVER_CURRENCY,
     )

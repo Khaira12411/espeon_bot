@@ -64,7 +64,7 @@ for name, dex in POKEMON_LIST:
     POKEMON_NORMALIZED.append((name, norm, dex))
 
 
-def format_display_name(raw_name: str) -> str:
+def old_format_display_name(raw_name: str) -> str:
     """
     Clean up Pokemon display names for autocomplete:
     - Remove dash only for Mega forms (Mega-Abomasnow → Mega Abomasnow)
@@ -76,6 +76,40 @@ def format_display_name(raw_name: str) -> str:
     # Handle Mega form
     if "mega-" in clean_name:
         clean_name = clean_name.replace("mega-", "mega ")
+
+    # Capitalize all words
+    display_name = " ".join(word.capitalize() for word in clean_name.split())
+
+    return display_name
+
+
+def format_display_name(raw_name: str) -> str:
+    """
+    Clean up Pokemon display names for autocomplete:
+    - Remove dash only for Mega forms (Mega-Abomasnow → Mega Abomasnow)
+    - Capitalize properly
+    - Keep golden/shiny prefixes untouched
+    - Handle special cases like Jangmo-o
+    """
+    SPECIAL_CASES = {
+        "jangmo-o": "Jangmo-o",
+        "hakamo-o": "Hakamo-o",
+        "kommo-o": "Kommo-o",
+        "tapu-koko": "Tapu-Koko",
+        "tapu-lele": "Tapu-Lele",
+        "tapu-bulu": "Tapu-Bulu",
+        "tapu-fini": "Tapu-Fini",
+    }
+
+    clean_name = raw_name.lower()
+
+    # Handle Mega form
+    if "mega-" in clean_name:
+        clean_name = clean_name.replace("mega-", "mega ")
+
+    # Special case check
+    if clean_name in SPECIAL_CASES:
+        return SPECIAL_CASES[clean_name]
 
     # Capitalize all words
     display_name = " ".join(word.capitalize() for word in clean_name.split())
@@ -107,7 +141,7 @@ async def pokemon_autocomplete(
         # Match by name
         if not current_simple or current_simple in norm:
             display_name = format_display_name(name)
-            display = f"{display_name.title()} #{dex}"
+            display = f"{display_name} #{dex}"
             if display not in seen:
                 results.append(app_commands.Choice(name=display, value=name))
                 seen.add(display)
@@ -115,7 +149,7 @@ async def pokemon_autocomplete(
         # Match by dex number
         if dex_query is not None and dex_query == dex:
             display_name = format_display_name(name)
-            display = f"{display_name.title()} #{dex}"
+            display = f"{display_name} #{dex}"
             if display not in seen:
                 results.append(app_commands.Choice(name=display, value=name))
                 seen.add(display)
@@ -173,7 +207,7 @@ async def user_alerts_autocomplete(
             or (dex is not None and current in str(dex))
             or (dex_query is not None and dex_query == dex)
         ):
-            results.append(app_commands.Choice(name=display.title(), value=raw_name))
+            results.append(app_commands.Choice(name=display, value=raw_name))
 
         if len(results) >= 25:
             break

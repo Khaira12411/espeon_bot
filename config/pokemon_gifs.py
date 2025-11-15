@@ -1,4 +1,5 @@
 class REGULAR_POKEMON_URL:
+    missingno = "https://images-ext-1.discordapp.net/external/hvd_B-gSWeoAlOQolPLFq_79tfAmtuYC982RGOR2ZT0/https/i.ibb.co/x7YzV7v/YIFFB5I.gif"
     diglett = "https://media.discordapp.net/attachments/1410396560151543830/1410396591340257341/diglett.gif?ex=68b0ddaf&is=68af8c2f&hm=3a317661e11456ca87415add28cf04d3ba752402ddcf1bb594472239ce335d8a&="
     xerneas_neutral = "https://media.discordapp.net/attachments/1410396560151543830/1414225733500272762/23jsanc8a.png?ex=68becbd9&is=68bd7a59&hm=43e62af598af5d163634419d795254aea780a228d63a948ec1fa9ca5c8ca3fec&=&format=webp&quality=lossless&width=117&height=141"
     houndstone = "https://media.discordapp.net/attachments/1331944490935517184/1331946425390600242/972.gif?ex=68c55346&is=68c401c6&hm=308042f9c5c23a2d7cd0a2792dc25884bb09af4231067ff263a3bfd54be19beb&=&width=87&height=89"

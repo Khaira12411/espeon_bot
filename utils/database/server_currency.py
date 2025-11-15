@@ -4,8 +4,9 @@ import discord
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 
-async def upsert_user(bot: discord.Client, user_id: int, user_name: str):
-    cherry_pin_balance = 0
+async def upsert_user(
+    bot: discord.Client, user_id: int, user_name: str, amount: int = 0
+):
     try:
         async with bot.pg_pool.acquire() as conn:
             await conn.execute(
@@ -13,15 +14,15 @@ async def upsert_user(bot: discord.Client, user_id: int, user_name: str):
                 INSERT INTO server_currency (user_id, user_name, cherry_pin_balance)
                 VALUES ($1, $2, $3)
                 ON CONFLICT (user_id)
-                DO UPDATE SET user_name = EXCLUDED.user_name;
+                DO UPDATE SET user_name = EXCLUDED.user_name, cherry_pin_balance = EXCLUDED.cherry_pin_balance;
                 """,
                 user_id,
                 user_name,
-                cherry_pin_balance,
+                amount,
             )
             espeon_log(
                 tag="db",
-                message=f"Upserted user '{user_name}' (user_id: {user_id}) with balance {cherry_pin_balance}",
+                message=f"Upserted user '{user_name}' (user_id: {user_id}) with balance {amount}",
                 label="💰 SERVER CURRENCY",
                 context=EspeonContext.ESPEON,
             )

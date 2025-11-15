@@ -6,7 +6,7 @@ from config.current_setup import CC_GUILD_ID
 from utils.database.server_shop import shop_item_autocomplete
 from utils.essentials.command_safe import run_command_safe
 from utils.group_func.server_shop import *
-
+from utils.essentials.pokemon_autocomplete import *
 
 # 🪻────────────────────────────────────────────
 #           ✨ ServerShop Cog Setup ✨
@@ -47,8 +47,9 @@ class ServerShop(commands.Cog):
     #           ✨ /shop add-item✨
     # 🪻────────────────────────────────────────────
     @shop_group.command(
-        name="add-item", description="Add an item in the server shop"
+        name="add", description="Add an item in the server shop"
     )
+    @app_commands.autocomplete(item_name=pokemon_autocomplete)  # 👈 attach autocomplete
     @app_commands.describe(
         item_name="Name of the item to add",
         price="Price of the item in Cherry Pins",
@@ -84,7 +85,6 @@ class ServerShop(commands.Cog):
     @app_commands.autocomplete(item_name=shop_item_autocomplete)  # 👈 attach autocomplete
     @app_commands.describe(
         item_name="Name of the item to edit",
-        new_item_name="New name for the item",
         new_price="New price for the item in Cherry Pins",
         new_stock="New stock for the item (-1 for unlimited)",
     )
@@ -92,7 +92,6 @@ class ServerShop(commands.Cog):
         self,
         interaction: discord.Interaction,
         item_name: str,
-        new_item_name: str = None,
         new_price: int = None,
         new_stock: int = None,
     ):
@@ -104,7 +103,6 @@ class ServerShop(commands.Cog):
             slash_cmd_name=slash_cmd_name,
             command_func=edit_item_func,
             item_name=item_name,
-            new_item_name=new_item_name,
             new_price=new_price,
             new_stock=new_stock,
         )
@@ -114,7 +112,7 @@ class ServerShop(commands.Cog):
     #           ✨ /shop buy-item✨
     # 🪻────────────────────────────────────────────
     @shop_group.command(
-        name="buy-item", description="Buy an item from the server shop"
+        name="buy", description="Buy an item from the server shop"
     )
     @app_commands.autocomplete(item_name=shop_item_autocomplete)  # 👈 attach autocomplete
     @app_commands.describe(
@@ -140,7 +138,7 @@ class ServerShop(commands.Cog):
     #          ✨ /shop remove-item ✨
     # 🪻────────────────────────────────────────────
     @shop_group.command(
-        name="remove-item", description="Remove an item from the server shop"
+        name="remove", description="Remove an item from the server shop"
     )
     @app_commands.autocomplete(item_name=shop_item_autocomplete)  # 👈 attach autocomplete
     @app_commands.describe(
