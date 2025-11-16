@@ -44,6 +44,7 @@ SNIPE_MAP = {
 }
 
 processed_market_feed_message_ids = set()
+processed_snipe_ids = set()
 
 
 async def snipe_handler(
@@ -90,7 +91,7 @@ async def snipe_handler(
         guild = message.guild
         role = guild.get_role(ping_role_id)
         snipe_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.market_snipe)
-        #snipe_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.test_snipe)
+        # snipe_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.test_snipe)
         if role and snipe_channel:
             display_pokemon_name = poke_name.title()
             if second_snipe_rarity_role:
@@ -203,41 +204,43 @@ async def process_market_alert_message(
                 if alert["pokemon"].lower() == poke_name.lower()
             ]
 
-        # If listed Price is 30% or more below lowest market, its a snipe
-        if lowest_market > 0 and listed_price <= lowest_market * 0.7:
-            espeon_log(
-                "info",
-                f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market: {lowest_market})",
-                context=EspeonContext.STRAYMONS,
-            )
-            await snipe_handler(
-                bot,
-                poke_name,
-                listed_price,
-                original_id,
-                lowest_market,
-                amount,
-                listing_seen,
-                message,
-            )
-        # Trigger snipe if lowest market is unknown (0) or first listing
-        elif lowest_market == 0:
-            espeon_log(
-                "info",
-                f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market unknown)",
-                context=EspeonContext.STRAYMONS,
-            )
-            lowest_market = "?"
-            await snipe_handler(
-                bot,
-                poke_name,
-                listed_price,
-                original_id,
-                lowest_market,
-                amount,
-                listing_seen,
-                message,
-            )
+        # Snipe detection: only process unprocessed IDs
+        if original_id not in processed_snipe_ids:
+            processed_snipe_ids.add(original_id)
+            if lowest_market > 0 and listed_price <= lowest_market * 0.7:
+                espeon_log(
+                    "info",
+                    f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market: {lowest_market})",
+                    context=EspeonContext.STRAYMONS,
+                )
+                await snipe_handler(
+                    bot,
+                    poke_name,
+                    listed_price,
+                    original_id,
+                    lowest_market,
+                    amount,
+                    listing_seen,
+                    message,
+                )
+            elif lowest_market == 0:
+                espeon_log(
+                    "info",
+                    f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market unknown)",
+                    context=EspeonContext.STRAYMONS,
+                )
+                lowest_market = "?"
+                await snipe_handler(
+                    bot,
+                    poke_name,
+                    listed_price,
+                    original_id,
+                    lowest_market,
+                    amount,
+                    listing_seen,
+                    message,
+                )
+
         for alert in alerts_to_check:
             if not alert.get("notify", True):
                 continue

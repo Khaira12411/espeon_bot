@@ -21,7 +21,7 @@ from utils.loggers.espeon_log import EspeonContext  # Using Espeon logs
 from utils.loggers.espeon_log import espeon_log, set_espeon_bot
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
 from utils.listener_func.event_checklist_caught import processed_rare_catches
-from utils.listener_func.market_alert import processed_market_feed_message_ids
+from utils.listener_func.market_alert import processed_market_feed_message_ids, processed_snipe_ids
 
 # ——————————————————————————————————————————————————————————————
 # Suppress discord.py logs (must be set BEFORE imports)
@@ -223,6 +223,7 @@ async def refresh_all_caches():
     await load_all_caches(bot)
     processed_rare_catches.clear()  # Clear processed catches every hour
     processed_market_feed_message_ids.clear()  # Clear processed market feed messages every hour
+    processed_snipe_ids.clear()  # Clear processed snipe IDs every hour
 
 
 # ====================
