@@ -3,6 +3,7 @@ import re
 import discord
 from discord.ext import commands
 
+from config.aesthetic import Espeon_Emoji
 from config.current_setup import CC_GUILD_ID
 from config.paldea_galar_dict import legendary_mons, rarity_meta
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
@@ -125,6 +126,7 @@ async def add_points_to_user(
         embed.set_thumbnail(url=message.embeds[0].image.url)
     await message.channel.send(content=user.mention, embed=embed)
 
+
 async def event_checklist_caught(
     bot: discord.Client,
     before_message: discord.Message,
@@ -242,7 +244,7 @@ async def event_checklist_caught(
                 "info",
                 f"Processing fishing catch for Pokémon: {pokemon_name}",
                 source="Event Checklist Caught",
-                )
+            )
             if pokemon_name in FISHING_EXCLUSIVE_MON:
                 catch_type = "fishing_exclusive_checklist"
                 rarity = "superrare"
@@ -293,7 +295,7 @@ async def event_checklist_caught(
     source_image_url = embed.image.url if embed.image else None
 
     # Log the rare catch for debug for now
-    #Add points to user balance
+    # Add points to user balance
     """await add_points_to_user(
         bot=bot,
         user=member,
@@ -311,10 +313,10 @@ async def event_checklist_caught(
                 f"**Member:** {member.mention}\n"
                 f"**Pokémon:** {display_pokemon_name}\n"
                 f"**Catch Type:** {context}\n"
-                f"**Points:** {points}\n"
+                f"**Reward:** {points}{CHERRY_PIN}\n"
             )
             embed = discord.Embed(
-                title="🎉 Rare Catch Detected!",
+                title=f"{Espeon_Emoji.pink_celebrate} Rare Catch Detected!",
                 description=desc,
                 color=embed_color,
             )

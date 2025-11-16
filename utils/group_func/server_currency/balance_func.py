@@ -3,7 +3,9 @@ from datetime import datetime
 import discord
 from discord import app_commands
 from discord.ext import commands
+from discord.ui import Button, View
 
+from config.aesthetic import Espeon_Emoji
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
 from config.straymons_constants import STRAYMONS__ROLES
 from utils.cache.cache_list import server_shop_cache
@@ -262,8 +264,9 @@ async def view_balance_func(
     )
     embed.set_author(name=author_name, icon_url=author_icon_url)
     embed.set_image(url=DIVIDER)
+    view = Cherry_Pin_Reward_Info(interaction.user)
 
-    await loader.success(embed=embed, content="")
+    await loader.success(embed=embed, content="", view=view)
     if not member:
         log_str = f"✅ {interaction.user.name} viewed their balance: {user_balance}."
     else:
@@ -275,3 +278,46 @@ async def view_balance_func(
         tag="info",
         message=log_str,
     )
+
+
+class Cherry_Pin_Reward_Info(View):
+    def __init__(self, user, timeout=180):
+        super().__init__(timeout=timeout)
+        self.user = user
+
+    @discord.ui.button(
+        label="Info",
+        emoji=Espeon_Emoji.pink_flower_two,
+        style=discord.ButtonStyle.secondary,
+        custom_id="cherry_pin_reward_info_button",
+    )
+    async def info_button(self, interaction: discord.Interaction, button: Button):
+        # Only user who invoked can use the button
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message(
+                "You cannot use this button.", ephemeral=True
+            )
+            return
+        embed = discord.Embed(
+            title="🍒 Cherry Pin Rewards Info 🍒",
+            description=(
+                f"Legendary – 1 {CHERRY_PIN}\n"
+                f"Shiny checklist – 2 {CHERRY_PIN}\n"
+                f"Fishing exclusive checklist (if any) – 2 {CHERRY_PIN}\n"
+                f"Shiny full-odds – 2 {CHERRY_PIN}\n"
+                f"Exclusive checklist – 3 {CHERRY_PIN}\n"
+                f"Fishing legendary – 3 {CHERRY_PIN}\n"
+                f"Fishing shiny – 4 {CHERRY_PIN}\n"
+                f"Fishing shiny exclusive checklist (if any) – 5 {CHERRY_PIN}\n"
+                f"Shiny legendary full-odds – 5 {CHERRY_PIN}"
+            ),
+            color=COLOR,
+            timestamp=datetime.now(),
+        )
+        embed.set_image(url=DIVIDER)
+        embed.set_author(
+            name=interaction.user.display_name,
+            icon_url=interaction.user.display_avatar.url,
+        )
+        # Edit original message
+        await interaction.response.edit_message(embed=embed, view=self)

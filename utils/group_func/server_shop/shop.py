@@ -117,38 +117,84 @@ class Shop_Paginator(View):
 async def shop_view_func(
     bot: commands.Bot,
     interaction: discord.Interaction,
+    item_name: str = None,
 ):
     """
     View all items in the server shop.
     """
 
-    # Defer
-    loader = await pretty_defer(
-        interaction=interaction,
-        content="Fetching server shop items...",
-        ephemeral=False,
-    )
-    # Fetch all items from db
-    items = await fetch_all_items(bot=bot)
-    if not items:
-        await loader.error("The server shop is currently empty.")
-        return
+    if item_name:
+        from utils.cache.server_shop_cache import fetch_shop_item_id_by_name
+        item_id = fetch_shop_item_id_by_name(item_name)
+        if item_id:
+            item = server_shop_cache.get(item_id)
+            if item:
+                # Show single item embed
+                display_item_name = format_item_name(item.get("item_name", "Unknown Item"))
+                price = item.get("price", 0)
+                stock = item.get("stock", 0)
+                image_link = item.get("image_link", "")
+                stock_display = "Unlimited" if stock == -1 else str(stock)
 
-    # Sort items by cheapest price first, then alphabetically by item name
-    items.sort(
-        key=lambda x: (x.get("price", float("inf")), x.get("item_name", "").lower())
-    )
+                embed = discord.Embed(
+                    title=f"🌸 Petal Lace Shop 🌸",
+                    color=COLOR,
+                    timestamp=datetime.now(),
+                )
+                embed.set_image(url=DIVIDER)
+                embed.add_field(
+                    name=display_item_name,
+                    value=(
+                        f"> - ID: {item_id}\n"
+                        f"> - Price: {price} {CHERRY_PIN}\n"
+                        f"> - Stock: {stock_display}"
+                    ),
+                    inline=False,
+                )
+                guild = bot.get_guild(STRAYMONS_GUILD_ID)
+                embed.set_footer(
+                    text="🌸 Petal Lace Shop",
+                    icon_url=guild.icon.url if guild and guild.icon else None,
+                )
+                if image_link:
+                    embed.set_thumbnail(url=image_link)
 
-    # Sort it by cheapest first
+                # Defer
+                loader = await pretty_defer(
+                    interaction=interaction,
+                    content="Fetching server shop item...",
+                    ephemeral=False,
+                )
+                await loader.success(embed=embed, content="")
+                return
+    else:
+        # Defer
+        loader = await pretty_defer(
+            interaction=interaction,
+            content="Fetching server shop items...",
+            ephemeral=False,
+        )
+        # Fetch all items from db
+        items = await fetch_all_items(bot=bot)
+        if not items:
+            await loader.error("The server shop is currently empty.")
+            return
 
-    # Create paginator
-    paginator = Shop_Paginator(
-        bot=bot,
-        user=interaction.user,
-        items=items,
-        per_page=10,
-    )
-    embed = await paginator.get_embed()
+        # Sort items by cheapest price first, then alphabetically by item name
+        items.sort(
+            key=lambda x: (x.get("price", float("inf")), x.get("item_name", "").lower())
+        )
 
-    sent_message = await loader.success(embed=embed, content="", view=paginator)
-    paginator.message = sent_message
+        # Sort it by cheapest first
+
+        # Create paginator
+        paginator = Shop_Paginator(
+            bot=bot,
+            user=interaction.user,
+            items=items,
+            per_page=10,
+        )
+        embed = await paginator.get_embed()
+
+        sent_message = await loader.success(embed=embed, content="", view=paginator)
+        paginator.message = sent_message

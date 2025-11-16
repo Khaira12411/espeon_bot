@@ -27,10 +27,15 @@ class ServerShop(commands.Cog):
     # 🪻────────────────────────────────────────────
     #           ✨ /shop view✨
     # 🪻────────────────────────────────────────────
-    @shop_group.command(name="view", description="View all items in the server shop")
+    @shop_group.command(name="view", description="View an item or all items in the petal lace shop")
+    @app_commands.autocomplete(item_name=shop_item_autocomplete)  # 👈 attach autocomplete
+    @app_commands.describe(
+        item_name="Name of the item to view (leave empty to view all items)",
+    )
     async def view_shop(
         self,
         interaction: discord.Interaction,
+        item_name: str = None,
     ):
         slash_cmd_name = "shop view"
 
@@ -39,12 +44,13 @@ class ServerShop(commands.Cog):
             interaction=interaction,
             slash_cmd_name=slash_cmd_name,
             command_func=shop_view_func,
+            item_name=item_name,
         )
 
     view_shop.extras = {"category": "Public"}
 
     # 🪻────────────────────────────────────────────
-    #           ✨ /shop add-item✨
+    #           ✨ /shop add✨
     # 🪻────────────────────────────────────────────
     @shop_group.command(
         name="add", description="Add an item in the server shop"
@@ -77,7 +83,7 @@ class ServerShop(commands.Cog):
     add_shop_item.extras = {"category": "Staff"}
 
 # 🪻────────────────────────────────────────────
-#           ✨ /shop edit-item✨
+#           ✨ /shop edit✨
 # 🪻────────────────────────────────────────────
     @shop_group.command(
         name="edit-item", description="Edit an item in the server shop"
@@ -109,7 +115,7 @@ class ServerShop(commands.Cog):
     edit_shop_item.extras = {"category": "Staff"}
 
     # 🪻────────────────────────────────────────────
-    #           ✨ /shop buy-item✨
+    #           ✨ /shop buy✨
     # 🪻────────────────────────────────────────────
     @shop_group.command(
         name="buy", description="Buy an item from the server shop"
