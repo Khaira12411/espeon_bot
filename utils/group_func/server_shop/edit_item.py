@@ -6,7 +6,7 @@ from discord.ext import commands
 
 from config.petal_lace_settings import CHERRY_PIN, COLOR
 from utils.cache.cache_list import server_shop_cache
-from utils.database.server_shop import fetch_item_by_id, update_item, format_item_name
+from utils.database.server_shop import fetch_item_by_id, format_item_name, update_item
 from utils.essentials.loader import pretty_defer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
@@ -31,7 +31,7 @@ async def edit_item_func(
     # Fetch existing item in cache to check if it exists
     from utils.cache.server_shop_cache import fetch_shop_item_id_by_name
 
-    item_id = fetch_shop_item_id_by_name(item_name)
+    item_id = str(fetch_shop_item_id_by_name(item_name))
     if not item_id:
         await loader.error(content=f"Item '{item_name}' does not exist in the shop.")
         return
@@ -50,11 +50,11 @@ async def edit_item_func(
 
     # Update item in the database
     await update_item(
-        bot,
-        item_id,
-        new_price,
-        new_stock,
-        new_image_link,
+        bot=bot,
+        item_id=item_id,
+        price=new_price,
+        stock=new_stock,
+        image_link=new_image_link,
     )
 
     # Success embed

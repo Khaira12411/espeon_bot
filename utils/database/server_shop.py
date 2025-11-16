@@ -16,7 +16,7 @@ def format_item_name(item_name: str) -> str:
     LEGENDARY_ITEMS = ["Zacian", "Zamazenta", "MissingNo", "Arceus"]
     if "coin" in item_name.lower():
         return item_name  # No special formatting for currency items
-    
+
     rarity = None
     if item_name in LEGENDARY_ITEMS:
         rarity = "legendary"
