@@ -89,8 +89,8 @@ async def snipe_handler(
     if ping_role_id:
         guild = message.guild
         role = guild.get_role(ping_role_id)
-        # snipe_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.market_snipe)
-        snipe_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.test_snipe)
+        snipe_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.market_snipe)
+        #snipe_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.test_snipe)
         if role and snipe_channel:
             display_pokemon_name = poke_name.title()
             if second_snipe_rarity_role:
