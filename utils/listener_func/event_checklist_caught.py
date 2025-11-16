@@ -144,6 +144,11 @@ async def event_checklist_caught(
         # Identify the user who caught the Pokémon
         member = await get_pokemeow_reply_member(before_message)
         if not member:
+            espeon_log(
+                "info",
+                "Could not identify member from PokéMeow reply.",
+                source="Event Checklist Caught",
+            )
             return
 
         # TODO Member is only valid if they have the hershey role
@@ -158,7 +163,7 @@ async def event_checklist_caught(
             f"Processing rare catch for member: {member.display_name}",
             source="Event Checklist Caught",
         )
-        
+
         # Extract Pokémon name
         pokemon_name = ""
         catch_match = re.search(r"You caught a.*?\*\*([^*]+)\*\*", embed_description)

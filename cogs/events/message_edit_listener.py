@@ -2,9 +2,9 @@ import discord
 from discord.ext import commands
 
 from config.current_setup import POKEMEOW_APPLICATION_ID, STRAYMONS_GUILD_ID
+from config.paldea_galar_dict import rarity_meta
 from utils.listener_func.event_checklist_caught import event_checklist_caught
 from utils.loggers.espeon_log import espeon_log
-from config.paldea_galar_dict import rarity_meta
 
 SHINY_COLOR = 16751052
 EVENT_EXCLUSIVE_COLOR = 16751052
@@ -15,6 +15,7 @@ LOW_RARITY_COLORS = [
     rarity_meta["common"]["color"],
     rarity_meta["uncommon"]["color"],
 ]
+
 
 class MessageEditListener(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -46,7 +47,7 @@ class MessageEditListener(commands.Cog):
             if "You caught" in embed_desc:
                 espeon_log(
                     "info",
-                    "Detected edited message with rare catch embed, processing...",
+                    f"Detected edited message with rare catch embed in {after.channel.name}, processing...",
                     source="Message Edit Listener",
                 )
                 await event_checklist_caught(
