@@ -17,7 +17,7 @@ from utils.loggers.espeon_log import espeon_log
 
 # key = embed_color
 SHINY_COLOR = 16751052
-LEGENDARY_COLOR = 0xF822FF
+LEGENDARY_COLOR = 10487800
 EVENT_EXCLUSIVE_COLOR = 16751052
 processed_rare_catches = set()
 VALID_COLOR = [SHINY_COLOR, EVENT_EXCLUSIVE_COLOR]
@@ -183,41 +183,95 @@ async def event_checklist_caught(
                     catch_type = "event_shiny"
                 elif "full-odds" in embed_footer.lower():
                     catch_type = "full_odds_shiny"
+            espeon_log(
+                "info",
+                f"Identified shiny catch: {pokemon_name}, Catch Type: {catch_type}",
+                source="Event Checklist Caught",
+            )
 
         elif embed_color == EVENT_EXCLUSIVE_COLOR:
             catch_type = "event_exclusive"
             rarity = extract_rarity_from_footer(embed_footer)
             if rarity.lower() == "super rare":
                 rarity = "superrare"
+            espeon_log(
+                "info",
+                f"Identified event exclusive catch: {pokemon_name}, Rarity: {rarity}",
+                source="Event Checklist Caught",
+            )
 
         elif embed_color == LEGENDARY_COLOR:
             rarity = "legendary"
             catch_type = "legendary"
+            espeon_log(
+                "info",
+                f"Identified legendary catch: {pokemon_name}",
+                source="Event Checklist Caught",
+            )
 
         elif embed_color not in VALID_COLOR and embed_color != FISHING_COLOR:
             rarity = extract_rarity_from_footer(embed_footer)
             if rarity.lower() == "legendary":
                 catch_type = "legendary"
+                espeon_log(
+                    "info",
+                    f"Identified legendary catch from footer: {pokemon_name}",
+                    source="Event Checklist Caught",
+                )
             else:
+                espeon_log(
+                    "info",
+                    f"Catch is neither shiny, event exclusive, nor legendary: {pokemon_name}",
+                    source="Event Checklist Caught",
+                )
                 return  # Not a rare catch
 
         elif embed_color == FISHING_COLOR:
+            espeon_log(
+                "info",
+                f"Processing fishing catch for Pokémon: {pokemon_name}",
+                source="Event Checklist Caught",
+                )
             if pokemon_name in FISHING_EXCLUSIVE_MON:
                 catch_type = "fishing_exclusive_checklist"
                 rarity = "superrare"
+                espeon_log(
+                    "info",
+                    f"Identified fishing exclusive checklist catch: {pokemon_name}",
+                    source="Event Checklist Caught",
+                )
             elif pokemon_name in SHINY_FISHIN_EXCLUSIVE_MON:
                 catch_type = "fishing_shiny_exclusive_checklist"
                 rarity = "shiny"
                 pokemon_name = pokemon_name.replace("Shiny ", "")  # Clean for display
-                catch_type = "fishing_shiny"
+                espeon_log(
+                    "info",
+                    f"Identified fishing shiny exclusive checklist catch: {pokemon_name}",
+                    source="Event Checklist Caught",
+                )
             elif "Shiny" in embed_description:
                 rarity = "shiny"
                 pokemon_name = pokemon_name.replace("Shiny ", "")  # Clean for display
                 catch_type = "fishing_shiny"
+                espeon_log(
+                    "info",
+                    f"Identified fishing shiny catch: {pokemon_name}",
+                    source="Event Checklist Caught",
+                )
             elif pokemon_name in legendary_mons:
                 catch_type = "fishing_legendary"
                 rarity = "legendary"
+                espeon_log(
+                    "info",
+                    f"Identified fishing legendary catch: {pokemon_name}",
+                    source="Event Checklist Caught",
+                )
             else:
+                espeon_log(
+                    "info",
+                    f"Fishing catch is neither exclusive, shiny, nor legendary: {pokemon_name}",
+                    source="Event Checklist Caught",
+                )
                 return  # Not a rare fishing catch
 
     points = POINT_MAP.get(catch_type, {}).get("points", 0)
