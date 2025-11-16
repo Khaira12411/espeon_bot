@@ -31,15 +31,7 @@ class Shop_Paginator(View):
         # If only one page, remove all buttons
         if self.max_page == 0:
             self.clear_items()
-        else:
-            # Remove previous button if on first page
-            if self.page == 0:
-                self.remove_item(self.previous_page)
-            # Remove next button if on last page
-            if self.page == self.max_page:
-                self.remove_item(self.next_page)
 
-    # Don't put previous if on first page
     @discord.ui.button(
         emoji=Espeon_Emoji.left_arrow, style=discord.ButtonStyle.secondary
     )
@@ -52,7 +44,7 @@ class Shop_Paginator(View):
         self.page -= 1
         if self.page < 0:
             self.page = self.max_page
-        self.update_buttons()
+        await self.update_buttons(interaction)
         await interaction.response.edit_message(embed=await self.get_embed(), view=self)
 
     @discord.ui.button(
@@ -67,20 +59,23 @@ class Shop_Paginator(View):
         self.page += 1
         if self.page > self.max_page:
             self.page = 0
-        self.update_buttons()
+        await self.update_buttons(interaction)
         await interaction.response.edit_message(embed=await self.get_embed(), view=self)
 
-    def update_buttons(self):
-        # Remove previous button if on first page
-        if self.page == 0 and self.previous_page in self.children:
-            self.remove_item(self.previous_page)
-        elif self.page != 0 and self.previous_page not in self.children:
-            self.add_item(self.previous_page)
-        # Remove next button if on last page
-        if self.page == self.max_page and self.next_page in self.children:
-            self.remove_item(self.next_page)
-        elif self.page != self.max_page and self.next_page not in self.children:
-            self.add_item(self.next_page)
+    async def update_buttons(self, interaction):
+        # Disable left arrow on first page, enable otherwise
+        for item in self.children:
+            if (
+                hasattr(item, "callback")
+                and getattr(item.callback, "__name__", "") == "previous_page"
+            ):
+                item.disabled = self.page == 0
+            if (
+                hasattr(item, "callback")
+                and getattr(item.callback, "__name__", "") == "next_page"
+            ):
+                item.disabled = self.page == self.max_page
+        await interaction.message.edit(view=self)
 
     async def get_embed(self):
         start = self.page * self.per_page
