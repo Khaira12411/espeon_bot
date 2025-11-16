@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 
 from config.current_setup import CC_GUILD_ID
-from config.paldea_galar_dict import FISHING_COLOR, legendary_mons, rarity_meta
+from config.paldea_galar_dict import legendary_mons, rarity_meta
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
 from utils.cache.cache_list import user_balance_cache
 from utils.database.server_currency import (
@@ -19,6 +19,7 @@ from utils.loggers.espeon_log import espeon_log
 SHINY_COLOR = 16751052
 LEGENDARY_COLOR = 10487800
 EVENT_EXCLUSIVE_COLOR = 16751052
+FISHING_COLOR = 8900346
 processed_rare_catches = set()
 VALID_COLOR = [SHINY_COLOR, EVENT_EXCLUSIVE_COLOR]
 
@@ -152,7 +153,12 @@ async def event_checklist_caught(
 
         processed_rare_catches.add(after_message.id)
         catch_type = None
-
+        espeon_log(
+            "info",
+            f"Processing rare catch for member: {member.display_name}",
+            source="Event Checklist Caught",
+        )
+        
         # Extract Pokémon name
         pokemon_name = ""
         catch_match = re.search(r"You caught a.*?\*\*([^*]+)\*\*", embed_description)
