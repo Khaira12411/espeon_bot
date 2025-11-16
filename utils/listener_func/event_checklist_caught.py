@@ -18,7 +18,7 @@ from utils.loggers.espeon_log import espeon_log
 # key = embed_color
 SHINY_COLOR = 16751052
 LEGENDARY_COLOR = 10487800
-EVENT_EXCLUSIVE_COLOR = 16751052
+EVENT_EXCLUSIVE_COLOR = 15345163
 FISHING_COLOR = 8900346
 processed_rare_catches = set()
 VALID_COLOR = [SHINY_COLOR, EVENT_EXCLUSIVE_COLOR]
