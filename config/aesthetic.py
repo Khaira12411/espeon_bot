@@ -1,4 +1,6 @@
 class Espeon_Emoji:
+    left_arrow = "<:left_arrow:1439399409338024140>"
+    right_arrow = "<:right_arrow:1439399534332612659>"
     pink_flower = "<:pink_flower:1439223986301960242>"
     purple_heart_message = "<:purple_heart_message:1419608794425589791>"
     purple_clock = "<:clock:1419259799081848842>"

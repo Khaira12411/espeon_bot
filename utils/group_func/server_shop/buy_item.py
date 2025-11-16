@@ -4,13 +4,14 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from config.aesthetic import Espeon_Emoji
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
 from utils.cache.cache_list import server_shop_cache
 from utils.database.server_currency import get_user_balance, update_user_balance
 from utils.database.server_shop import format_item_name, remove_item, update_stock
 from utils.essentials.loader import pretty_defer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from config.aesthetic import Espeon_Emoji
+
 
 async def buy_item_func(
     bot: commands.Bot,
@@ -47,6 +48,7 @@ async def buy_item_func(
 
     # Fetch user balance
     user_id = interaction.user.id
+    user_name = interaction.user.name
     user_balance = await get_user_balance(bot, user_id)
 
     # Check if user has enough balance
@@ -61,7 +63,7 @@ async def buy_item_func(
 
     # Deduct price from user balance
     new_balance = user_balance - price
-    await update_user_balance(bot, user_id, new_balance)
+    await update_user_balance(bot, user_id, user_name, new_balance)
     item_name = format_item_name(item_name)
 
     # Decrease stock if not unlimited

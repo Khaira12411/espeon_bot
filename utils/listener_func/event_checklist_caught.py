@@ -4,7 +4,14 @@ import discord
 from discord.ext import commands
 
 from config.current_setup import CC_GUILD_ID
-from config.paldea_galar_dict import legendary_mons, rarity_meta, FISHING_COLOR
+from config.paldea_galar_dict import FISHING_COLOR, legendary_mons, rarity_meta
+from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
+from utils.cache.cache_list import user_balance_cache
+from utils.database.server_currency import (
+    get_user_balance,
+    update_user_balance,
+    upsert_user_balance,
+)
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 from utils.loggers.espeon_log import espeon_log
 
@@ -66,6 +73,56 @@ def extract_rarity_from_footer(footer_text: str) -> str:
         )
         return None
 
+
+async def add_points_to_user(
+    bot: discord.Client,
+    user: discord.Member,
+    points: int,
+    display_pokemon_name: str,
+    message: discord.Message,
+    catch_type: str,
+):
+    """Add points to user's balance."""
+    user_id = user.id
+    user_name = user.name
+    current_balance = user_balance_cache.get(user_id)
+
+    # If user not in cache, upsert to database
+    if current_balance is None:
+        await upsert_user_balance(bot, user_id, user_name, points)
+        new_balance = points
+        espeon_log(
+            "info",
+            f"User '{user_name}' not in cache. Upserted with initial points: {points}",
+            source="Event Checklist Caught",
+        )
+    else:
+        new_balance = current_balance["cherry_pin_balance"] + points
+        await update_user_balance(
+            bot=bot,
+            user_id=user_id,
+            user_name=user_name,
+            new_balance=new_balance,
+        )
+        espeon_log(
+            "info",
+            f"Added {points} points to user '{user_name}'. New balance: {new_balance}",
+            source="Event Checklist Caught",
+        )
+    # Send confirmation message
+    embed = discord.Embed(
+        title="🎉 Points Awarded!",
+        description=(
+            f"You have been awarded {points} points for catching {display_pokemon_name}!\n"
+            f"**Catch Type:** {catch_type}\n"
+            f"**New Balance:** {new_balance} {CHERRY_PIN}"
+        ),
+        color=0x00FF00,
+    )
+    embed.set_author(name=user.display_name, icon_url=user.display_avatar.url)
+    if message.embeds and message.embeds[0].image:
+        embed.set_thumbnail(url=message.embeds[0].image.url)
+    await message.channel.send(content=user.mention, embed=embed)
 
 async def event_checklist_caught(
     bot: discord.Client,
@@ -163,7 +220,7 @@ async def event_checklist_caught(
             else:
                 return  # Not a rare fishing catch
 
-    points = POINT_MAP.get(catch_type, 0)
+    points = POINT_MAP.get(catch_type, {}).get("points", 0)
     rarity_emoji = rarity_meta.get(rarity, {}).get("emoji", "")
     pokemon_name = pokemon_name.title()
     context = POINT_MAP.get(catch_type, {}).get("context", "Unknown")
@@ -171,13 +228,21 @@ async def event_checklist_caught(
     source_image_url = embed.image.url if embed.image else None
 
     # Log the rare catch for debug for now
-    # TODO Add points to user balance
+    #Add points to user balance
+    """await add_points_to_user(
+        bot=bot,
+        user=member,
+        points=points,
+        display_pokemon_name=display_pokemon_name,
+        message=after_message,
+        catch_type=context,
+    )"""
     bot_log_guild = bot.get_guild(CC_GUILD_ID)
     if bot_log_guild:
         bot_log_channel = bot_log_guild.get_channel(TEST_BOT_LOG_ID)
         if bot_log_channel:
             desc = (
-                f"[Jump to Message]({after_message.jump_url})\n\n"
+                f"[Jump to Message]({after_message.jump_url})\n"
                 f"**Member:** {member.mention}\n"
                 f"**Pokémon:** {display_pokemon_name}\n"
                 f"**Catch Type:** {context}\n"

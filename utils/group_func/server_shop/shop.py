@@ -5,6 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ui import Button, View
 
+from config.aesthetic import Espeon_Emoji
 from config.current_setup import STRAYMONS_GUILD_ID
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
 from utils.cache.cache_list import server_shop_cache
@@ -27,12 +28,21 @@ class Shop_Paginator(View):
         self.max_page = (len(items) - 1) // per_page
         self.message: discord.Message | None = None  # Store the sent message
 
-        # If only one page, remove buttons
+        # If only one page, remove all buttons
         if self.max_page == 0:
-            self.clear_items()  # remove all buttons
+            self.clear_items()
+        else:
+            # Remove previous button if on first page
+            if self.page == 0:
+                self.remove_item(self.previous_page)
+            # Remove next button if on last page
+            if self.page == self.max_page:
+                self.remove_item(self.next_page)
 
     # Don't put previous if on first page
-    @discord.ui.button(label="Previous", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(
+        emoji=Espeon_Emoji.left_arrow, style=discord.ButtonStyle.secondary
+    )
     async def previous_page(self, interaction: discord.Interaction, button: Button):
         if interaction.user.id != self.user.id:
             await interaction.response.send_message(
@@ -42,10 +52,12 @@ class Shop_Paginator(View):
         self.page -= 1
         if self.page < 0:
             self.page = self.max_page
-
+        self.update_buttons()
         await interaction.response.edit_message(embed=await self.get_embed(), view=self)
 
-    @discord.ui.button(label="Next", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(
+        emoji=Espeon_Emoji.right_arrow, style=discord.ButtonStyle.secondary
+    )
     async def next_page(self, interaction: discord.Interaction, button: Button):
         if interaction.user.id != self.user.id:
             await interaction.response.send_message(
@@ -55,8 +67,20 @@ class Shop_Paginator(View):
         self.page += 1
         if self.page > self.max_page:
             self.page = 0
-
+        self.update_buttons()
         await interaction.response.edit_message(embed=await self.get_embed(), view=self)
+
+    def update_buttons(self):
+        # Remove previous button if on first page
+        if self.page == 0 and self.previous_page in self.children:
+            self.remove_item(self.previous_page)
+        elif self.page != 0 and self.previous_page not in self.children:
+            self.add_item(self.previous_page)
+        # Remove next button if on last page
+        if self.page == self.max_page and self.next_page in self.children:
+            self.remove_item(self.next_page)
+        elif self.page != self.max_page and self.next_page not in self.children:
+            self.add_item(self.next_page)
 
     async def get_embed(self):
         start = self.page * self.per_page
@@ -115,8 +139,10 @@ async def shop_view_func(
         await loader.error("The server shop is currently empty.")
         return
 
-    # Sort items by cheapest price first
-    items.sort(key=lambda x: x.get("price", float("inf")))
+    # Sort items by cheapest price first, then alphabetically by item name
+    items.sort(
+        key=lambda x: (x.get("price", float("inf")), x.get("item_name", "").lower())
+    )
 
     # Sort it by cheapest first
 

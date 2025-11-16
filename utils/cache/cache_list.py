@@ -133,6 +133,17 @@ server_shop_cache: dict[int, dict] = {}
 # }
 
 # 💜────────────────────────────────────────────
+#      🟣 User Balance Cache with Username
+# 💜────────────────────────────────────────────
+user_balance_cache: dict[int, dict] = {}
+# Structure:
+# {
+#   user_id: {
+#       "user_name": str,
+#       "cherry_pin_balance": int,
+#   },
+
+# 💜────────────────────────────────────────────
 #      🟣 Catch Contest Event
 # 💜────────────────────────────────────────────
 catch_contest_event_cache: dict[int, dict] = {}

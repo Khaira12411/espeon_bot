@@ -10,7 +10,8 @@ from utils.cache.cache_list import (
     ev_tracker_cache,
     market_alert_cache,
     mr_weakness_user_cache,
-    server_shop_cache
+    server_shop_cache,
+    user_balance_cache
 )
 from utils.cache.ev_tracker_cache import load_ev_tracker_cache
 from utils.cache.market_alert_cache import load_market_alert_cache
@@ -18,6 +19,7 @@ from utils.cache.mr_weakness_cache import load_mr_weakness_user_cache
 from utils.cache.wb_sub_cache import load_wb_ping_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.cache.server_shop_cache import load_server_shop_cache
+from utils.cache.user_balance_cache import load_user_balance_cache
 
 
 # 💜────────────────────────────────────────────
@@ -29,6 +31,9 @@ async def load_all_caches(bot):
     Calls each cache loader and logs memory summary.
     """
     try:
+        # 💰 Load User Balance Cache
+        await load_user_balance_cache(bot)
+
         # 🌸 Load Market Alerts
         await load_market_alert_cache(bot)
 
@@ -58,6 +63,7 @@ async def load_all_caches(bot):
                 f"EV Trackers: {len(ev_tracker_cache)} ~{get_deep_size(ev_tracker_cache)//1024} KB + "
                 f"WB Pings: {len(WB_PING_CACHE)} ~{get_deep_size(WB_PING_CACHE)//1024} KB + "
                 f"Server Shop Items: {len(server_shop_cache)} ~{get_deep_size(server_shop_cache)//1024} KB + "
+                f"User Balances: {len(user_balance_cache)} ~{get_deep_size(user_balance_cache)//1024} KB + "
                 f"AFK Users: {len(AFK_CACHE)} ~{get_deep_size(AFK_CACHE)//1024} KB)"
             ),
             context=EspeonContext.STRAYMONS,

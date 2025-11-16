@@ -11,7 +11,7 @@ from utils.database.server_currency import (
     get_user_balance,
     reset_all_balances,
     update_user_balance,
-    upsert_user,
+    upsert_user_balance,
 )
 from utils.essentials.loader import pretty_defer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
@@ -42,7 +42,7 @@ async def add_balance_func(
     )
     if current_balance is None:
         # Upsert user with initial balance if not found
-        await upsert_user(bot, member.id, member.name, amount)
+        await upsert_user_balance(bot, member.id, member.name, amount)
         new_balance = amount
     else:
         # Update balance
@@ -50,6 +50,7 @@ async def add_balance_func(
         await update_user_balance(
             bot=bot,
             user_id=member.id,
+            user_name=member.name,
             new_balance=new_balance,
         )
 
@@ -106,7 +107,7 @@ async def remove_balance_func(
     if current_balance is None:
         current_balance = 0
         # Upsert user with 0 balance if not found
-        await upsert_user(bot, member.id, member.name)
+        await upsert_user_balance(bot, member.id, member.name)
         # Exit early since balance is already 0
         await loader.error(
             content=f"{member.mention} has a balance of 0 {CHERRY_PIN}. Cannot remove balance."
@@ -118,6 +119,7 @@ async def remove_balance_func(
     await update_user_balance(
         bot=bot,
         user_id=member.id,
+        user_name=member.name,
         new_balance=new_balance,
     )
 
@@ -182,6 +184,7 @@ async def reset_balance_func(
 
         await update_user_balance(
             bot=bot,
+            user_name=member.name,
             user_id=member.id,
             new_balance=0,
         )
@@ -239,7 +242,7 @@ async def view_balance_func(
     if user_balance is None:
         user_balance = 0
         # Upsert user with 0 balance if not found
-        await upsert_user(bot, user_id, target_user.name)
+        await upsert_user_balance(bot, user_id, target_user.name)
 
     # Build embed
     title_str = "Your" if member is None else f"{member.display_name}'s"

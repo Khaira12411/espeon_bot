@@ -46,6 +46,7 @@ async def remove_item_func(
 
     # Success embed
     desc = (
+                    f"**Item Name:** {item_name}\n"
             f"**Item ID:** `{item_id}`\n"
 
             f"**Price:** {price} {CHERRY_PIN}\n"
