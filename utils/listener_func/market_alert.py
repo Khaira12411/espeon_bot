@@ -42,6 +42,53 @@ SNIPE_MAP = {
     "mega": {"role": STRAYMONS__ROLES.mega_snipe},
     "event_exclusive": {"role": STRAYMONS__ROLES.event_exclusive_snipe},
 }
+PRE_MEGA_LIST = [
+    "Venusaur",
+    "Charizard",
+    "Blastoise",
+    "Beedrill",
+    "Pidgeot",
+    "Alakazam",
+    "Slowbro",
+    "Gengar",
+    "Kangaskhan",
+    "Pinsir",
+    "Gyarados",
+    "Aerodactyl",
+    "Mewtwo",
+    "Ampharos",
+    "Scizor",
+    "Heracross",
+    "Houndoom",
+    "Tyranitar",
+    "Sceptile",
+    "Blaziken",
+    "Swampert",
+    "Gardevoir",
+    "Sableye",
+    "Mawile",
+    "Aggron",
+    "Medicham",
+    "Manectric",
+    "Sharpedo",
+    "Camerupt",
+    "Altaria",
+    "Banette",
+    "Absol",
+    "Glalie",
+    "Salamence",
+    "Metagross",
+    "Latias",
+    "Latios",
+    "Rayquaza",
+    "Lopunny",
+    "Garchomp",
+    "Lucario",
+    "Abomasnow",
+    "Gallade",
+    "Audino",
+    "Diancie",
+]
 
 processed_market_feed_message_ids = set()
 processed_snipe_ids = set()
@@ -61,7 +108,11 @@ async def snipe_handler(
     embed_color = embed.color.value
     rarity = get_rarity_by_color(embed_color)
     second_snipe_rarity_role = None
-    if rarity == "unknown":
+    if poke_name.title() in PRE_MEGA_LIST and (rarity !="shiny" and rarity !="mega"):
+        second_rarity_role_id = STRAYMONS__ROLES.premega_snipe
+        second_snipe_rarity_role = message.guild.get_role(second_rarity_role_id)
+
+    elif rarity == "unknown":
         if "shiny" in poke_name.lower():
             rarity = "shiny"
         elif "mega" in poke_name.lower():

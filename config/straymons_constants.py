@@ -404,6 +404,7 @@ class STRAYMONS__CATEGORIES:
 #       STRAYMONS__ROLES
 # 💦☁────────────────────────────────────────────💦☁
 class STRAYMONS__ROLES:
+    premega_snipe = 1439830836735377438
     paldean_snipe = 1437793983932666029
     event_exclusive_snipe = 1437742219489443924
     xeno = 1258992854764621835
