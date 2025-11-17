@@ -174,3 +174,12 @@ catch_contest_participants_cache: dict[
 #   },
 #   ...
 # }
+# 💜────────────────────────────────────────────
+#   🟣 Straymons Members Cache
+# 💜────────────────────────────────────────────
+straymon_member_cache: dict[int, dict] = {}
+# Structure:
+# user_id -> {
+#   "user_name": str,
+#   "channel_id": int
+# }

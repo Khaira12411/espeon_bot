@@ -127,6 +127,20 @@ async def add_points_to_user(
     await message.channel.send(content=user.mention, embed=embed)
 
 
+def extract_member_username_from_embed(embed: discord.Embed) -> str | None:
+    """
+    Extracts the username from the embed author name, e.g. "Congratulations, frayl!" -> "frayl".
+    Returns None if not found.
+    """
+    if embed.author and embed.author.name:
+        # Look for pattern: "Congratulations, username!"
+
+        match = re.search(r"Congratulations, ([^!]+)!", embed.author.name)
+        if match:
+            return match.group(1).strip()
+    return None
+
+
 async def event_checklist_caught(
     bot: discord.Client,
     before_message: discord.Message,
@@ -146,12 +160,41 @@ async def event_checklist_caught(
         # Identify the user who caught the Pokémon
         member = await get_pokemeow_reply_member(before_message)
         if not member:
-            espeon_log(
-                "info",
-                "Could not identify member from PokéMeow reply.",
-                source="Event Checklist Caught",
-            )
-            return
+            # Extract username from embed as fallback
+            username = extract_member_username_from_embed(embed)
+            if username:
+                from utils.cache.straymons_members_cache import fetch_straymon_member_id_by_name
+                user_id = fetch_straymon_member_id_by_name(username)
+                if user_id:
+                    guild = after_message.guild
+                    member = guild.get_member(user_id) if guild else None
+                    if member:
+                        espeon_log(
+                            "info",
+                            f"Identified member from embed author: {member.display_name}",
+                            source="Event Checklist Caught",
+                        )
+                    else:
+                        espeon_log(
+                            "info",
+                            f"Could not find straymon member in guild for user ID: {user_id}",
+                            source="Event Checklist Caught",
+                        )
+                        return
+                else:
+                    espeon_log(
+                        "info",
+                        "Could not find user ID from straymons members cache.",
+                        source="Event Checklist Caught",
+                    )
+                    return
+            else:
+                espeon_log(
+                    "info",
+                    "Could not identify member from PokéMeow reply or embed author.",
+                    source="Event Checklist Caught",
+                )
+                return
 
         # TODO Member is only valid if they have the hershey role
 
