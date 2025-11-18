@@ -33,7 +33,7 @@ LOW_RARITY_COLORS = [
 
 POINT_MAP = {
     "legendary": {"points": 1, "context": "Legendary"},
-    "fishing_legendary": {"points": 3, "context": "Fishing Legendary"},
+    "fishing_legendary": {"points": 2, "context": "Fishing Legendary"},
     "fishing_shiny": {"points": 5, "context": "Fishing Shiny"},
     "fishing_exclusive_checklist": {
         "points": 2,

@@ -246,9 +246,9 @@ async def view_balance_func(
         # Upsert user with 0 balance if not found
         await upsert_user_balance(bot, user_id, target_user.name)
 
-    # Build embed
+    # Build balance embed
     title_str = "Your" if member is None else f"{member.display_name}'s"
-    embed = discord.Embed(
+    balance_embed = discord.Embed(
         title=f"🍒 {title_str} Cherry Pin Balance 🍒",
         description=f"**{user_balance} {CHERRY_PIN}**.",
         color=COLOR,
@@ -262,11 +262,33 @@ async def view_balance_func(
         if member is None
         else member.display_avatar.url
     )
-    embed.set_author(name=author_name, icon_url=author_icon_url)
-    embed.set_image(url=DIVIDER)
-    view = Cherry_Pin_Reward_Info(interaction.user)
+    balance_embed.set_author(name=author_name, icon_url=author_icon_url)
+    balance_embed.set_image(url=DIVIDER)
 
-    await loader.success(embed=embed, content="", view=view)
+    # Build info embed
+    info_embed = discord.Embed(
+        title="🍒 Cherry Pin Rewards Info 🍒",
+        description=(
+            f"Legendary – 1 {CHERRY_PIN}\n"
+            f"Shiny checklist – 2 {CHERRY_PIN}\n"
+            f"Fishing exclusive checklist (if any) – 2 {CHERRY_PIN}\n"
+            f"Shiny full-odds – 2 {CHERRY_PIN}\n"
+            f"Exclusive checklist – 3 {CHERRY_PIN}\n"
+            f"Fishing legendary – 3 {CHERRY_PIN}\n"
+            f"Fishing shiny – 4 {CHERRY_PIN}\n"
+            f"Fishing shiny exclusive checklist (if any) – 5 {CHERRY_PIN}\n"
+            f"Shiny legendary full-odds – 5 {CHERRY_PIN}"
+        ),
+        color=COLOR,
+        timestamp=datetime.now(),
+    )
+    info_embed.set_image(url=DIVIDER)
+    info_embed.set_author(name=author_name, icon_url=author_icon_url)
+
+    view = Cherry_Pin_Reward_Info(
+        interaction.user, balance_embed=balance_embed, info_embed=info_embed
+    )
+    await loader.success(embed=balance_embed, content="", view=view)
     if not member:
         log_str = f"✅ {interaction.user.name} viewed their balance: {user_balance}."
     else:
@@ -281,9 +303,12 @@ async def view_balance_func(
 
 
 class Cherry_Pin_Reward_Info(View):
-    def __init__(self, user, timeout=180):
+    def __init__(self, user, balance_embed, info_embed, timeout=180):
         super().__init__(timeout=timeout)
         self.user = user
+        self.balance_embed = balance_embed
+        self.info_embed = info_embed
+        self.show_info = False  # Start with balance
 
     @discord.ui.button(
         label="Info",
@@ -298,26 +323,11 @@ class Cherry_Pin_Reward_Info(View):
                 "You cannot use this button.", ephemeral=True
             )
             return
-        embed = discord.Embed(
-            title="🍒 Cherry Pin Rewards Info 🍒",
-            description=(
-                f"Legendary – 1 {CHERRY_PIN}\n"
-                f"Shiny checklist – 2 {CHERRY_PIN}\n"
-                f"Fishing exclusive checklist (if any) – 2 {CHERRY_PIN}\n"
-                f"Shiny full-odds – 2 {CHERRY_PIN}\n"
-                f"Exclusive checklist – 3 {CHERRY_PIN}\n"
-                f"Fishing legendary – 3 {CHERRY_PIN}\n"
-                f"Fishing shiny – 4 {CHERRY_PIN}\n"
-                f"Fishing shiny exclusive checklist (if any) – 5 {CHERRY_PIN}\n"
-                f"Shiny legendary full-odds – 5 {CHERRY_PIN}"
-            ),
-            color=COLOR,
-            timestamp=datetime.now(),
-        )
-        embed.set_image(url=DIVIDER)
-        embed.set_author(
-            name=interaction.user.display_name,
-            icon_url=interaction.user.display_avatar.url,
-        )
-        # Edit original message
+        if not self.show_info:
+            embed = self.info_embed
+            button.label = "Balance"
+        else:
+            embed = self.balance_embed
+            button.label = "Info"
+        self.show_info = not self.show_info
         await interaction.response.edit_message(embed=embed, view=self)
