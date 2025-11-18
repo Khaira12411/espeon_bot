@@ -103,12 +103,12 @@ async def snipe_handler(
     amount: int,
     listing_seen: str,
     message: discord.Message,
+    embed: discord.Embed,
 ):
-    embed = message.embeds[0]
     embed_color = embed.color.value
     rarity = get_rarity_by_color(embed_color)
     second_snipe_rarity_role = None
-    if poke_name.title() in PRE_MEGA_LIST and (rarity !="shiny" and rarity !="mega"):
+    if poke_name.title() in PRE_MEGA_LIST and (rarity != "shiny" and rarity != "mega"):
         second_rarity_role_id = STRAYMONS__ROLES.premega_snipe
         second_snipe_rarity_role = message.guild.get_role(second_rarity_role_id)
 
@@ -273,6 +273,7 @@ async def process_market_alert_message(
                     amount,
                     listing_seen,
                     message,
+                    embed,
                 )
             elif lowest_market == 0:
                 espeon_log(
@@ -290,6 +291,7 @@ async def process_market_alert_message(
                     amount,
                     listing_seen,
                     message,
+                    embed,
                 )
 
         for alert in alerts_to_check:
