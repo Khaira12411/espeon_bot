@@ -273,6 +273,7 @@ paldean_mons = [
     "Arctibax",
     "Baxcalibur",
     "Gimmighoul",
+    "Paldean-Wooper"
 ]
 
 paldea_galar_dict = {
