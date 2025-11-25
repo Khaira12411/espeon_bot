@@ -6,6 +6,7 @@ from discord.ext import commands
 
 from config.aesthetic import Espeon_Emoji
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
+from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 from utils.cache.cache_list import server_shop_cache
 from utils.database.server_currency import get_user_balance, update_user_balance
 from utils.database.server_shop import format_item_name, remove_item, update_stock
@@ -47,9 +48,11 @@ async def buy_item_func(
         return
 
     # Fetch user balance
+    user = interaction.user
     user_id = interaction.user.id
     user_name = interaction.user.name
     user_balance = await get_user_balance(bot, user_id)
+    guild = interaction.guild
 
     # Check if user has enough balance
     if user_balance < price:
@@ -57,6 +60,32 @@ async def buy_item_func(
             content=(
                 f"You do not have enough Cherry Pins to buy '{item_name}'.\n"
                 f"You currently have {user_balance} {CHERRY_PIN}."
+            )
+        )
+        return
+    # Check if user has donated role and doesn't have non weekly role and not donated role
+    donated_role_id = STRAYMONS__ROLES.donated
+    not_donated_role_id = STRAYMONS__ROLES.not_donated
+    non_weekly_role_id = STRAYMONS__ROLES.non_weekly
+    user_roles = [role.id for role in interaction.user.roles]
+    if donated_role_id not in user_roles:
+        await loader.error(
+            content=(
+                "You need to have the Donated role to make purchases from the petal lace shop.\n"
+            )
+        )
+        return
+    if non_weekly_role_id in user_roles:
+        await loader.error(
+            content=(
+                "Users with the Non-Weekly role cannot make purchases from the petal lace shop.\n"
+            )
+        )
+        return
+    if not_donated_role_id in user_roles:
+        await loader.error(
+            content=(
+                "Users with the Not Donated role cannot make purchases from the petal lace shop.\n"
             )
         )
         return
@@ -80,6 +109,17 @@ async def buy_item_func(
                 ),
                 label="🛒 SERVER SHOP",
                 context=EspeonContext.ESPEON,
+            )
+            log_embed_title = f"{item_name} is Out of Stock"
+            log_embed_description = (
+                f"{user.mention} has purchased the last stock of **{item_name}**.\n"
+                f"The item has been removed from the Petal Lace Shop."
+            )
+        else:
+            log_embed_title = f"Item Purchased: {item_name}"
+            log_embed_description = (
+                f"{user.mention} has purchased **{item_name}** from the Petal Lace Shop.\n"
+                f"Remaining stock: {new_stock}."
             )
 
     # Success embed
@@ -110,5 +150,25 @@ async def buy_item_func(
         label="🛒 SERVER SHOP",
         context=EspeonContext.ESPEON,
     )
+    # Log purchase in server logs channel
+    cafe_log_channel_id = STRAYMONS__TEXT_CHANNELS.cafe_logs
+    clan_event_log_id = 1076441765059502233
+    log_embed = discord.Embed(
+        title=log_embed_title,
+        description=log_embed_description,
+        color=COLOR,
+        timestamp=datetime.now(),
+    )
+    log_embed.set_author(
+        name=interaction.user.display_name,
+        icon_url=interaction.user.display_avatar.url,
+    )
+    if item.get("image_link"):
+        log_embed.set_thumbnail(url=item["image_link"])
 
-    # TODO Send purchase logs to a specific channel
+    cafe_log_channel = guild.get_channel(cafe_log_channel_id)
+    clan_event_log_channel = guild.get_channel(clan_event_log_id)
+    if cafe_log_channel:
+        await cafe_log_channel.send(embed=log_embed)
+    if clan_event_log_channel:
+        await clan_event_log_channel.send(embed=log_embed)

@@ -17,7 +17,9 @@ from utils.database.server_currency import (
 )
 from utils.essentials.loader import pretty_defer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
+from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 
+LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
 
 # 🟣────────────────────────────────────────────
 #           💜 Add Balance
@@ -80,7 +82,24 @@ async def add_balance_func(
         ),
     )
 
-    # TODO Log the balance update action
+    # Log the balance update action
+    log_channel = bot.get_channel(LOG_CHANNEL_ID)
+    if log_channel:
+        log_embed = discord.Embed(
+            title=f"{CHERRY_PIN} Cherry Pin Balance Updated",
+            description=(
+                f"**User:** {member.mention}\n"
+                f"**Added by:** {interaction.user.mention}\n"
+                f"**Amount Added:** {amount} {CHERRY_PIN}\n"
+                f"**New Balance:** {new_balance} {CHERRY_PIN}"
+            ),
+            color=COLOR,
+            timestamp=datetime.now(),
+        )
+        log_embed.set_thumbnail(url=member.display_avatar.url)
+        log_embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
+        log_embed.set_footer(text=f"User ID: {member.id}", icon_url=member.display_avatar.url)
+        await log_channel.send(embed=log_embed)
 
 
 # 🟣────────────────────────────────────────────
@@ -149,7 +168,24 @@ async def remove_balance_func(
         ),
     )
 
-    # TODO Log the balance update action
+    # Log the balance update action
+    log_channel = bot.get_channel(LOG_CHANNEL_ID)
+    if log_channel:
+        log_embed = discord.Embed(
+            title=f"{CHERRY_PIN} Cherry Pin Balance Updated",
+            description=(
+                f"**User:** {member.mention}\n"
+                f"**Removed by:** {interaction.user.mention}\n"
+                f"**Amount Removed:** {amount} {CHERRY_PIN}\n"
+                f"**New Balance:** {new_balance} {CHERRY_PIN}"
+            ),
+            color=COLOR,
+            timestamp=datetime.now(),
+        )
+        log_embed.set_thumbnail(url=member.display_avatar.url)
+        log_embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
+        log_embed.set_footer(text=f"User ID: {member.id}", icon_url=member.display_avatar.url)
+        await log_channel.send(embed=log_embed)
 
 
 # 🟣────────────────────────────────────────────
@@ -169,6 +205,13 @@ async def reset_balance_func(
         content="Resetting balance...",
         ephemeral=False,
     )
+    # Check if user is owner
+    owner_role_id = STRAYMONS__ROLES.clan_owner
+    if owner_role_id not in [role.id for role in interaction.user.roles]:
+        await loader.error(
+            content="You do not have permission to reset balances. Only the server owner can perform this action."
+        )
+        return
 
     if all_users.lower() == "yes":
         # Reset balance for all users
@@ -231,6 +274,7 @@ async def view_balance_func(
 
     user_str = "your" if member is None else f"{member.display_name}'s"
     target_user = interaction.user if member is None else member
+
     # Defer
     loader = await pretty_defer(
         interaction=interaction,

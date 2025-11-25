@@ -3,7 +3,7 @@ from typing import Literal, Optional, Union
 import discord
 from discord import app_commands
 from discord.ext import commands
-
+from utils.essentials.role_checks import *
 from utils.essentials.command_safe import run_command_safe
 from utils.group_func.server_currency.balance_func import (
     add_balance_func,
@@ -61,6 +61,7 @@ class Balance_Group_Command(commands.Cog):
         member="The member to add balance to",
         amount="The amount of balance to add",
     )
+    @clan_staff_only()
     async def add_balance(
         self,
         interaction: discord.Interaction,
@@ -90,6 +91,7 @@ class Balance_Group_Command(commands.Cog):
         member="The member to remove balance from",
         amount="The amount of balance to remove",
     )
+    @clan_staff_only()
     async def remove_balance(
         self,
         interaction: discord.Interaction,
@@ -119,6 +121,7 @@ class Balance_Group_Command(commands.Cog):
         member="The member to reset the balance of",
         all_users="Reset the balance for all users in the server",
     )
+    @owner_only()
     async def reset_balance(
         self,
         interaction: discord.Interaction,

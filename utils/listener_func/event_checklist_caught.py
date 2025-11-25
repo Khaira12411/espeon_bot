@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 
 from config.aesthetic import Espeon_Emoji
-from config.current_setup import CC_GUILD_ID
+from config.current_setup import CC_GUILD_ID, STRAYMONS_GUILD_ID
 from config.paldea_galar_dict import legendary_mons, rarity_meta
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
 from utils.cache.cache_list import user_balance_cache
@@ -15,7 +15,7 @@ from utils.database.server_currency import (
 )
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 from utils.loggers.espeon_log import espeon_log
-
+from config.straymons_constants import STRAYMONS__ROLES
 # key = embed_color
 SHINY_COLOR = 16751052
 LEGENDARY_COLOR = 10487800
@@ -49,6 +49,8 @@ POINT_MAP = {
     "shiny_legendary_full_odds": {"points": 5, "context": "Shiny Legendary Full-Odds"},
 }
 TEST_BOT_LOG_ID = 1220786187401302036
+REAL_BOT_LOG_ID = 1076441765059502233
+BOT_LOG_ID = TEST_BOT_LOG_ID
 FISHING_EXCLUSIVE_MON = ["Paldean-Wooper"]
 SHINY_FISHIN_EXCLUSIVE_MON = ["Shiny Paldean-Wooper"]
 
@@ -124,7 +126,9 @@ async def add_points_to_user(
     embed.set_author(name=user.display_name, icon_url=user.display_avatar.url)
     if message.embeds and message.embeds[0].image:
         embed.set_thumbnail(url=message.embeds[0].image.url)
-    await message.channel.send(content=user.mention, embed=embed)
+
+    #TODO Uncomment to enable message sending
+    #await message.channel.send(content=user.mention, embed=embed)
 
 
 def extract_member_username_from_embed(embed: discord.Embed) -> str | None:
@@ -154,6 +158,7 @@ async def event_checklist_caught(
     embed_description = embed.description or ""
 
     rarity = None
+    guild = after_message.guild
 
     # Check if its a rare spawn based on color and description
     if embed_color not in LOW_RARITY_COLORS and "You caught" in embed_description:
@@ -166,7 +171,6 @@ async def event_checklist_caught(
                 from utils.cache.straymons_members_cache import fetch_straymon_member_id_by_name
                 user_id = fetch_straymon_member_id_by_name(username)
                 if user_id:
-                    guild = after_message.guild
                     member = guild.get_member(user_id) if guild else None
                     if member:
                         espeon_log(
@@ -202,6 +206,16 @@ async def event_checklist_caught(
             return  # Already processed this message
 
         processed_rare_catches.add(after_message.id)
+
+        hershey_role_id = STRAYMONS__ROLES.charming_hershey_espresso
+        if hershey_role_id not in [role.id for role in member.roles]:
+            espeon_log(
+                "info",
+                f"Member '{member.display_name}' does not have the Hershey role. Skipping.",
+                source="Event Checklist Caught",
+            )
+            return  # Member does not have the required role
+
         catch_type = None
         espeon_log(
             "info",
@@ -338,25 +352,33 @@ async def event_checklist_caught(
     source_image_url = embed.image.url if embed.image else None
 
     # Log the rare catch for debug for now
+    # TODO UNCOMMENT THIS TO ENABLE POINTS
     # Add points to user balance
-    """await add_points_to_user(
+    await add_points_to_user(
         bot=bot,
         user=member,
         points=points,
         display_pokemon_name=display_pokemon_name,
         message=after_message,
         catch_type=context,
-    )"""
+    )
     bot_log_guild = bot.get_guild(CC_GUILD_ID)
     if bot_log_guild:
-        bot_log_channel = bot_log_guild.get_channel(TEST_BOT_LOG_ID)
+        bot_log_channel = bot_log_guild.get_channel(BOT_LOG_ID)
         if bot_log_channel:
+            current_balance_info = user_balance_cache.get(member.id)
+            current_balance = (
+                current_balance_info["cherry_pin_balance"]
+                if current_balance_info
+                else 0
+            )
             desc = (
                 f"[Jump to Message]({after_message.jump_url})\n"
                 f"**Member:** {member.mention}\n"
                 f"**Pokémon:** {display_pokemon_name}\n"
                 f"**Catch Type:** {context}\n"
                 f"**Reward:** {points}{CHERRY_PIN}\n"
+                f"**New Balance:** {current_balance}{CHERRY_PIN}"
             )
             embed = discord.Embed(
                 title=f"{Espeon_Emoji.pink_celebrate} Rare Catch Detected!",

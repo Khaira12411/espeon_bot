@@ -7,6 +7,7 @@ from utils.database.server_shop import shop_item_autocomplete
 from utils.essentials.command_safe import run_command_safe
 from utils.group_func.server_shop import *
 from utils.essentials.pokemon_autocomplete import *
+from utils.essentials.role_checks import *
 
 # 🪻────────────────────────────────────────────
 #           ✨ ServerShop Cog Setup ✨
@@ -32,6 +33,7 @@ class ServerShop(commands.Cog):
     @app_commands.describe(
         item_name="Name of the item to view (leave empty to view all items)",
     )
+    @testing()
     async def view_shop(
         self,
         interaction: discord.Interaction,
@@ -61,6 +63,7 @@ class ServerShop(commands.Cog):
         price="Price of the item in Cherry Pins",
         stock="Stock of the item (-1 for unlimited)",
     )
+    @clan_staff_only()
     async def add_shop_item(
         self,
         interaction: discord.Interaction,
@@ -82,11 +85,11 @@ class ServerShop(commands.Cog):
 
     add_shop_item.extras = {"category": "Staff"}
 
-# 🪻────────────────────────────────────────────
-#           ✨ /shop edit✨
-# 🪻────────────────────────────────────────────
+    # 🪻────────────────────────────────────────────
+    #           ✨ /shop edit✨
+    # 🪻────────────────────────────────────────────
     @shop_group.command(
-        name="edit-item", description="Edit an item in the server shop"
+        name="edit", description="Edit an item in the server shop"
     )
     @app_commands.autocomplete(item_name=shop_item_autocomplete)  # 👈 attach autocomplete
     @app_commands.describe(
@@ -94,6 +97,7 @@ class ServerShop(commands.Cog):
         new_price="New price for the item in Cherry Pins",
         new_stock="New stock for the item (-1 for unlimited)",
     )
+    @clan_staff_only()
     async def edit_shop_item(
         self,
         interaction: discord.Interaction,
@@ -141,15 +145,18 @@ class ServerShop(commands.Cog):
     buy_shop_item.extras = {"category": "Public"}
 
     # 🪻────────────────────────────────────────────
-    #          ✨ /shop remove-item ✨
+    #          ✨ /shop remove ✨
     # 🪻────────────────────────────────────────────
     @shop_group.command(
         name="remove", description="Remove an item from the server shop"
     )
-    @app_commands.autocomplete(item_name=shop_item_autocomplete)  # 👈 attach autocomplete
+    @app_commands.autocomplete(
+        item_name=shop_item_autocomplete
+    )  # 👈 attach autocomplete
     @app_commands.describe(
         item_name="Name of the item to remove",
     )
+    @clan_staff_only()
     async def remove_shop_item(
         self,
         interaction: discord.Interaction,
@@ -166,13 +173,13 @@ class ServerShop(commands.Cog):
         )
     remove_shop_item.extras = {"category": "Staff"}
 
-
     # 🪻────────────────────────────────────────────
     #          ✨ /shop clear ✨
     # 🪻────────────────────────────────────────────
     @shop_group.command(
         name="clear", description="Clear all items from the server shop"
     )
+    @owner_only()
     async def clear_shop(
         self,
         interaction: discord.Interaction,

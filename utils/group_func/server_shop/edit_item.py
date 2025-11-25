@@ -9,7 +9,7 @@ from utils.cache.cache_list import server_shop_cache
 from utils.database.server_shop import fetch_item_by_id, format_item_name, update_item
 from utils.essentials.loader import pretty_defer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
+from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 
 async def edit_item_func(
     bot: commands.Bot,
@@ -94,4 +94,9 @@ async def edit_item_func(
         context=EspeonContext.ESPEON,
     )
 
-    # TODO  Send logs to a specific channel
+    #Send log embed
+    log_channel_id = STRAYMONS__TEXT_CHANNELS.cafe_logs
+    guild = interaction.guild
+    log_channel = guild.get_channel(log_channel_id)
+    if log_channel:
+        await log_channel.send(embed=embed)

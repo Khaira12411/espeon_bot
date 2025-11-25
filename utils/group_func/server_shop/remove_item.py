@@ -5,9 +5,14 @@ from discord import app_commands
 from discord.ext import commands
 
 from config.petal_lace_settings import CHERRY_PIN, COLOR
+from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 from utils.cache.cache_list import server_shop_cache
-from utils.database.server_shop import (fetch_item_by_id, format_item_name,
-                                        remove_all_items, remove_item)
+from utils.database.server_shop import (
+    fetch_item_by_id,
+    format_item_name,
+    remove_all_items,
+    remove_item,
+)
 from utils.essentials.loader import pretty_defer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
@@ -46,12 +51,11 @@ async def remove_item_func(
 
     # Success embed
     desc = (
-                    f"**Item Name:** {item_name}\n"
-            f"**Item ID:** `{item_id}`\n"
-
-            f"**Price:** {price} {CHERRY_PIN}\n"
-            f"**Stock:** {stock}\n"
-            )
+        f"**Item Name:** {item_name}\n"
+        f"**Item ID:** `{item_id}`\n"
+        f"**Price:** {price} {CHERRY_PIN}\n"
+        f"**Stock:** {stock}\n"
+    )
     embed = discord.Embed(
         title="Item Removed from Shop",
         description=desc,
@@ -71,6 +75,12 @@ async def remove_item_func(
         label="🛒 SERVER SHOP",
         context=EspeonContext.ESPEON,
     )
+    # Send log embed
+    log_channel_id = STRAYMONS__TEXT_CHANNELS.cafe_logs
+    guild = interaction.guild
+    log_channel = guild.get_channel(log_channel_id)
+    if log_channel:
+        await log_channel.send(embed=embed)
 
 
 async def shop_clear_func(
