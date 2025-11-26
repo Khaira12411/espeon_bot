@@ -7,8 +7,8 @@ from discord.ui import Button, View
 
 from config.aesthetic import Espeon_Emoji
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
-from config.straymons_constants import STRAYMONS__ROLES
-from utils.cache.cache_list import server_shop_cache
+from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
+from utils.cache.cache_list import server_shop_cache, user_balance_cache
 from utils.database.server_currency import (
     get_user_balance,
     reset_all_balances,
@@ -17,9 +17,20 @@ from utils.database.server_currency import (
 )
 from utils.essentials.loader import pretty_defer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 
 LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
+BOX_MAP = {
+    "daisyia": {
+        "quest": "Hatch any shiny from an egg.",
+    },
+    "gardelette": {
+        "quest": "Attain all weekly roles for that week",
+    },
+    "melaryne": {
+        "quest": "Claim the checklist reward",
+    },
+}
+
 
 # 🟣────────────────────────────────────────────
 #           💜 Add Balance
@@ -97,8 +108,12 @@ async def add_balance_func(
             timestamp=datetime.now(),
         )
         log_embed.set_thumbnail(url=member.display_avatar.url)
-        log_embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
-        log_embed.set_footer(text=f"User ID: {member.id}", icon_url=member.display_avatar.url)
+        log_embed.set_author(
+            name=member.display_name, icon_url=member.display_avatar.url
+        )
+        log_embed.set_footer(
+            text=f"User ID: {member.id}", icon_url=member.display_avatar.url
+        )
         await log_channel.send(embed=log_embed)
 
 
@@ -183,8 +198,12 @@ async def remove_balance_func(
             timestamp=datetime.now(),
         )
         log_embed.set_thumbnail(url=member.display_avatar.url)
-        log_embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
-        log_embed.set_footer(text=f"User ID: {member.id}", icon_url=member.display_avatar.url)
+        log_embed.set_author(
+            name=member.display_name, icon_url=member.display_avatar.url
+        )
+        log_embed.set_footer(
+            text=f"User ID: {member.id}", icon_url=member.display_avatar.url
+        )
         await log_channel.send(embed=log_embed)
 
 
@@ -329,8 +348,26 @@ async def view_balance_func(
     info_embed.set_image(url=DIVIDER)
     info_embed.set_author(name=author_name, icon_url=author_icon_url)
 
+    user_currency_info = user_balance_cache.get(user_id, {})
+    # has_box is True if at least one box is purchased
+    has_box = any(
+        user_currency_info.get(f"bought_{box_type}_box", "no") == "yes"
+        for box_type in BOX_MAP
+    )
+    bought_boxes = []
+    for box_type, box_data in BOX_MAP.items():
+        if user_currency_info.get(f"bought_{box_type}_box", "no") == "yes":
+            bought_boxes.append(f"**{box_type.title()} Box**: Purchased")
+        else:
+            bought_boxes.append(
+                f"**{box_type.title()} Box**: Not Purchased | Quest: {box_data['quest']}"
+            )
+
     view = Cherry_Pin_Reward_Info(
-        interaction.user, balance_embed=balance_embed, info_embed=info_embed
+        interaction.user,
+        balance_embed=balance_embed,
+        info_embed=info_embed,
+        has_box=has_box,
     )
     await loader.success(embed=balance_embed, content="", view=view)
     if not member:
@@ -346,32 +383,117 @@ async def view_balance_func(
     )
 
 
-class Cherry_Pin_Reward_Info(View):
-    def __init__(self, user, balance_embed, info_embed, timeout=180):
+class Cherry_Pin_Reward_Info(discord.ui.View):
+    def __init__(self, user, balance_embed, info_embed, has_box, timeout=180):
         super().__init__(timeout=timeout)
+
         self.user = user
         self.balance_embed = balance_embed
         self.info_embed = info_embed
-        self.show_info = False  # Start with balance
+        self.has_box = has_box
 
+        # Start with balance disabled
+        self.balance_button.disabled = True
+
+        # Conditionally add Box Info button
+        espeon_log(
+            tag="debug",
+            message=f"Cherry_Pin_Reward_Info initialized for {user.name} with has_box={has_box}.",
+        )
+        if has_box:
+            box_info_btn = discord.ui.Button(
+                label="Box Info",
+                emoji=Espeon_Emoji.pink_box,
+                style=discord.ButtonStyle.secondary,
+                custom_id="cherry_pin_box_info_button",
+            )
+            box_info_btn.callback = self.box_info_button_callback
+            self.add_item(box_info_btn)
+
+    # BALANCE BUTTON
+    @discord.ui.button(
+        label="Balance",
+        emoji=CHERRY_PIN,
+        style=discord.ButtonStyle.secondary,
+        custom_id="cherry_pin_balance_button",
+    )
+    async def balance_button(self, interaction, button):
+        if interaction.user.id != self.user.id:
+            return await interaction.response.send_message(
+                "You can't press this.", ephemeral=True
+            )
+
+        # Disable all buttons, then enable Info and Box Info (if present)
+        for child in self.children:
+            child.disabled = True
+        self.info_button.disabled = False
+        # Re-enable Box Info button if present
+        for child in self.children:
+            if (
+                hasattr(child, "custom_id")
+                and child.custom_id == "cherry_pin_box_info_button"
+            ):
+                child.disabled = False
+
+        await interaction.response.edit_message(embed=self.balance_embed, view=self)
+
+    # INFO BUTTON
     @discord.ui.button(
         label="Info",
         emoji=Espeon_Emoji.pink_flower_two,
         style=discord.ButtonStyle.secondary,
-        custom_id="cherry_pin_reward_info_button",
+        custom_id="cherry_pin_info_button",
     )
-    async def info_button(self, interaction: discord.Interaction, button: Button):
-        # Only user who invoked can use the button
+    async def info_button(self, interaction, button):
         if interaction.user.id != self.user.id:
-            await interaction.response.send_message(
-                "You cannot use this button.", ephemeral=True
+            return await interaction.response.send_message(
+                "You can't press this.", ephemeral=True
             )
-            return
-        if not self.show_info:
-            embed = self.info_embed
-            button.label = "Balance"
-        else:
-            embed = self.balance_embed
-            button.label = "Info"
-        self.show_info = not self.show_info
-        await interaction.response.edit_message(embed=embed, view=self)
+
+        # Disable all buttons, then enable Balance and Box Info (if present)
+        for child in self.children:
+            child.disabled = True
+        self.balance_button.disabled = False
+        # Re-enable Box Info button if present
+        for child in self.children:
+            if (
+                hasattr(child, "custom_id")
+                and child.custom_id == "cherry_pin_box_info_button"
+            ):
+                child.disabled = False
+
+        await interaction.response.edit_message(embed=self.info_embed, view=self)
+
+    # BOX INFO BUTTON callback for manual button
+    async def box_info_button_callback(self, interaction: discord.Interaction):
+        if interaction.user.id != self.user.id:
+            return await interaction.response.send_message(
+                "You can't press this.", ephemeral=True
+            )
+
+        if not self.has_box:
+            return await interaction.response.send_message(
+                "You have no boxes.", ephemeral=True
+            )
+
+        box_info_embed = discord.Embed(
+            title="Box Quests info",
+            description=(
+                "Quests can only be completed once throughout the event and can only have one winner.\n"
+                "After completing the quest, please contact a staff member to claim your prize."
+            ),
+            color=COLOR,
+        )
+
+        user_currency_info = user_balance_cache.get(self.user.id, {})
+        for box_type, box_data in BOX_MAP.items():
+            if user_currency_info.get(f"bought_{box_type}_box") == "yes":
+                box_info_embed.add_field(
+                    name=f"{box_type.title()} Box",
+                    value=f"**Quest:** {box_data['quest']}",
+                    inline=False,
+                )
+
+        box_info_embed.set_footer(text="Not every wonder is meant to be shared.")
+
+        await interaction.response.send_message(embed=box_info_embed, ephemeral=True)

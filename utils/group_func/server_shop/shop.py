@@ -96,9 +96,15 @@ class Shop_Paginator(View):
             stock = item.get("stock", 0)
             stock_display = "Unlimited" if stock == -1 else str(stock)
             display_item = format_item_name(item_name)
+            desc_line = item.get("description")
+            if desc_line:
+                desc_line_str = f"\n> - Description: {desc_line}"
+            else:
+                desc_line_str = ""
+
             embed.add_field(
                 name=f"{number}. {display_item}",
-                value=f"> - ID: {item_id}\n> - Price: {price} {CHERRY_PIN}\n> - Stock: {stock_display}",
+                value=f"> - ID: {item_id}\n> - Price: {price} {CHERRY_PIN}\n> - Stock: {stock_display}{desc_line_str}",
                 inline=False,
             )
         total_items = len(self.items)
@@ -135,6 +141,7 @@ async def shop_view_func(
                 stock = item.get("stock", 0)
                 image_link = item.get("image_link", "")
                 stock_display = "Unlimited" if stock == -1 else str(stock)
+                description_line = item.get("description", "")
 
                 embed = discord.Embed(
                     title=f"🌸 Petal Lace Shop 🌸",
@@ -148,6 +155,7 @@ async def shop_view_func(
                         f"> - ID: {item_id}\n"
                         f"> - Price: {price} {CHERRY_PIN}\n"
                         f"> - Stock: {stock_display}"
+                        f"{f'\n> - Description: {description_line}' if description_line else ''}"
                     ),
                     inline=False,
                 )

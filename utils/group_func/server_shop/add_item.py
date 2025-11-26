@@ -17,12 +17,13 @@ async def add_item_func(
     item_name: str,
     price: int,
     stock: int,
+    description: str = None,
 ):
     """
     Add or update an item in the server shop.
     """
     image_link = None
-    if "coins" in item_name.lower():
+    if "coins" in item_name.lower() or "box" in item_name.lower():
         image_link = None
 
     else:
@@ -49,7 +50,12 @@ async def add_item_func(
     )
     # Upsert item in the database
     item_id = await upsert_item(
-        bot=bot, item_name=item_name, price=price, stock=stock, image_link=image_link
+        bot=bot,
+        item_name=item_name,
+        price=price,
+        stock=stock,
+        image_link=image_link,
+        description=description,
     )
     if not item_id:
         await loader.error("Failed to add item to the shop. Please try again later.")
@@ -57,6 +63,7 @@ async def add_item_func(
 
     # Success embed
     display_name = format_item_name(item_name)
+    description_line = f"**Description:** {description}\n" if description else ""
     embed = discord.Embed(
         title="Item Added to Shop",
         description=(
@@ -64,6 +71,8 @@ async def add_item_func(
             f"**Item ID:** `{item_id}`\n"
             f"**Price:** {price} {CHERRY_PIN}\n"
             f"**Stock:** {stock}\n"
+            f"{description_line}"
+
         ),
         color=COLOR,
     )

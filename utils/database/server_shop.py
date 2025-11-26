@@ -69,9 +69,7 @@ async def shop_item_autocomplete(
             or current in item_name.lower()
             or current in str(item_id).lower()
         ):
-            results.append(
-                discord.app_commands.Choice(name=item_name, value=item_name)
-            )
+            results.append(discord.app_commands.Choice(name=item_name, value=item_name))
         if len(results) >= 25:
             break
 
@@ -85,7 +83,12 @@ async def shop_item_autocomplete(
 
 
 async def upsert_item(
-    bot: discord.Client, item_name: str, price: int, stock: int, image_link: str
+    bot: discord.Client,
+    item_name: str,
+    price: int,
+    stock: int,
+    image_link: str,
+    description: str = None,
 ) -> str:
     """
     Insert or update an item by name in the server_shop table.
@@ -105,8 +108,8 @@ async def upsert_item(
                 item_id = generate_item_id()
             await conn.execute(
                 """
-                INSERT INTO server_shop (item_name, price, stock, item_id, image_link)
-                VALUES ($1, $2, $3, $4, $5)
+                INSERT INTO server_shop (item_name, price, stock, item_id, image_link, description)
+                VALUES ($1, $2, $3, $4, $5, $6)
                 ON CONFLICT (item_id)
                 DO UPDATE SET item_name = EXCLUDED.item_name, price = EXCLUDED.price, stock = EXCLUDED.stock, image_link = EXCLUDED.image_link;
                 """,
@@ -115,6 +118,7 @@ async def upsert_item(
                 stock,
                 item_id,
                 image_link,
+                description,
             )
             espeon_log(
                 tag="db",
@@ -125,7 +129,7 @@ async def upsert_item(
             # Upsert in cache as well
             from utils.cache.server_shop_cache import upsert_shop_item
 
-            upsert_shop_item(item_id, item_name, price, stock, image_link)
+            upsert_shop_item(item_id, item_name, price, stock, image_link, description)
 
         return item_id
     except Exception as e:
@@ -138,7 +142,34 @@ async def upsert_item(
         )
         return None
 
+async def remove_item_by_name(bot: discord.Client, item_name: str) -> None:
+    """
+    Remove an item by name from the server_shop table.
+    """
+    try:
+        async with bot.pg_pool.acquire() as conn:
+            await conn.execute("DELETE FROM server_shop WHERE item_name = $1;", item_name)
+            espeon_log(
+                tag="db",
+                message=f"Removed item '{item_name}' from shop.",
+                label="🛒 SERVER SHOP",
+                context=EspeonContext.ESPEON,
+            )
 
+            # Remove from cache as well
+            from utils.cache.server_shop_cache import remove_shop_item_by_name
+
+            remove_shop_item_by_name(item_name)
+
+    except Exception as e:
+        espeon_log(
+            tag="warn",
+            message=f"⚠️ Failed to remove item '{item_name}': {e}",
+            exc=e,
+            label="🛒 SERVER SHOP",
+            context=EspeonContext.ESPEON,
+        )
+        
 async def remove_item(bot: discord.Client, item_id: str) -> None:
     """
     Remove an item by item_id from the server_shop table.

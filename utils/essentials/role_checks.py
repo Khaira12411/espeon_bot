@@ -109,9 +109,10 @@ def owner_and_co_owner_only():
 
     return app_commands.check(predicate)
 
+
 def testing():
-    async def predicate(ctx):
-        user_roles = [role.id for role in ctx.author.roles]
+    async def predicate(interaction: discord.Interaction):
+        user_roles = [role.id for role in interaction.user.roles]
         if STRAYMONS__ROLES.clan_owner not in user_roles:
             raise TestingMessage(ERROR_MESSAGES["straymons"]["test"])
         return True

@@ -9,7 +9,7 @@ async def fetch_all_user_balances(bot: discord.Client) -> list[asyncpg.Record]:
     try:
         async with bot.pg_pool.acquire() as conn:
             rows = await conn.fetch(
-                "SELECT user_id, user_name, cherry_pin_balance FROM server_currency;"
+                "SELECT user_id, user_name, cherry_pin_balance, bought_daisyia_box, bought_gardelette_box, bought_melaryne_box FROM server_currency;"
             )
             espeon_log(
                 tag="db",
@@ -29,21 +29,72 @@ async def fetch_all_user_balances(bot: discord.Client) -> list[asyncpg.Record]:
         return []
 
 
+async def bought_box(bot: discord.Client, user_id: int, box_type: str):
+    """Mark that a user has bought a specific box."""
+    valid_boxes = ["daisyia", "gardelette", "melaryne"]
+    if box_type not in valid_boxes:
+        espeon_log(
+            tag="warn",
+            message=f"⚠️ Invalid box type '{box_type}' provided for user_id '{user_id}'",
+            label="💰 SERVER CURRENCY",
+            context=EspeonContext.ESPEON,
+        )
+        return
+
+    column_name = f"bought_{box_type}_box"
+
+    try:
+        async with bot.pg_pool.acquire() as conn:
+            result = await conn.execute(
+                f"""
+                UPDATE server_currency
+                SET {column_name} = 'yes'
+                WHERE user_id = $1;
+                """,
+                user_id,
+            )
+            espeon_log(
+                tag="db",
+                message=f"Marked user_id '{user_id}' as having bought the '{box_type}' box",
+                label="💰 SERVER CURRENCY",
+                context=EspeonContext.ESPEON,
+            )
+            # Update cache as well
+            from utils.cache.user_balance_cache import bought_box_in_cache
+            bought_box_in_cache(user_id, box_type)
+
+    except Exception as e:
+        espeon_log(
+            tag="warn",
+            message=f"⚠️ Failed to mark box purchase for user_id '{user_id}': {e}",
+            exc=e,
+            label="💰 SERVER CURRENCY",
+            context=EspeonContext.ESPEON,
+        )
+
+
 async def upsert_user_balance(
     bot: discord.Client, user_id: int, user_name: str, amount: int = 0
 ):
+    bought_daisyia_box = "no"
+    bought_gardelette_box = "no"
+    bought_melaryne_box = "no"
+
     try:
         async with bot.pg_pool.acquire() as conn:
             await conn.execute(
                 """
-                INSERT INTO server_currency (user_id, user_name, cherry_pin_balance)
-                VALUES ($1, $2, $3)
+                INSERT INTO server_currency (user_id, user_name, cherry_pin_balance, bought_daisyia_box, bought_gardelette_box, bought_melaryne_box)
+                VALUES ($1, $2, $3, $4, $5, $6)
                 ON CONFLICT (user_id)
                 DO UPDATE SET user_name = EXCLUDED.user_name, cherry_pin_balance = EXCLUDED.cherry_pin_balance;
                 """,
                 user_id,
                 user_name,
                 amount,
+                bought_daisyia_box,
+                bought_gardelette_box,
+                bought_melaryne_box,
             )
             espeon_log(
                 tag="db",
@@ -54,7 +105,14 @@ async def upsert_user_balance(
             # Upsert into cache as well
             from utils.cache.user_balance_cache import upsert_user_balance_in_cache
 
-            upsert_user_balance_in_cache(user_id, user_name, amount)
+            upsert_user_balance_in_cache(
+                user_id,
+                user_name,
+                amount,
+                bought_daisyia_box,
+                bought_gardelette_box,
+                bought_melaryne_box,
+            )
 
     except Exception as e:
         espeon_log(
@@ -138,6 +196,7 @@ async def delete_user(bot: discord.Client, user_id: int, user_name: str):
             )
             # Remove from cache as well
             from utils.cache.user_balance_cache import delete_user_balance_from_cache
+
             delete_user_balance_from_cache(user_id, user_name)
     except Exception as e:
         espeon_log(
@@ -148,7 +207,8 @@ async def delete_user(bot: discord.Client, user_id: int, user_name: str):
             context=EspeonContext.ESPEON,
         )
 
-async def reset_user_balance(bot:discord.Client, user_id:int, user_name:str):
+
+async def reset_user_balance(bot: discord.Client, user_id: int, user_name: str):
     """Resets a user's balance to zero."""
     try:
         async with bot.pg_pool.acquire() as conn:
@@ -180,6 +240,7 @@ async def reset_user_balance(bot:discord.Client, user_id:int, user_name:str):
             context=EspeonContext.ESPEON,
         )
 
+
 async def reset_all_balances(bot: discord.Client):
     """Clears all the rows in the server_currency table."""
     try:
@@ -193,6 +254,7 @@ async def reset_all_balances(bot: discord.Client):
             )
             # Clear the cache as well
             from utils.cache.user_balance_cache import reset_all_user_balances_in_cache
+
             reset_all_user_balances_in_cache()
 
     except Exception as e:

@@ -1,4 +1,5 @@
 class Espeon_Emoji:
+    pink_box = "<:pink_box:1443134783222710405>"
     pink_flower_two = "<:pink_flower_two:1439600753517002792>"
     pink_celebrate = "<a:pink_celebrate:1439594885954146304>"
     left_arrow = "<:left_arrow:1439399409338024140>"

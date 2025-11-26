@@ -2,13 +2,13 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from config.current_setup import CC_GUILD_ID
+from config.current_setup import CC_GUILD_ID, STRAYMONS_GUILD_ID
 from utils.database.server_shop import shop_item_autocomplete
 from utils.essentials.command_safe import run_command_safe
 from utils.group_func.server_shop import *
 from utils.essentials.pokemon_autocomplete import *
 from utils.essentials.role_checks import *
-
+from utils.loggers.espeon_log import EspeonContext, espeon_log
 # 🪻────────────────────────────────────────────
 #           ✨ ServerShop Cog Setup ✨
 # ─────────────────────────────────────────────
@@ -22,7 +22,6 @@ class ServerShop(commands.Cog):
     shop_group = app_commands.Group(
         name="shop",
         description="Commands related to the server shop",
-        guild_ids=[CC_GUILD_ID],
     )
 
     # 🪻────────────────────────────────────────────
@@ -40,14 +39,24 @@ class ServerShop(commands.Cog):
         item_name: str = None,
     ):
         slash_cmd_name = "shop view"
-
-        await run_command_safe(
-            bot=self.bot,
-            interaction=interaction,
-            slash_cmd_name=slash_cmd_name,
-            command_func=shop_view_func,
-            item_name=item_name,
-        )
+        try:
+            await run_command_safe(
+                bot=self.bot,
+                interaction=interaction,
+                slash_cmd_name=slash_cmd_name,
+                command_func=shop_view_func,
+                item_name=item_name,
+            )
+        except Exception as e:
+            espeon_log.error(
+                f"Error in /shop view command: {e}",
+                context=EspeonContext(
+                    bot=self.bot,
+                    interaction=interaction,
+                    slash_cmd_name=slash_cmd_name,
+                ),
+            )
+            raise e
 
     view_shop.extras = {"category": "Public"}
 
@@ -62,6 +71,7 @@ class ServerShop(commands.Cog):
         item_name="Name of the item to add",
         price="Price of the item in Cherry Pins",
         stock="Stock of the item (-1 for unlimited)",
+        description="Description of the item",
     )
     @clan_staff_only()
     async def add_shop_item(
@@ -70,6 +80,7 @@ class ServerShop(commands.Cog):
         item_name: str,
         price: int,
         stock: int,
+        description: str = None,
     ):
         slash_cmd_name = "shop add-item"
 
@@ -81,6 +92,7 @@ class ServerShop(commands.Cog):
             item_name=item_name,
             price=price,
             stock=stock,
+            description=description,
         )
 
     add_shop_item.extras = {"category": "Staff"}

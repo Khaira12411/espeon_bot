@@ -3,8 +3,9 @@ from typing import Literal, Optional, Union
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils.essentials.role_checks import *
+from config.current_setup import STRAYMONS_GUILD_ID
 from utils.essentials.command_safe import run_command_safe
+from utils.essentials.role_checks import *
 from utils.group_func.server_currency.balance_func import (
     add_balance_func,
     remove_balance_func,
@@ -24,7 +25,8 @@ class Balance_Group_Command(commands.Cog):
     #           💜 Slash Command Group 💜
     # 🟣────────────────────────────────────────────
     balance_group = app_commands.Group(
-        name="balance", description="Commands related to server currency balance"
+        name="balance",
+        description="Commands related to server currency balance",
     )
 
     # 🟣────────────────────────────────────────────
@@ -37,6 +39,7 @@ class Balance_Group_Command(commands.Cog):
     @app_commands.describe(
         member="(Staff only) The member to view the balance of",
     )
+    @testing()
     async def view_balance(
         self,
         interaction: discord.Interaction,
@@ -51,6 +54,7 @@ class Balance_Group_Command(commands.Cog):
             command_func=view_balance_func,
             member=member,
         )
+
     view_balance.extras = {"category": "Public"}
 
     # 🟣────────────────────────────────────────────
@@ -138,7 +142,9 @@ class Balance_Group_Command(commands.Cog):
             member=member,
             all_users=all_users,
         )
+
     reset_balance.extras = {"category": "Staff"}
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Balance_Group_Command(bot))

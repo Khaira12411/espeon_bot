@@ -20,6 +20,7 @@ async def load_server_shop_cache(bot):
             "price": row.get("price"),
             "stock": row.get("stock"),
             "image_link": row.get("image_link"),
+            "description": row.get("description"),
         }
 
     espeon_log(
@@ -36,7 +37,7 @@ async def load_server_shop_cache(bot):
 #       💜 Server Shop Cache Helpers 💜
 # ─────────────────────────────────────────────
 def upsert_shop_item(
-    item_id: str, item_name: str, price: int, stock: int, image_link: str
+    item_id: str, item_name: str, price: int, stock: int, image_link: str, description: str = None
 ):
     """Insert or update a server shop item in cache."""
     server_shop_cache[item_id] = {
@@ -44,6 +45,7 @@ def upsert_shop_item(
         "price": price,
         "stock": stock,
         "image_link": image_link,
+        "description": description,
     }
     espeon_log(
         tag="",

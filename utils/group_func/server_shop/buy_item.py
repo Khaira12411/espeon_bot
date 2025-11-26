@@ -8,7 +8,7 @@ from config.aesthetic import Espeon_Emoji
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
 from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 from utils.cache.cache_list import server_shop_cache
-from utils.database.server_currency import get_user_balance, update_user_balance
+from utils.database.server_currency import get_user_balance, update_user_balance, bought_box
 from utils.database.server_shop import format_item_name, remove_item, update_stock
 from utils.essentials.loader import pretty_defer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
@@ -121,6 +121,11 @@ async def buy_item_func(
                 f"{user.mention} has purchased **{item_name}** from the Petal Lace Shop.\n"
                 f"Remaining stock: {new_stock}."
             )
+
+    # Handle special case for boxes
+    if "box" in item_name.lower():
+        await bought_box(bot, user_id, item_name)
+
 
     # Success embed
     embed = discord.Embed(

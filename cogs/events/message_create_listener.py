@@ -7,13 +7,12 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from config.current_setup import (
-    POKEMEOW_APPLICATION_ID,
-    STRAYMONS_GUILD_ID,
-)
+from config.current_setup import POKEMEOW_APPLICATION_ID, STRAYMONS_GUILD_ID
 from config.straymons_constants import STRAYMONS__CATEGORIES, STRAYMONS__TEXT_CHANNELS
 from utils.listener_func.afk import afk_reply_on_mention
 from utils.listener_func.bud_ev_listener import handle_pokemeow_embed_sync
+from utils.listener_func.code_claim_listener import handle_code_claim
+from utils.listener_func.egg_hatch_listener import egg_hatch_listener_func
 from utils.listener_func.ev_tracker_listener import handle_pokemeow_battle_message
 from utils.listener_func.market_alert import process_market_alert_message
 from utils.listener_func.mr_weakness import mr_weakness_chart
@@ -27,6 +26,10 @@ MARKETFEED_CHANNELS = {
     STRAYMONS__TEXT_CHANNELS.ivgolden_market_feed,
 }
 bud_info_trigger = "**Level**:"
+
+triggers = {
+    "code_use": "<:checkedbox:752302633141665812> you used a code to claim a :gift:",
+}
 
 
 class MessageCreateListener(commands.Cog):
@@ -88,6 +91,34 @@ class MessageCreateListener(commands.Cog):
 
             # --- Weakness chart processing (Active + Staff Guilds) ---
             if message.guild and message.guild.id == STRAYMONS_GUILD_ID:
+
+                # ✨───────────────────────────────────────────────✨
+                # 🪻 MARKET ALERT
+                # ✨───────────────────────────────────────────────✨
+                if message.channel.id in MARKETFEED_CHANNELS:
+                    await process_market_alert_message(
+                        self.bot, message, STRAYMONS__CATEGORIES.MONSTREET_EXCHANGE
+                    )
+                # ✨───────────────────────────────────────────────✨
+                # 🪻 Egg Hatch Listener
+                # ✨───────────────────────────────────────────────✨
+                if (
+                    message.embeds
+                    and message.embeds[0]
+                    and message.content
+                    and message.embeds[0].author
+                    and "hatched an Egg!" in (message.embeds[0].author.name or "")
+                    and "just hatched a" in message.content
+                ):
+                    await egg_hatch_listener_func(bot=self.bot, message=message)
+                # ✨───────────────────────────────────────────────✨
+                # 🪻 Code Claim Listener
+                # ✨───────────────────────────────────────────────✨
+                if (
+                    message.content
+                    and triggers["code_use"].lower() in message.content.lower()
+                ):
+                    await handle_code_claim(bot=self.bot, message=message)
                 # ✨───────────────────────────────────────────────✨
                 # 🪻 MR WEAKNESS CHART
                 # ✨───────────────────────────────────────────────✨
@@ -109,14 +140,6 @@ class MessageCreateListener(commands.Cog):
                     embed_description = message.embeds[0].description
                     if embed_description and bud_info_trigger in embed_description:
                         await handle_pokemeow_embed_sync(bot=self.bot, message=message)
-
-                # ✨───────────────────────────────────────────────✨
-                # 🪻 MARKET ALERT
-                # ✨───────────────────────────────────────────────✨
-                if message.channel.id in MARKETFEED_CHANNELS:
-                    await process_market_alert_message(
-                        self.bot, message, STRAYMONS__CATEGORIES.MONSTREET_EXCHANGE
-                    )
 
         except Exception as e:
             espeon_log(
