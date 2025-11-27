@@ -69,7 +69,6 @@ async def handle_code_claim(bot: discord.Client, message: discord.Message):
             debug_log(
                 f"Detected golden rarity for pokemon: {cleaned_pokemon_name}",
             )
-    
 
         rarity_info = rarity_meta.get(rarity, {})
         rarity_emoji = rarity_info.get("emoji", "")
@@ -122,7 +121,7 @@ async def handle_code_claim(bot: discord.Client, message: discord.Message):
                 description=(
                     f"Congratulations {member.mention}! You have completed the Melaryne Quest by "
                     f"claiming a code for **{display_name}**.\n\n"
-                    f"Please present this message to Skaia to claim your reward!"
+                    f"{Espeon_Emoji.pink_flower} Please forward this message in <#1359856208961601638> and wait for Skaia to hand your prize."
                 ),
                 color=COLOR,
                 timestamp=datetime.now(),

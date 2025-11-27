@@ -126,14 +126,13 @@ async def buy_item_func(
     if "box" in item_name.lower():
         await bought_box(bot, user_id, item_name)
 
-
     # Success embed
     embed = discord.Embed(
         title="Purchase Successful",
         description=(
             f"You have successfully purchased **{item_name}** for {price} {CHERRY_PIN}!\n"
             f"Your new balance is {new_balance} {CHERRY_PIN}.\n\n"
-            f"{Espeon_Emoji.pink_flower} Please present this message to skaia to claim your prize."
+            f"{Espeon_Emoji.pink_flower} Please forward this message in <#1359856208961601638> and wait for Skaia to hand your prize."
         ),
         color=COLOR,
         timestamp=datetime.now(),

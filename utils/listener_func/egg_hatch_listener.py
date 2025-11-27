@@ -217,7 +217,7 @@ async def egg_hatch_listener_func(
                             f"Congratulations {member.mention} on hatching a shiny "
                             f"{pokemon_name.title()}! You have completed the Daisyia "
                             f"quest and the Daisyia Box has been removed from the shop."
-                            f"Please present this message to Skaia to claim your reward!"
+                            f"{Espeon_Emoji.pink_flower} Please forward this message in <#1359856208961601638> and wait for Skaia to hand your prize."
                         ),
                         color=COLOR,
                         timestamp=datetime.now(),

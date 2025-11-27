@@ -91,7 +91,7 @@ async def handle_role_add(
                             description=(
                                 f"Congratulations {member.mention}!\n\n"
                                 "You have obtained all Weekly Roles and completed the Gardelette Box Quest!\n"
-                                "Show this message to Skaia to claim your prize!"
+                                f"{Espeon_Emoji.pink_flower} Please forward this message in <#1359856208961601638> and wait for Skaia to hand your prize."
                             ),
                             color=COLOR,
                             timestamp=datetime.now(),

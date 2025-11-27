@@ -159,7 +159,11 @@ async def event_checklist_caught(
 
     rarity = None
     guild = after_message.guild
+    if after_message.id in processed_rare_catches:
+        return  # Already processed this message
 
+    processed_rare_catches.add(after_message.id)
+    
     # Check if its a rare spawn based on color and description
     if embed_color not in LOW_RARITY_COLORS and "You caught" in embed_description:
         # Identify the user who caught the Pokémon
@@ -202,10 +206,7 @@ async def event_checklist_caught(
 
         # TODO Member is only valid if they have the hershey role
 
-        if after_message.id in processed_rare_catches:
-            return  # Already processed this message
 
-        processed_rare_catches.add(after_message.id)
 
         hershey_role_id = STRAYMONS__ROLES.charming_hershey_espresso
         if hershey_role_id not in [role.id for role in member.roles]:
