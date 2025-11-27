@@ -13,6 +13,7 @@ from utils.cache.cache_list import server_shop_cache, user_balance_cache
 from utils.database.server_currency import get_user_balance
 from utils.database.server_shop import fetch_item_by_name, remove_item_by_name
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
+from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 RARE_EGG_EXCLUSIVES = [
@@ -47,6 +48,7 @@ BOT_LOG_ID = TEST_BOT_LOG_ID
 processed_egg_hatches = set()
 
 
+enable_debug(f"{__name__}.egg_hatch_listener_func")
 # ❀─────────────────────────────────────────❀
 #      💖  Egg Hatch Listener
 # ❀─────────────────────────────────────────❀
@@ -61,6 +63,7 @@ async def egg_hatch_listener_func(
     embed = message.embeds[0] if message.embeds else None
     content = message.content if message.content else None
     if not embed and not content:
+        debug_log(f"No embed or content found in message ID {message.id}, skipping.")
         return
 
     # Color
@@ -80,10 +83,19 @@ async def egg_hatch_listener_func(
             ),
 
     if not pokemon_name:
+        # Say why it didnt match
+        debug_log(
+            f"No pokemon_name matched in message content: '{content}' (ID: {message.id}). "
+            f"Pattern used: r'just hatched a.*?\\*\\*([^*]+)\\*\\*'. "
+            f"Regex result: {'No match' if not 'hatch_match' in locals() or not hatch_match else hatch_match}"
+        )
         return
 
     member = await get_pokemeow_reply_member(message)
     if not member:
+        debug_log(
+            f"Could not determine member from message ID {message.id} in {message.channel.name}, skipping."
+        )
         return
 
     if message.id in processed_egg_hatches:
@@ -95,13 +107,28 @@ async def egg_hatch_listener_func(
         # Remove "Shiny" prefix/suffix
         pokemon_name = pokemon_name.lower().replace("shiny", "").strip()
         rarity = "shiny"
+        debug_log(
+            f"Detected shiny egg hatch for '{original_name}', normalized to '{pokemon_name}'.",
+        )
     elif pokemon_name.lower() in RARE_EGG_EXCLUSIVES:
         rarity = "rare"
+        debug_log(
+            f"Detected rare egg hatch for '{pokemon_name}'.",
+        )
     elif pokemon_name.lower() in SUPER_RARE_EGG_EXCLUSIVE:
         rarity = "superrare"
+        debug_log(
+            f"Detected super rare egg hatch for '{pokemon_name}'.",
+        )
     elif pokemon_name.lower() in LEGENDARY_EGG_EXCLUSIVES:
         rarity = "legendary"
+        debug_log(
+            f"Detected legendary egg hatch for '{pokemon_name}'.",
+        )
     else:
+        debug_log(
+            f"'{pokemon_name}' is not classified as a rare egg hatch, skipping.",
+        )
         return  # Not a rare egg hatch
 
     rarity_emoji = rarity_meta.get(rarity, {}).get("emoji", "")
@@ -110,6 +137,41 @@ async def egg_hatch_listener_func(
         if rarity_emoji
         else pokemon_name.title()
     )
+
+    # Log for debugging purposes
+    log_embed = discord.Embed(
+        title="🥚 Rare Egg Hatched",
+        description=(
+            f"[Jump to Message]({message.jump_url})"
+            f"- **User:** {member.mention}\n"
+            f"- **Pokemon:** {display_name}\n"
+        ),
+        color=embed_color if embed_color else COLOR,
+        timestamp=datetime.now(),
+    )
+    log_embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
+    log_embed.set_footer(
+        text=f"User ID: {member.id}",
+        icon_url=member.guild.icon.url if member.guild and member.guild.icon else None,
+    )
+    log_embed.set_thumbnail(
+        url=embed.thumbnail.url if embed and embed.thumbnail else None
+    )
+
+    log_channel = message.guild.get_channel(BOT_LOG_ID)
+    if log_channel:
+        try:
+            await log_channel.send(embed=log_embed)
+        except Exception as e:
+            espeon_log(
+                tag="error",
+                message=(
+                    f"Failed to send egg hatch log embed to channel ID {BOT_LOG_ID}: {
+                        str(e)}"
+                ),
+                label="💖 EGG HATCH LISTENER",
+            )
+
     if rarity == "shiny":
         espeon_log(
             tag="info",
@@ -191,8 +253,12 @@ async def egg_hatch_listener_func(
                             else None
                         ),
                     )
-                    cafe_log_channel = member.guild.get_channel(STRAYMONS__TEXT_CHANNELS.cafe_logs)
-                    clan_event_log_channel = member.guild.get_channel(STRAYMONS__TEXT_CHANNELS.clan_event_log)
+                    cafe_log_channel = member.guild.get_channel(
+                        STRAYMONS__TEXT_CHANNELS.cafe_logs
+                    )
+                    clan_event_log_channel = member.guild.get_channel(
+                        STRAYMONS__TEXT_CHANNELS.clan_event_log
+                    )
                     if cafe_log_channel:
                         await cafe_log_channel.send(embed=quest_complete_log_embed)
                     if clan_event_log_channel:
@@ -208,27 +274,3 @@ async def egg_hatch_listener_func(
                         ),
                         label="💖 EGG HATCH LISTENER",
                     )
-
-    # Log for debugging purposes
-    log_embed = discord.Embed(
-        title="🥚 Rare Egg Hatched",
-        description=(
-            f"[Jump to Message]({message.jump_url})"
-            f"- **User:** {member.mention}\n"
-            f"- **Pokemon:** {display_name}\n"
-        ),
-        color=embed_color if embed_color else COLOR,
-        timestamp=datetime.now(),
-    )
-    log_embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
-    log_embed.set_footer(
-        text=f"User ID: {member.id}",
-        icon_url=member.guild.icon.url if member.guild and member.guild.icon else None,
-    )
-    log_embed.set_thumbnail(
-        url=embed.thumbnail.url if embed and embed.thumbnail else None
-    )
-
-    log_channel = message.guild.get_channel(BOT_LOG_ID)
-    if log_channel:
-        await log_channel.send(embed=log_embed)

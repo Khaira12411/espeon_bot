@@ -477,7 +477,7 @@ class Cherry_Pin_Reward_Info(discord.ui.View):
             )
 
         box_info_embed = discord.Embed(
-            title="Box Quests info",
+            title=f"{Espeon_Emoji.pink_book} Box Quests info",
             description=(
                 "Quests can only be completed once throughout the event and can only have one winner.\n"
                 "After completing the quest, please contact a staff member to claim your prize."
@@ -489,11 +489,12 @@ class Cherry_Pin_Reward_Info(discord.ui.View):
         for box_type, box_data in BOX_MAP.items():
             if user_currency_info.get(f"bought_{box_type}_box") == "yes":
                 box_info_embed.add_field(
-                    name=f"{box_type.title()} Box",
-                    value=f"**Quest:** {box_data['quest']}",
+                    name=f"{Espeon_Emoji.pink_box} {box_type.title()} Box",
+                    value=f"- {Espeon_Emoji.pink_cherry} **Quest:** {box_data['quest']}",
                     inline=False,
                 )
-
-        box_info_embed.set_footer(text="Not every wonder is meant to be shared.")
+        guild = interaction.guild
+        box_info_embed.set_image(url=DIVIDER)
+        box_info_embed.set_footer(text="Not every wonder is meant to be shared.", icon_url=guild.icon.url)
 
         await interaction.response.send_message(embed=box_info_embed, ephemeral=True)

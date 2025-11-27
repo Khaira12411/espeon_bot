@@ -13,14 +13,17 @@ from utils.cache.cache_list import server_shop_cache, user_balance_cache
 from utils.database.server_currency import get_user_balance
 from utils.database.server_shop import fetch_item_by_name, remove_item_by_name
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
+from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from config.paldea_galar_dict import rarity_meta
 
 TEST_BOT_LOG_ID = 1220786187401302036
 REAL_BOT_LOG_ID = 1076441765059502233
 BOT_LOG_ID = TEST_BOT_LOG_ID
 # TODO insert mon later
 CHECKLIST_REWARD_MON = "insert mon later"
+
+enable_debug(f"{__name__}.handle_code_claim")
+
 
 async def handle_code_claim(bot: discord.Client, message: discord.Message):
     """
@@ -57,15 +60,22 @@ async def handle_code_claim(bot: discord.Client, message: discord.Message):
         if "shiny" in cleaned_pokemon_name:
             cleaned_pokemon_name = cleaned_pokemon_name.replace("shiny ", "")
             rarity = "shiny"
+            debug_log(
+                f"Detected shiny rarity for pokemon: {cleaned_pokemon_name}",
+            )
         elif "golden" in cleaned_pokemon_name:
             cleaned_pokemon_name = cleaned_pokemon_name.replace("golden ", "")
             rarity = "golden"
+            debug_log(
+                f"Detected golden rarity for pokemon: {cleaned_pokemon_name}",
+            )
+    
 
         rarity_info = rarity_meta.get(rarity, {})
         rarity_emoji = rarity_info.get("emoji", "")
         rarity_color = rarity_info.get("color", COLOR)
 
-        display_name =f"{rarity_emoji} {cleaned_pokemon_name.title()}"
+        display_name = f"{rarity_emoji} {cleaned_pokemon_name.title()}"
         # Check if there is still Melaryne Box in shop
         melaryne_box_item = None
         melaryne_box_item = await fetch_item_by_name(bot, "Melaryne Box")
@@ -138,7 +148,9 @@ async def handle_code_claim(bot: discord.Client, message: discord.Message):
                 name=member.display_name, icon_url=member.display_avatar.url
             )
             quest_complete_log_embed.set_thumbnail(url=member.display_avatar.url)
-            clan_event_log_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.clan_event_logs)
+            clan_event_log_channel = guild.get_channel(
+                STRAYMONS__TEXT_CHANNELS.clan_event_logs
+            )
             if clan_event_log_channel:
                 await clan_event_log_channel.send(embed=quest_complete_log_embed)
             cafe_log_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.cafe_logs)
