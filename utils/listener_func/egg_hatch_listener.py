@@ -15,7 +15,7 @@ from utils.database.server_shop import fetch_item_by_name, remove_item_by_name
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
+from config.current_setup import CC_GUILD_ID, STRAYMONS_GUILD_ID
 RARE_EGG_EXCLUSIVES = [
     "chingling",
     "mimejr",
@@ -46,6 +46,7 @@ TEST_BOT_LOG_ID = 1220786187401302036
 REAL_BOT_LOG_ID = 1076441765059502233
 BOT_LOG_ID = TEST_BOT_LOG_ID
 processed_egg_hatches = set()
+SERVER_ID = CC_GUILD_ID
 
 
 enable_debug(f"{__name__}.egg_hatch_listener_func")
@@ -157,8 +158,9 @@ async def egg_hatch_listener_func(
     log_embed.set_thumbnail(
         url=embed.thumbnail.url if embed and embed.thumbnail else None
     )
-
-    log_channel = message.guild.get_channel(BOT_LOG_ID)
+    # TODO Replace with the actual bot log channel id
+    log_channel_guild = bot.get_guild(SERVER_ID)
+    log_channel = log_channel_guild.get_channel(BOT_LOG_ID)
     if log_channel:
         try:
             await log_channel.send(embed=log_embed)
