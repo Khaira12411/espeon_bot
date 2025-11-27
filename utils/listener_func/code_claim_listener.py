@@ -15,6 +15,9 @@ from utils.database.server_shop import fetch_item_by_name, remove_item_by_name
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
+from utils.visuals.embeds.visual_helpers import design_embed
+
+from .event_checklist_caught import is_dec_28_1pm_or_later_manila
 
 TEST_BOT_LOG_ID = 1220786187401302036
 REAL_BOT_LOG_ID = 1076441765059502233
@@ -39,6 +42,15 @@ async def handle_code_claim(bot: discord.Client, message: discord.Message):
 
     guild = message.guild
 
+    if is_dec_28_1pm_or_later_manila():
+        # dont process if after dec 28 1pm manila time
+        espeon_log(
+            "info",
+            "Current time is after Dec 28, 1 PM Manila time. Skipping code claim processing.",
+            source="Code Claim Listener",
+        )
+        return
+
     # Extract pokemon name
     pokemon_name = re.search(r"\*\*(.*?)\*\*", content)
     if not pokemon_name:
@@ -54,7 +66,7 @@ async def handle_code_claim(bot: discord.Client, message: discord.Message):
         message=f"Extracted pokemon name: {cleaned_pokemon_name}",
         label="💖 CODE CLAIM LISTENER",
     )
-
+    original_name = None
     if cleaned_pokemon_name == CHECKLIST_REWARD_MON:
         original_name = cleaned_pokemon_name
         if "shiny" in cleaned_pokemon_name:
@@ -126,10 +138,9 @@ async def handle_code_claim(bot: discord.Client, message: discord.Message):
                 color=COLOR,
                 timestamp=datetime.now(),
             )
-            quest_complete_embed.set_author(
-                name=member.display_name, icon_url=member.display_avatar.url
+            quest_complete_embed = design_embed(
+                embed=quest_complete_embed, user=member, pokemon_name=original_name
             )
-            quest_complete_embed.set_thumbnail(url=member.display_avatar.url)
             await message.channel.send(embed=quest_complete_embed)
 
             # Log quest completion in clan event logs channel
@@ -143,10 +154,9 @@ async def handle_code_claim(bot: discord.Client, message: discord.Message):
                 color=rarity_color,
                 timestamp=datetime.now(),
             )
-            quest_complete_log_embed.set_author(
-                name=member.display_name, icon_url=member.display_avatar.url
+            quest_complete_log_embed = design_embed(
+                embed=quest_complete_log_embed, user=member, pokemon_name=original_name
             )
-            quest_complete_log_embed.set_thumbnail(url=member.display_avatar.url)
             clan_event_log_channel = guild.get_channel(
                 STRAYMONS__TEXT_CHANNELS.clan_event_logs
             )

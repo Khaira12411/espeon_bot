@@ -1,12 +1,15 @@
 import re
+from datetime import datetime
 
 import discord
+import pytz
 from discord.ext import commands
 
 from config.aesthetic import Espeon_Emoji
 from config.current_setup import CC_GUILD_ID, STRAYMONS_GUILD_ID
 from config.paldea_galar_dict import legendary_mons, rarity_meta
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
+from config.straymons_constants import STRAYMONS__ROLES
 from utils.cache.cache_list import user_balance_cache
 from utils.database.server_currency import (
     get_user_balance,
@@ -15,7 +18,7 @@ from utils.database.server_currency import (
 )
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 from utils.loggers.espeon_log import espeon_log
-from config.straymons_constants import STRAYMONS__ROLES
+
 # key = embed_color
 SHINY_COLOR = 16751052
 LEGENDARY_COLOR = 10487800
@@ -127,8 +130,8 @@ async def add_points_to_user(
     if message.embeds and message.embeds[0].image:
         embed.set_thumbnail(url=message.embeds[0].image.url)
 
-    #TODO Uncomment to enable message sending
-    #await message.channel.send(content=user.mention, embed=embed)
+    # TODO Uncomment to enable message sending
+    # await message.channel.send(content=user.mention, embed=embed)
 
 
 def extract_member_username_from_embed(embed: discord.Embed) -> str | None:
@@ -145,6 +148,13 @@ def extract_member_username_from_embed(embed: discord.Embed) -> str | None:
     return None
 
 
+def is_dec_28_1pm_or_later_manila():
+    tz = pytz.timezone("Asia/Manila")
+    now = datetime.now(tz)
+    target = tz.localize(datetime(now.year, 12, 28, 13, 0, 0))
+    return now >= target
+
+
 async def event_checklist_caught(
     bot: discord.Client,
     before_message: discord.Message,
@@ -159,11 +169,20 @@ async def event_checklist_caught(
 
     rarity = None
     guild = after_message.guild
+
+    if is_dec_28_1pm_or_later_manila():
+        # dont process if after dec 28 1pm manila time
+        espeon_log(
+            "info",
+            "Current time is after Dec 28, 1 PM Manila time. Skipping rare catch processing.",
+            source="Event Checklist Caught",
+        )
+        return
     if after_message.id in processed_rare_catches:
         return  # Already processed this message
 
     processed_rare_catches.add(after_message.id)
-    
+
     # Check if its a rare spawn based on color and description
     if embed_color not in LOW_RARITY_COLORS and "You caught" in embed_description:
         # Identify the user who caught the Pokémon
@@ -172,7 +191,10 @@ async def event_checklist_caught(
             # Extract username from embed as fallback
             username = extract_member_username_from_embed(embed)
             if username:
-                from utils.cache.straymons_members_cache import fetch_straymon_member_id_by_name
+                from utils.cache.straymons_members_cache import (
+                    fetch_straymon_member_id_by_name,
+                )
+
                 user_id = fetch_straymon_member_id_by_name(username)
                 if user_id:
                     member = guild.get_member(user_id) if guild else None
@@ -205,8 +227,6 @@ async def event_checklist_caught(
                 return
 
         # TODO Member is only valid if they have the hershey role
-
-
 
         hershey_role_id = STRAYMONS__ROLES.charming_hershey_espresso
         if hershey_role_id not in [role.id for role in member.roles]:

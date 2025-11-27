@@ -6,6 +6,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from config.aesthetic import Espeon_Emoji
+from config.current_setup import CC_GUILD_ID, STRAYMONS_GUILD_ID
 from config.paldea_galar_dict import rarity_meta
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
 from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
@@ -15,7 +16,9 @@ from utils.database.server_shop import fetch_item_by_name, remove_item_by_name
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from config.current_setup import CC_GUILD_ID, STRAYMONS_GUILD_ID
+
+from .event_checklist_caught import is_dec_28_1pm_or_later_manila
+
 RARE_EGG_EXCLUSIVES = [
     "chingling",
     "mimejr",
@@ -50,6 +53,8 @@ SERVER_ID = CC_GUILD_ID
 
 
 enable_debug(f"{__name__}.egg_hatch_listener_func")
+
+
 # ❀─────────────────────────────────────────❀
 #      💖  Egg Hatch Listener
 # ❀─────────────────────────────────────────❀
@@ -67,8 +72,18 @@ async def egg_hatch_listener_func(
         debug_log(f"No embed or content found in message ID {message.id}, skipping.")
         return
 
+    if is_dec_28_1pm_or_later_manila():
+        # dont process if after dec 28 1pm manila time
+        espeon_log(
+            "info",
+            "Current time is after Dec 28, 1 PM Manila time. Skipping egg hatch processing.",
+            source="Egg Hatch Listener",
+        )
+        return
+
     # Color
     embed_color = embed.color.value if embed and embed.color else None
+    thumbnail_url = embed.image.url if embed and embed.image else None
 
     # Extract Pokemon name from message content
     pokemon_name = None
@@ -143,7 +158,7 @@ async def egg_hatch_listener_func(
     log_embed = discord.Embed(
         title="🥚 Rare Egg Hatched",
         description=(
-            f"[Jump to Message]({message.jump_url})"
+            f"[Jump to Message]({message.jump_url})\n"
             f"- **User:** {member.mention}\n"
             f"- **Pokemon:** {display_name}\n"
         ),
@@ -155,9 +170,7 @@ async def egg_hatch_listener_func(
         text=f"User ID: {member.id}",
         icon_url=member.guild.icon.url if member.guild and member.guild.icon else None,
     )
-    log_embed.set_thumbnail(
-        url=embed.thumbnail.url if embed and embed.thumbnail else None
-    )
+    log_embed.set_thumbnail(url=thumbnail_url)
     # TODO Replace with the actual bot log channel id
     log_channel_guild = bot.get_guild(SERVER_ID)
     log_channel = log_channel_guild.get_channel(BOT_LOG_ID)
@@ -224,7 +237,7 @@ async def egg_hatch_listener_func(
                         color=COLOR,
                         timestamp=datetime.now(),
                     )
-                    quest_complete_embed.set_thumbnail(url=member.display_avatar.url)
+                    quest_complete_embed.set_thumbnail(url=thumbnail_url)
                     quest_complete_embed.set_author(
                         name=member.display_name, icon_url=member.display_avatar.url
                     )
@@ -245,7 +258,7 @@ async def egg_hatch_listener_func(
                         name=member.display_name, icon_url=member.display_avatar.url
                     )
                     quest_complete_log_embed.set_thumbnail(
-                        url=member.display_avatar.url
+                        url=thumbnail_url
                     )
                     quest_complete_log_embed.set_footer(
                         text=f"User ID: {member.id}",

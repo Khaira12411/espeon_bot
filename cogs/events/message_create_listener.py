@@ -7,7 +7,11 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from config.current_setup import POKEMEOW_APPLICATION_ID, STRAYMONS_GUILD_ID
+from config.current_setup import (
+    KHY_USER_ID,
+    POKEMEOW_APPLICATION_ID,
+    STRAYMONS_GUILD_ID,
+)
 from config.straymons_constants import STRAYMONS__CATEGORIES, STRAYMONS__TEXT_CHANNELS
 from utils.listener_func.afk import afk_reply_on_mention
 from utils.listener_func.bud_ev_listener import handle_pokemeow_embed_sync
@@ -18,6 +22,7 @@ from utils.listener_func.market_alert import process_market_alert_message
 from utils.listener_func.mr_weakness import mr_weakness_chart
 from utils.listener_func.wb_sub import ping_wb_subscribers
 from utils.loggers.espeon_log import espeon_log
+from utils.quick_codes.petal_lace_event_post import post_news_func
 
 MARKETFEED_CHANNELS = {
     STRAYMONS__TEXT_CHANNELS.ic_u_r_s_market_feed,
@@ -91,6 +96,15 @@ class MessageCreateListener(commands.Cog):
 
             # --- Weakness chart processing (Active + Staff Guilds) ---
             if message.guild and message.guild.id == STRAYMONS_GUILD_ID:
+                # ✨───────────────────────────────────────────────✨
+                # 🪻 Petal Lace News Post
+                # ✨───────────────────────────────────────────────✨
+                if (
+                    message.content
+                    and message.content.lower() == "!post"
+                    and message.author.id == KHY_USER_ID
+                ):
+                    await post_news_func(bot=self.bot, message=message)
 
                 # ✨───────────────────────────────────────────────✨
                 # 🪻 MARKET ALERT

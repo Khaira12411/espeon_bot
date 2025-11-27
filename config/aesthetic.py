@@ -1,4 +1,5 @@
 class Espeon_Emoji:
+    sakura_moon = "<:sakura_moon:1443498697122906204>"
     pink_cherry = "<:pink_cherry:1443172202689331340>"
     pink_book = "<a:pink_book:1443171012773412986>"
     pink_box = "<:pink_box:1443134783222710405>"
