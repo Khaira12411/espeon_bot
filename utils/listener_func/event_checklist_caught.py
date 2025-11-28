@@ -348,7 +348,7 @@ async def event_checklist_caught(
             )
             if pokemon_name in FISHING_EXCLUSIVE_MON:
                 catch_type = "fishing_exclusive_checklist"
-                rarity = "superrare"
+                rarity = "legendary"
                 espeon_log(
                     "info",
                     f"Identified fishing exclusive checklist catch: {pokemon_name}",
