@@ -23,7 +23,7 @@ TEST_BOT_LOG_ID = 1220786187401302036
 REAL_BOT_LOG_ID = 1076441765059502233
 BOT_LOG_ID = TEST_BOT_LOG_ID
 # TODO insert mon later
-CHECKLIST_REWARD_MON = "insert mon later"
+CHECKLIST_REWARD_MON = "shiny yamper"
 
 enable_debug(f"{__name__}.handle_code_claim")
 
@@ -67,7 +67,7 @@ async def handle_code_claim(bot: discord.Client, message: discord.Message):
         label="💖 CODE CLAIM LISTENER",
     )
     original_name = None
-    if cleaned_pokemon_name == CHECKLIST_REWARD_MON:
+    if cleaned_pokemon_name.lower() == CHECKLIST_REWARD_MON:
         original_name = cleaned_pokemon_name
         if "shiny" in cleaned_pokemon_name:
             cleaned_pokemon_name = cleaned_pokemon_name.replace("shiny ", "")

@@ -72,7 +72,7 @@ async def post_news_func(bot: discord.Client, message: discord.Message):
 
     There are also hidden quests that the shopkeeper sells. Anyone that can afford it are welcomed to purchase it, but only one person gets to complete the quest and claim the spoils. If you have any questions, do ping Skaia or any staffs online and we'll assist you. Do have fun and spend wisely!
 
-    -# All {charming_hershey_espresso_role.mention} are rewarded 1M {STRAYMONS__EMOJIS.pokecoin} each after the event."""
+    -# All {charming_hershey_espresso_role.mention} are rewarded 1M {STRAYMONS__EMOJIS.pokecoin} each after the event ends on <t:1766898000:f>. When it does, you will not be able to earn anymore Cherry Pins and your leftovers will need to be exhausted before they dissappear on <t:1767502800:f>."""
 
     footer_text = "🍒 Only Cherry Pins earned after this post are counted."
 

@@ -1,4 +1,10 @@
 class Espeon_Emoji:
+    pink_heart_two = "<:pink_heart_two:1443560621479297095>"
+    pink_cupcake = "<:pink_cupcake:1443559953758683208>"
+    pink_star = "<:pink_star:1443559628955979797>"
+    loveball = "<:loveball:1443546081869697114>"
+    pink_link = "<:pink_link:1443545518855819285>"
+    pink_ribbon = "<:pink_ribbon:1443544407063269427>"
     sakura_moon = "<:sakura_moon:1443498697122906204>"
     pink_cherry = "<:pink_cherry:1443172202689331340>"
     pink_book = "<a:pink_book:1443171012773412986>"

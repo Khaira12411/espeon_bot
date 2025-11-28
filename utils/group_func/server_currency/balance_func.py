@@ -479,8 +479,8 @@ class Cherry_Pin_Reward_Info(discord.ui.View):
         box_info_embed = discord.Embed(
             title=f"{Espeon_Emoji.pink_book} Box Quests info",
             description=(
-                "Quests can only be completed once throughout the event and can only have one winner.\n"
-                "After completing the quest, please contact a staff member to claim your prize."
+                "- Quests can only be completed once throughout the event and can only have one winner.\n"
+                "- After completing the quest, please contact a staff member, in <#1359856208961601638> to claim your prize."
             ),
             color=COLOR,
         )
@@ -494,7 +494,7 @@ class Cherry_Pin_Reward_Info(discord.ui.View):
                     inline=False,
                 )
         guild = interaction.guild
-        box_info_embed.set_image(url=DIVIDER)
+        # box_info_embed.set_image(url=DIVIDER)
         box_info_embed.set_footer(text="Not every wonder is meant to be shared.", icon_url=guild.icon.url)
 
         await interaction.response.send_message(embed=box_info_embed, ephemeral=True)

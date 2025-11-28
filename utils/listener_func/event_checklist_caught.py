@@ -56,6 +56,15 @@ REAL_BOT_LOG_ID = 1076441765059502233
 BOT_LOG_ID = TEST_BOT_LOG_ID
 FISHING_EXCLUSIVE_MON = ["Paldean-Wooper"]
 SHINY_FISHIN_EXCLUSIVE_MON = ["Shiny Paldean-Wooper"]
+EVENT_EXCLUSIVE_MON = [
+    "miraidon",
+    "keldeo-resolute",
+    "shiny keldeo-resolute",
+    "shiny regirock",
+    "shiny regice",
+    "shiny registeel",
+    "shiny deoxys",
+]
 
 
 # ❀─────────────────────────────────────────❀
@@ -264,7 +273,17 @@ async def event_checklist_caught(
 
         embed_footer = embed.footer.text
 
-        if embed_color == SHINY_COLOR:
+        if pokemon_name.lower() in EVENT_EXCLUSIVE_MON:
+            catch_type = "event_exclusive"
+            rarity = extract_rarity_from_footer(embed_footer)
+            if rarity.lower() == "super rare":
+                rarity = "superrare"
+            espeon_log(
+                "info",
+                f"Identified event exclusive catch: {pokemon_name}, Rarity: {rarity}",
+                source="Event Checklist Caught",
+            )
+        elif embed_color == SHINY_COLOR:
             rarity = "shiny"
             pokemon_name = pokemon_name.replace("Shiny ", "")  # Clean for display
             if pokemon_name in legendary_mons:
@@ -394,12 +413,12 @@ async def event_checklist_caught(
                 else 0
             )
             desc = (
-                f"[Jump to Message]({after_message.jump_url})\n"
-                f"**Member:** {member.mention}\n"
-                f"**Pokémon:** {display_pokemon_name}\n"
-                f"**Catch Type:** {context}\n"
-                f"**Reward:** {points}{CHERRY_PIN}\n"
-                f"**New Balance:** {current_balance}{CHERRY_PIN}"
+                f"{Espeon_Emoji.pink_link} [Jump to Message]({after_message.jump_url})\n"
+                f"{Espeon_Emoji.pink_ribbon} **Member:** {member.mention}\n"
+                f"{Espeon_Emoji.loveball} **Pokémon:** {display_pokemon_name}\n"
+                f"{Espeon_Emoji.pink_star} **Catch Type:** {context}\n"
+                f"{Espeon_Emoji.pink_cupcake} **Reward:** {points}{CHERRY_PIN}\n"
+                f"{Espeon_Emoji.pink_heart_two} **New Balance:** {current_balance}{CHERRY_PIN}"
             )
             embed = discord.Embed(
                 title=f"{Espeon_Emoji.pink_celebrate} Rare Catch Detected!",
