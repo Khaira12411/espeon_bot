@@ -54,11 +54,15 @@ POINT_MAP = {
 TEST_BOT_LOG_ID = 1220786187401302036
 REAL_BOT_LOG_ID = 1076441765059502233
 BOT_LOG_ID = TEST_BOT_LOG_ID
-FISHING_EXCLUSIVE_MON = ["Paldean-Wooper"]
-SHINY_FISHIN_EXCLUSIVE_MON = ["Shiny Paldean-Wooper"]
+FISHING_EXCLUSIVE_MON = [
+    "Keldeo-Resolute",
+]
+SHINY_FISHIN_EXCLUSIVE_MON = [
+    "Shiny Keldeo-Resolute",
+]
 EVENT_EXCLUSIVE_MON = [
     "miraidon",
-    "keldeo-resolute",
+
     "shiny keldeo-resolute",
     "shiny regirock",
     "shiny regice",
