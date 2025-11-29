@@ -1,4 +1,5 @@
 class REGULAR_POKEMON_URL:
+    miraidon = "https://media.discordapp.net/attachments/706993472070090855/1443715101717823518/miraidon.gif?ex=692c0e37&is=692abcb7&hm=e371ec7dbe667d5a1aa8e08ff9d68ad8232a1f78f732d8f9fa48e9d0b22778af&=&width=103&height=120"
     missingno = "https://images-ext-1.discordapp.net/external/hvd_B-gSWeoAlOQolPLFq_79tfAmtuYC982RGOR2ZT0/https/i.ibb.co/x7YzV7v/YIFFB5I.gif"
     diglett = "https://media.discordapp.net/attachments/1410396560151543830/1410396591340257341/diglett.gif?ex=68b0ddaf&is=68af8c2f&hm=3a317661e11456ca87415add28cf04d3ba752402ddcf1bb594472239ce335d8a&="
     xerneas_neutral = "https://media.discordapp.net/attachments/1410396560151543830/1414225733500272762/23jsanc8a.png?ex=68becbd9&is=68bd7a59&hm=43e62af598af5d163634419d795254aea780a228d63a948ec1fa9ca5c8ca3fec&=&format=webp&quality=lossless&width=117&height=141"
@@ -32,6 +33,7 @@ class REGULAR_POKEMON_URL:
 
 
 class GOLDEN_MEGA_POKEMON_URL:
+    mega_heracross = "https://media.discordapp.net/attachments/1410396560151543830/1444319875089698947/214-mega.gif?ex=692c4734&is=692af5b4&hm=54dc65a3141a51c6d01acc19d15591ecacfee49e891d8e1c996753bf36b3de1c&=&width=98&height=98"
     mega_charizard_x = "https://cdn.discordapp.com/attachments/1331944490935517184/1331991187162140755/006-mega-x.gif?ex=67ccfa36&is=67cba8b6&hm=ae7ce2e28ceae6b6552bb8438dbcd5c40688529517d871bdb366ef2083b54117&"
 
     mega_blastoise = "https://cdn.discordapp.com/attachments/1275907909393584132/1276054722037551125/009-mega.gif?ex=67cd2b11&is=67cbd991&hm=f2f1b1a67d45e8f8de461f35cb4d1360ca938b8702aeb9e312ddc3db381dc94e&"
