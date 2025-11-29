@@ -12,7 +12,7 @@ from utils.database.server_currency import get_user_balance, update_user_balance
 from utils.database.server_shop import format_item_name, remove_item, update_stock
 from utils.essentials.loader import pretty_defer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
+from utils.listener_func.event_checklist_caught import is_nov_30_101pm_or_later_manila
 
 async def buy_item_func(
     bot: commands.Bot,
@@ -23,6 +23,14 @@ async def buy_item_func(
     Buy an item from the server shop.
     """
 
+    # Check if it is nov 30 1:01pm manila time or later
+    if not is_nov_30_101pm_or_later_manila():
+        await interaction.response.send_message(
+            content="The Petal Lace Shop is not yet open. Please try again later.",
+            ephemeral=True,
+        )
+        return
+    
     # Defer
     loader = await pretty_defer(
         interaction=interaction, content="Processing your purchase...", ephemeral=False

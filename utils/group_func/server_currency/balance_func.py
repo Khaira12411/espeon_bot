@@ -16,6 +16,7 @@ from utils.database.server_currency import (
     upsert_user_balance,
 )
 from utils.essentials.loader import pretty_defer
+from utils.listener_func.event_checklist_caught import is_nov_30_101pm_or_later_manila
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
@@ -275,7 +276,24 @@ async def reset_balance_func(
             embed.set_thumbnail(url=member.display_avatar.url)
     await loader.success(embed=embed, content="")
 
-    # TODO Log the balance reset action
+    # Log the balance reset action
+    log_channel = bot.get_channel(LOG_CHANNEL_ID)
+    if log_channel:
+        log_embed = discord.Embed(
+            title=f"{CHERRY_PIN} Cherry Pin Balance Reset",
+            description=description,
+            color=COLOR,
+            timestamp=datetime.now(),
+        )
+        if all_users.lower() != "yes" and member:
+            log_embed.set_thumbnail(url=member.display_avatar.url)
+            log_embed.set_author(
+                name=member.display_name, icon_url=member.display_avatar.url
+            )
+            log_embed.set_footer(
+                text=f"User ID: {member.id}", icon_url=member.display_avatar.url
+            )
+        await log_channel.send(embed=log_embed)
 
 
 # 🟣────────────────────────────────────────────
@@ -289,7 +307,13 @@ async def view_balance_func(
     """
     Check your Cherry Pin balance.
     """
-    # TODO Only allow staff to see other users' balances
+    # Check if its nov 30 1:01pm manila time or later
+    if not is_nov_30_101pm_or_later_manila():
+        await interaction.response.send_message(
+            content="The Cherry Pin system is not yet active. Please try again later.",
+            ephemeral=True,
+        )
+        return
 
     user_str = "your" if member is None else f"{member.display_name}'s"
     target_user = interaction.user if member is None else member
@@ -495,6 +519,8 @@ class Cherry_Pin_Reward_Info(discord.ui.View):
                 )
         guild = interaction.guild
         # box_info_embed.set_image(url=DIVIDER)
-        box_info_embed.set_footer(text="Not every wonder is meant to be shared.", icon_url=guild.icon.url)
+        box_info_embed.set_footer(
+            text="Not every wonder is meant to be shared.", icon_url=guild.icon.url
+        )
 
         await interaction.response.send_message(embed=box_info_embed, ephemeral=True)

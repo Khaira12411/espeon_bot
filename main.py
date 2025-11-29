@@ -22,6 +22,7 @@ from utils.loggers.espeon_log import espeon_log, set_espeon_bot
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
 from utils.listener_func.event_checklist_caught import processed_rare_catches
 from utils.listener_func.market_alert import processed_market_feed_message_ids, processed_snipe_ids
+from utils.schedules.scheduler import setup_scheduler
 
 # ——————————————————————————————————————————————————————————————
 # Suppress discord.py logs (must be set BEFORE imports)
@@ -441,7 +442,9 @@ async def on_ready():
         startup_tasks.start()
 
 
-# 💜 Loading Cogs & Database
+# ❀───────────────────────────────❀
+#       💜 Setup Hook 💜
+# ❀───────────────────────────────❀
 @bot.event
 async def setup_hook():
     print()
@@ -485,7 +488,9 @@ async def setup_hook():
         espeon_log("error", f"Guild sync failed: {e}", include_trace=True)
 
     print()
-
+    # ❀ Setup background task scheduler ❀
+    await setup_scheduler(bot)
+    bot.scheduler_manager = bot.scheduler_manager or None
 
 # 💜 Starting Bot
 if __name__ == "__main__":

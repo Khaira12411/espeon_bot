@@ -1,4 +1,5 @@
 class Espeon_Emoji:
+    hana_hug = "<a:hana_hug:1444216005550149794>"
     pink_heart_two = "<:pink_heart_two:1443560621479297095>"
     pink_cupcake = "<:pink_cupcake:1443559953758683208>"
     pink_star = "<:pink_star:1443559628955979797>"

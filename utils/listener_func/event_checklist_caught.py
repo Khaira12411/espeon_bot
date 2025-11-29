@@ -143,8 +143,8 @@ async def add_points_to_user(
     if message.embeds and message.embeds[0].image:
         embed.set_thumbnail(url=message.embeds[0].image.url)
 
-    # TODO Uncomment to enable message sending
-    # await message.channel.send(content=user.mention, embed=embed)
+
+    await message.channel.send(content=user.mention, embed=embed)
 
 
 def extract_member_username_from_embed(embed: discord.Embed) -> str | None:
@@ -165,6 +165,13 @@ def is_dec_28_1pm_or_later_manila():
     tz = pytz.timezone("Asia/Manila")
     now = datetime.now(tz)
     target = tz.localize(datetime(now.year, 12, 28, 13, 0, 0))
+    return now >= target
+
+
+def is_nov_30_101pm_or_later_manila():
+    tz = pytz.timezone("Asia/Manila")
+    now = datetime.now(tz)
+    target = tz.localize(datetime(now.year, 11, 30, 13, 0, 1))
     return now >= target
 
 
@@ -285,7 +292,7 @@ async def event_checklist_caught(
             elif rarity.lower() == "shiny":
                 rarity = "shiny"
                 pokemon_name = pokemon_name.replace("Shiny ", "")  # Clean for display
-                
+
             espeon_log(
                 "info",
                 f"Identified event exclusive catch: {pokemon_name}, Rarity: {rarity}",
@@ -399,8 +406,16 @@ async def event_checklist_caught(
     display_pokemon_name = f"{rarity_emoji} {pokemon_name}"
     source_image_url = embed.image.url if embed.image else None
 
-    # Log the rare catch for debug for now
-    # TODO UNCOMMENT THIS TO ENABLE POINTS
+    # TODO Remove eventuallly
+    if not is_nov_30_101pm_or_later_manila():
+        # dont process if before nov 30 1:01pm manila time
+        espeon_log(
+            "info",
+            "Current time is before Nov 30, 1:01 PM Manila time. Skipping points addition.",
+            source="Event Checklist Caught",
+        )
+        return
+
     # Add points to user balance
     await add_points_to_user(
         bot=bot,
@@ -410,7 +425,10 @@ async def event_checklist_caught(
         message=after_message,
         catch_type=context,
     )
-    bot_log_guild = bot.get_guild(CC_GUILD_ID)
+
+    # Log to bot-logs channel
+    BOT_LOG_ID = REAL_BOT_LOG_ID
+    bot_log_guild = bot.get_guild(STRAYMONS_GUILD_ID)
     if bot_log_guild:
         bot_log_channel = bot_log_guild.get_channel(BOT_LOG_ID)
         if bot_log_channel:

@@ -12,7 +12,7 @@ from utils.cache.cache_list import server_shop_cache
 from utils.database.server_shop import fetch_all_items, format_item_name
 from utils.essentials.loader import pretty_defer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
+from utils.listener_func.event_checklist_caught import is_nov_30_101pm_or_later_manila
 
 # 🌸───────────────────────────────────────────────🌸
 # 🩷 ⏰ PAGINATED SHOP VIEW       🩷
@@ -128,7 +128,14 @@ async def shop_view_func(
     """
     View all items in the server shop.
     """
-
+    # Check if it is nov 30 1:01pm manila time or later
+    if not is_nov_30_101pm_or_later_manila():
+        await interaction.response.send_message(
+            content="The Petal Lace Shop is not yet open. Please try again later.",
+            ephemeral=True,
+        )
+        return
+    
     if item_name:
         from utils.cache.server_shop_cache import fetch_shop_item_id_by_name
         item_id = fetch_shop_item_id_by_name(item_name)
