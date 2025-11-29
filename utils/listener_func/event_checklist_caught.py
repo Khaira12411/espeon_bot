@@ -282,6 +282,10 @@ async def event_checklist_caught(
             rarity = extract_rarity_from_footer(embed_footer)
             if rarity.lower() == "super rare":
                 rarity = "superrare"
+            elif rarity.lower() == "shiny":
+                rarity = "shiny"
+                pokemon_name = pokemon_name.replace("Shiny ", "")  # Clean for display
+                
             espeon_log(
                 "info",
                 f"Identified event exclusive catch: {pokemon_name}, Rarity: {rarity}",

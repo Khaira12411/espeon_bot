@@ -74,7 +74,10 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
             # 💜 Determine target_name and dex_number
             try:
                 if any(
-                    pokemon_title.startswith(f"{prefix}Mega ")
+                    (
+                        pokemon_title.startswith(f"{prefix}Mega ")
+                        or pokemon_title.startswith(f"{prefix}Mega-")
+                    )
                     for prefix in ["", "Shiny ", "Golden "]
                 ):
                     target_name = pokemon_title

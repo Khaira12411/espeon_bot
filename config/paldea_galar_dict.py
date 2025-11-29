@@ -61,6 +61,7 @@ legendary_mons = [
     "Hoopa",
     "Volcanion",
     # Alola
+    "Blacephalon",
     "Tapu-Koko",
     "Tapu-Lele",
     "Tapu-Bulu",

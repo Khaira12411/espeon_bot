@@ -106,7 +106,10 @@ async def add_market_alert_func(
                 raise ValueError("Invalid 4-digit Dex number.")
             target_name, dex_number = resolve_pokemon_input(pokemon)
         elif any(
-            pokemon_title.startswith(f"{prefix}Mega ")
+            (
+                pokemon_title.startswith(f"{prefix}Mega ")
+                or pokemon_title.startswith(f"{prefix}Mega-")
+            )
             for prefix in ["", "Shiny ", "Golden "]
         ):
             dex_number = parse_special_mega_input(pokemon)

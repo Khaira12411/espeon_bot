@@ -123,7 +123,10 @@ async def ev_tracker_add_func(
             pokemon, dex_number = resolve_pokemon_input(pokemon)
             pokemon_title = pokemon.title()
         elif any(
-            pokemon_title.startswith(f"{prefix}Mega ")
+            (
+                pokemon_title.startswith(f"{prefix}Mega ")
+                or pokemon_title.startswith(f"{prefix}Mega-")
+            )
             for prefix in ["", "Shiny ", "Golden "]
         ):
             dex_number = parse_special_mega_input(pokemon)
