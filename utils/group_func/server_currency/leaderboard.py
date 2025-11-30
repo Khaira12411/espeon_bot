@@ -148,7 +148,10 @@ async def balance_leaderboard_func(
         return
 
     # Sort users by highest balance first
-    sorted_balances = sorted(user_balances.items(), key=lambda x: x[1], reverse=True)
+    sorted_balances = [
+        (row["user_id"], row["cherry_pin_balance"]) for row in user_balances
+    ]
+    sorted_balances.sort(key=lambda x: x[1], reverse=True)
 
     # Create paginator
     paginator = Leaderboard_Paginator(
