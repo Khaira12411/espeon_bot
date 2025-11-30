@@ -5,9 +5,9 @@ from discord.ui import Modal, TextInput
 
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
 from utils.essentials.loader import pretty_defer
+from utils.essentials.role_checks import *
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
-from utils.essentials.role_checks import *
 
 # 🍭──────────────────────────────
 #   🎀 Modal: Staff Message Edit
@@ -84,9 +84,8 @@ class Staff_Message_Edit_Modal(Modal):
             or self.embed_description_input.value.strip()
         ):
             embed = discord.Embed(
-                title=self.embed_title_input.value.strip() or discord.Embed.Empty,
-                description=self.embed_description_input.value.strip()
-                or discord.Embed.Empty,
+                title=self.embed_title_input.value.strip() or None,
+                description=self.embed_description_input.value.strip() or None,
                 color=COLOR,
             )
 
