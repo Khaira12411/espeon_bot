@@ -154,38 +154,6 @@ async def egg_hatch_listener_func(
         else pokemon_name.title()
     )
 
-    # Log for debugging purposes
-    log_embed = discord.Embed(
-        title="🥚 Rare Egg Hatched",
-        description=(
-            f"[Jump to Message]({message.jump_url})\n"
-            f"- **User:** {member.mention}\n"
-            f"- **Pokemon:** {display_name}\n"
-        ),
-        color=embed_color if embed_color else COLOR,
-        timestamp=datetime.now(),
-    )
-    log_embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
-    log_embed.set_footer(
-        text=f"User ID: {member.id}",
-        icon_url=member.guild.icon.url if member.guild and member.guild.icon else None,
-    )
-    log_embed.set_thumbnail(url=thumbnail_url)
-    # TODO Replace with the actual bot log channel id
-    log_channel_guild = bot.get_guild(SERVER_ID)
-    log_channel = log_channel_guild.get_channel(BOT_LOG_ID)
-    if log_channel:
-        try:
-            await log_channel.send(embed=log_embed)
-        except Exception as e:
-            espeon_log(
-                tag="error",
-                message=(
-                    f"Failed to send egg hatch log embed to channel ID {BOT_LOG_ID}: {
-                        str(e)}"
-                ),
-                label="💖 EGG HATCH LISTENER",
-            )
 
     if rarity == "shiny":
         espeon_log(

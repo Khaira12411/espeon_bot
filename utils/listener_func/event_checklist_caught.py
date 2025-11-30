@@ -247,15 +247,17 @@ async def event_checklist_caught(
                 return
 
         # TODO Member is only valid if they have the hershey role
+        guild = after_message.guild
 
-        hershey_role_id = STRAYMONS__ROLES.charming_hershey_espresso
-        if hershey_role_id not in [role.id for role in member.roles]:
+        hershey_role = guild.get_role(STRAYMONS__ROLES.charming_hershey_espresso)
+        straymon_role = guild.get_role(STRAYMONS__ROLES.straymon)
+        if hershey_role not in member.roles or straymon_role not in member.roles:
             espeon_log(
                 "info",
-                f"Member '{member.display_name}' does not have the Hershey role. Skipping.",
+                f"Member {member.display_name} does not have the required roles. Skipping.",
                 source="Event Checklist Caught",
             )
-            return  # Member does not have the required role
+            return
 
         catch_type = None
         espeon_log(
