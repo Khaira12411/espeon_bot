@@ -3,6 +3,7 @@ from typing import Literal, Optional, Union
 import discord
 from discord import app_commands
 from discord.ext import commands
+
 from config.current_setup import STRAYMONS_GUILD_ID
 from utils.essentials.command_safe import run_command_safe
 from utils.essentials.role_checks import *
@@ -12,6 +13,7 @@ from utils.group_func.server_currency.balance_func import (
     reset_balance_func,
     view_balance_func,
 )
+from utils.group_func.server_currency.leaderboard import balance_leaderboard_func
 
 
 # 🟣────────────────────────────────────────────
@@ -143,6 +145,24 @@ class Balance_Group_Command(commands.Cog):
         )
 
     reset_balance.extras = {"category": "Staff"}
+
+    # 🟣────────────────────────────────────────────
+    #        💜 /balance leaderboard 💜
+    # ─────────────────────────────────────────────
+    @balance_group.command(
+        name="leaderboard", description="Show the balance leaderboard"
+    )
+    async def balance_leaderboard(self, interaction: discord.Interaction):
+        slash_cmd_name = "balance leaderboard"
+
+        await run_command_safe(
+            bot=self.bot,
+            interaction=interaction,
+            slash_cmd_name=slash_cmd_name,
+            command_func=balance_leaderboard_func,
+        )
+
+    balance_leaderboard.extras = {"category": "Public"}
 
 
 async def setup(bot: commands.Bot):
