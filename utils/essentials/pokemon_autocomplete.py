@@ -111,9 +111,15 @@ def format_display_name(raw_name: str) -> str:
     if clean_name in SPECIAL_CASES:
         return SPECIAL_CASES[clean_name]
 
-    # Capitalize all words
-    display_name = " ".join(word.capitalize() for word in clean_name.split())
+    # Capitalize first word, and capitalize after hyphens (for forms)
+    def smart_capitalize(name: str) -> str:
+        # Split by space, then for each part, split by hyphen and capitalize each
+        return " ".join(
+            "-".join(sub.capitalize() for sub in part.split("-"))
+            for part in name.split()
+        )
 
+    display_name = smart_capitalize(clean_name)
     return display_name
 
 

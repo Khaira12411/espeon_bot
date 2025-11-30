@@ -93,6 +93,7 @@ legendary_mons = [
 # palar_galar_dict
 # just replace the emojis at the bottom with infusion emoji
 from config.emojis import RarityEmojis
+
 FISHING_COLOR = 0x87CEFA
 common_icon_url = (
     "https://cdn.discordapp.com/emojis/834533715295600690.webp?size=96&quality=lossless"
@@ -154,6 +155,11 @@ rarity_meta = {
         # "emoji": "❓",
     },
     "event_exclusive": {"color": 15345163},
+    "mega": {"emoji": RarityEmojis.Mega},
+    "shiny mega": {"emoji": RarityEmojis.ShinyMega},
+    "golden mega": {"emoji": RarityEmojis.GoldenMega},
+    "gigantamax": {"emoji": RarityEmojis.Gigantamax},
+    "shiny gigantamax": {"emoji": RarityEmojis.shinygmax},
 }
 
 
@@ -274,7 +280,7 @@ paldean_mons = [
     "Arctibax",
     "Baxcalibur",
     "Gimmighoul",
-    "Paldean-Wooper"
+    "Paldean-Wooper",
 ]
 
 paldea_galar_dict = {
