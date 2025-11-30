@@ -14,20 +14,32 @@ def format_item_name(item_name: str) -> str:
     Format the item name for display.
     """
     LEGENDARY_ITEMS = ["Zacian", "Zamazenta", "MissingNo", "Arceus"]
+    SUPERRARE_ITEMS = ["castform-sunny", "alolan-ninetales"]
+    UNCOMMON_ITEMS = ["sprigatito"]
+    MEGA_ITEMS = ["mega mewtwo y"]
     if "coin" in item_name.lower():
         return item_name  # No special formatting for currency items
 
     rarity = None
-    if item_name in LEGENDARY_ITEMS:
-        rarity = "legendary"
-    elif "Shiny" in item_name:
+    lower_name = item_name.lower()
+    if "Shiny " in item_name:
         rarity = "shiny"
         item_name = item_name.replace("Shiny ", "")
-    elif "Golden" in item_name:
+    elif "Golden " in item_name:
         rarity = "golden"
         item_name = item_name.replace("Golden ", "")
+    elif item_name in LEGENDARY_ITEMS:
+        rarity = "legendary"
+    elif lower_name in SUPERRARE_ITEMS:
+        rarity = "superrare"
+    elif lower_name in UNCOMMON_ITEMS:
+        rarity = "uncommon"
+    elif lower_name in MEGA_ITEMS:
+        rarity = "mega"
+
+
     rarity_emoji = rarity_meta.get(rarity, {}).get("emoji", "") if rarity else ""
-    display_name = f"{rarity_emoji} {item_name}"
+    display_name = f"{rarity_emoji} {item_name.title()}" if rarity_emoji else item_name.title()
     return display_name
 
 
@@ -169,7 +181,7 @@ async def remove_item_by_name(bot: discord.Client, item_name: str) -> None:
             label="🛒 SERVER SHOP",
             context=EspeonContext.ESPEON,
         )
-        
+
 async def remove_item(bot: discord.Client, item_id: str) -> None:
     """
     Remove an item by item_id from the server_shop table.
