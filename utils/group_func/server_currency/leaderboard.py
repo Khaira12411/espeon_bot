@@ -7,7 +7,7 @@ from discord.ui import Button, View
 
 from config.aesthetic import Espeon_Emoji
 from config.current_setup import STRAYMONS_GUILD_ID
-from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
+from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER, LEADERBOARD_THUMBNAIL
 from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 from utils.cache.cache_list import server_shop_cache, user_balance_cache
 from utils.database.server_currency import fetch_all_user_balances
@@ -88,6 +88,8 @@ class Leaderboard_Paginator(View):
         rank_offset = start_index + 1
         title = f"{CHERRY_PIN} Cherry Pin Leaderboard "
         embed = discord.Embed(title=title, color=COLOR)
+        embed.set_thumbnail(url=LEADERBOARD_THUMBNAIL)
+        embed.set_image(url=DIVIDER)
         straymon_guild = self.bot.get_guild(STRAYMONS_GUILD_ID)
         total_users = len(self.sorted_balances)
         embed.set_footer(
@@ -110,7 +112,7 @@ class Leaderboard_Paginator(View):
                 field_name = f"🥉 {username}"
 
             field_value = f"{balance:,} {CHERRY_PIN}"
-            embed.add_field(name=field_name, value=field_value, inline=False)
+            embed.add_field(name=field_name, value=f"> - {field_value}", inline=False)
         return embed
 
     async def on_timeout(self):
@@ -147,9 +149,11 @@ async def balance_leaderboard_func(
         )
         return
 
-    # Sort users by highest balance first
+    # Filter out users with zero balance and sort by highest balance first
     sorted_balances = [
-        (row["user_id"], row["cherry_pin_balance"]) for row in user_balances
+        (row["user_id"], row["cherry_pin_balance"])
+        for row in user_balances
+        if row["cherry_pin_balance"] > 0
     ]
     sorted_balances.sort(key=lambda x: x[1], reverse=True)
 
