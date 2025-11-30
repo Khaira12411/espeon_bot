@@ -62,7 +62,6 @@ SHINY_FISHIN_EXCLUSIVE_MON = [
 ]
 EVENT_EXCLUSIVE_MON = [
     "miraidon",
-
     "shiny keldeo-resolute",
     "shiny regirock",
     "shiny regice",
@@ -143,7 +142,6 @@ async def add_points_to_user(
     if message.embeds and message.embeds[0].image:
         embed.set_thumbnail(url=message.embeds[0].image.url)
 
-
     await message.channel.send(content=user.mention, embed=embed)
 
 
@@ -153,9 +151,12 @@ def extract_member_username_from_embed(embed: discord.Embed) -> str | None:
     Returns None if not found.
     """
     if embed.author and embed.author.name:
-        # Look for pattern: "Congratulations, username!"
-
+        # Try 'Congratulations, username!' first
         match = re.search(r"Congratulations, ([^!]+)!", embed.author.name)
+        if match:
+            return match.group(1).strip()
+        # Fallback: 'Well done, username!'
+        match = re.search(r"Well done, ([^!]+)!", embed.author.name)
         if match:
             return match.group(1).strip()
     return None
