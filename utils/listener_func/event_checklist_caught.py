@@ -159,6 +159,10 @@ def extract_member_username_from_embed(embed: discord.Embed) -> str | None:
         match = re.search(r"Well done, ([^!]+)!", embed.author.name)
         if match:
             return match.group(1).strip()
+        # Fallback: 'Great work, username!'
+        match = re.search(r"Great work, ([^!]+)!", embed.author.name)
+        if match:
+            return match.group(1).strip()
     return None
 
 
