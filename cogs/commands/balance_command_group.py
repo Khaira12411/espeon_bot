@@ -39,7 +39,6 @@ class Balance_Group_Command(commands.Cog):
     @app_commands.describe(
         member="(Staff only) The member to view the balance of",
     )
-    @testing()
     async def view_balance(
         self,
         interaction: discord.Interaction,

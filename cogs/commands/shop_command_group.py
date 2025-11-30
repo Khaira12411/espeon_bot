@@ -32,7 +32,6 @@ class ServerShop(commands.Cog):
     @app_commands.describe(
         item_name="Name of the item to view (leave empty to view all items)",
     )
-    @testing()
     async def view_shop(
         self,
         interaction: discord.Interaction,
