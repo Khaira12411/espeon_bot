@@ -362,7 +362,7 @@ async def view_balance_func(
             f"Shiny full-odds – 2 {CHERRY_PIN}\n"
             f"Exclusive checklist – 3 {CHERRY_PIN}\n"
             f"Fishing legendary – 3 {CHERRY_PIN}\n"
-            f"Fishing shiny – 4 {CHERRY_PIN}\n"
+            f"Fishing shiny – 5 {CHERRY_PIN}\n"
             f"Fishing shiny exclusive checklist (if any) – 5 {CHERRY_PIN}\n"
             f"Shiny legendary full-odds – 5 {CHERRY_PIN}"
         ),
