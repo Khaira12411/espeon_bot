@@ -12,7 +12,9 @@ from utils.cache.cache_list import (
     mr_weakness_user_cache,
     server_shop_cache,
     user_balance_cache,
-    straymon_member_cache
+    straymon_member_cache,
+    webhook_url_cache
+
 )
 from utils.cache.ev_tracker_cache import load_ev_tracker_cache
 from utils.cache.market_alert_cache import load_market_alert_cache
@@ -22,6 +24,7 @@ from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.cache.server_shop_cache import load_server_shop_cache
 from utils.cache.user_balance_cache import load_user_balance_cache
 from utils.cache.straymons_members_cache import load_straymon_members_cache
+from utils.cache.webhook_url_cache import load_webhook_url_cache
 
 
 # 💜────────────────────────────────────────────
@@ -41,6 +44,9 @@ async def load_all_caches(bot):
 
         # 🌸 Load Market Alerts
         await load_market_alert_cache(bot)
+
+        # 🌐 Load Webhook URLs
+        await load_webhook_url_cache(bot)
 
         # 🌟 Load Mr. Weakness
         await load_mr_weakness_user_cache(bot)
@@ -66,6 +72,7 @@ async def load_all_caches(bot):
                 f"(Market Alerts: {len(market_alert_cache)} ~{get_deep_size(market_alert_cache)//1024} KB + "
                 f"Straymons Members: {len(straymon_member_cache)} ~{get_deep_size(straymon_member_cache)//1024} KB + "
                 f"MR Weakness: {len(mr_weakness_user_cache)} ~{get_deep_size(mr_weakness_user_cache)//1024} KB + "
+                f"Webhook URLs: {len(webhook_url_cache)} ~{get_deep_size(webhook_url_cache)//1024} KB + "
                 f"EV Trackers: {len(ev_tracker_cache)} ~{get_deep_size(ev_tracker_cache)//1024} KB + "
                 f"WB Pings: {len(WB_PING_CACHE)} ~{get_deep_size(WB_PING_CACHE)//1024} KB + "
                 f"Server Shop Items: {len(server_shop_cache)} ~{get_deep_size(server_shop_cache)//1024} KB + "

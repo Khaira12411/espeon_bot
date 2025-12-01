@@ -183,3 +183,15 @@ straymon_member_cache: dict[int, dict] = {}
 #   "user_name": str,
 #   "channel_id": int
 # }
+
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━
+#       🌸 Webhook URL Cache 🌸
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━
+webhook_url_cache: dict[int, dict] = {}
+# Structure:
+# {
+#   channel_id: {
+#       "channel_name": str,
+#       "url": str,
+#   },
+#   ...

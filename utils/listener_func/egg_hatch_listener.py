@@ -14,6 +14,7 @@ from utils.cache.cache_list import server_shop_cache, user_balance_cache
 from utils.database.server_currency import get_user_balance
 from utils.database.server_shop import fetch_item_by_name, remove_item_by_name
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
+from utils.function.webhook import send_webhook
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
@@ -154,7 +155,6 @@ async def egg_hatch_listener_func(
         else pokemon_name.title()
     )
 
-
     if rarity == "shiny":
         espeon_log(
             tag="info",
@@ -225,9 +225,7 @@ async def egg_hatch_listener_func(
                     quest_complete_log_embed.set_author(
                         name=member.display_name, icon_url=member.display_avatar.url
                     )
-                    quest_complete_log_embed.set_thumbnail(
-                        url=thumbnail_url
-                    )
+                    quest_complete_log_embed.set_thumbnail(url=thumbnail_url)
                     quest_complete_log_embed.set_footer(
                         text=f"User ID: {member.id}",
                         icon_url=(
@@ -243,11 +241,43 @@ async def egg_hatch_listener_func(
                         STRAYMONS__TEXT_CHANNELS.clan_event_log
                     )
                     if cafe_log_channel:
-                        await cafe_log_channel.send(embed=quest_complete_log_embed)
+                        #await cafe_log_channel.send(embed=quest_complete_log_embed)
+                        try:
+                            await send_webhook(
+                                bot,
+                                cafe_log_channel,
+                                embed=quest_complete_log_embed,
+                            )
+                        except Exception as e:
+                            espeon_log(
+                                tag="warn",
+                                message=(
+                                    f"⚠️ Failed to send daisyia quest completion "
+                                    f"log to cafe log channel: {e}"
+                                ),
+                                exc=e,
+                                label="💖 EGG HATCH LISTENER",
+                            )
                     if clan_event_log_channel:
-                        await clan_event_log_channel.send(
-                            embed=quest_complete_log_embed
-                        )
+                        try:
+                            await send_webhook(
+                                bot,
+                                clan_event_log_channel,
+                                embed=quest_complete_log_embed,
+                            )
+                            """await clan_event_log_channel.send(
+                                embed=quest_complete_log_embed
+                            )"""
+                        except Exception as e:
+                            espeon_log(
+                                tag="warn",
+                                message=(
+                                    f"⚠️ Failed to send daisyia quest completion "
+                                    f"log to clan event log channel: {e}"
+                                ),
+                                exc=e,
+                                label="💖 EGG HATCH LISTENER",
+                            )
                 else:
                     espeon_log(
                         tag="info",

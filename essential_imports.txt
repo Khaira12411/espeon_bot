@@ -7,7 +7,7 @@ from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.essentials.loader import pretty_defer
 from utils.essentials.role_checks import *
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
-
+from utils.function.webhook import send_webhook
 
 from utils.misc.number_parser import parse_compact_number
 from utils.misc.string_parser import parse_prefix

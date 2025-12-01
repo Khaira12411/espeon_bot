@@ -13,6 +13,7 @@ from utils.database.server_shop import format_item_name, remove_item, update_sto
 from utils.essentials.loader import pretty_defer
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.listener_func.event_checklist_caught import is_nov_30_101pm_or_later_manila
+from utils.function.webhook import send_webhook
 
 async def buy_item_func(
     bot: commands.Bot,
@@ -30,7 +31,7 @@ async def buy_item_func(
             ephemeral=True,
         )
         return
-    
+
     # Defer
     loader = await pretty_defer(
         interaction=interaction, content="Processing your purchase...", ephemeral=False
@@ -181,6 +182,39 @@ async def buy_item_func(
     cafe_log_channel = guild.get_channel(cafe_log_channel_id)
     clan_event_log_channel = guild.get_channel(clan_event_log_id)
     if cafe_log_channel:
-        await cafe_log_channel.send(embed=log_embed)
+        #await cafe_log_channel.send(embed=log_embed)
+        try:
+            await send_webhook(
+                bot,
+                cafe_log_channel,
+                embed=log_embed,
+            )
+        except Exception as e:
+            espeon_log(
+                tag="error",
+                message=(
+                    f"Failed to send shop purchase log webhook in channel "
+                    f"'{cafe_log_channel.name}' (ID: {cafe_log_channel.id}): {e}"
+                ),
+                label="🛒 SERVER SHOP",
+                context=EspeonContext.ESPEON,
+            )
     if clan_event_log_channel:
-        await clan_event_log_channel.send(embed=log_embed)
+        #await clan_event_log_channel.send(embed=log_embed)
+        try:
+            await send_webhook(
+                bot,
+                clan_event_log_channel,
+                embed=log_embed,
+            )
+        except Exception as e:
+            espeon_log(
+                tag="error",
+                message=(
+                    f"Failed to send shop purchase log webhook in channel "
+                    f"'{clan_event_log_channel.name}' (ID: {clan_event_log_channel.id}): {e}"
+                ),
+                label="🛒 SERVER SHOP",
+                context=EspeonContext.ESPEON,
+            )
+            

@@ -17,6 +17,7 @@ from utils.database.server_currency import get_user_balance
 from utils.database.server_shop import fetch_item_by_name, remove_item_by_name
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 from utils.loggers.espeon_log import EspeonContext, espeon_log
+from utils.function.webhook import send_webhook
 
 WEEKLY_ROLES = [
     STRAYMONS__ROLES.weekly_angler,
@@ -132,9 +133,35 @@ async def handle_role_add(
                         cafe_log_channel = member.guild.get_channel(STRAYMONS__TEXT_CHANNELS.cafe_logs)
                         clan_event_log_channel = member.guild.get_channel(STRAYMONS__TEXT_CHANNELS.clan_event_log)
                         if cafe_log_channel:
-                            await cafe_log_channel.send(embed=log_embed)
+                            #await cafe_log_channel.send(embed=log_embed)
+                            try:
+                                await send_webhook(
+                                    bot,
+                                    cafe_log_channel,
+                                    embed=log_embed,
+                                )
+                            except Exception as e:
+                                espeon_log(
+                                    tag="error",
+                                    message=(
+                                        f"Failed to send webhook log for Gardelette Quest completion of {member}: {e}"
+                                    ),
+                                )
                         if clan_event_log_channel:
-                            await clan_event_log_channel.send(embed=log_embed)
+                            #await clan_event_log_channel.send(embed=log_embed)
+                            try:
+                                await send_webhook(
+                                    bot,
+                                    clan_event_log_channel,
+                                    embed=log_embed,
+                                )
+                            except Exception as e:
+                                espeon_log(
+                                    tag="error",
+                                    message=(
+                                        f"Failed to send webhook log for Gardelette Quest completion of {member}: {e}"
+                                    ),
+                                )
                     else:
                         espeon_log(
                             tag="info",

@@ -16,7 +16,7 @@ from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed
-
+from utils.function.webhook import send_webhook
 from .event_checklist_caught import is_dec_28_1pm_or_later_manila
 
 TEST_BOT_LOG_ID = 1220786187401302036
@@ -161,7 +161,37 @@ async def handle_code_claim(bot: discord.Client, message: discord.Message):
                 STRAYMONS__TEXT_CHANNELS.clan_event_logs
             )
             if clan_event_log_channel:
-                await clan_event_log_channel.send(embed=quest_complete_log_embed)
+                #await clan_event_log_channel.send(embed=quest_complete_log_embed)
+                try:
+                    await send_webhook(
+                        bot,
+                        clan_event_log_channel,
+                        embed=quest_complete_log_embed,
+                    )
+                except Exception as e:
+                    espeon_log(
+                        tag="error",
+                        message=(
+                            f"Failed to send Melaryne Quest completion log webhook "
+                            f"in clan event logs channel: {e}"
+                        ),
+                        label="💖 CODE CLAIM LISTENER",
+                    )
             cafe_log_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.cafe_logs)
             if cafe_log_channel:
-                await cafe_log_channel.send(embed=quest_complete_log_embed)
+                #await cafe_log_channel.send(embed=quest_complete_log_embed)
+                try:
+                    await send_webhook(
+                        bot,
+                        cafe_log_channel,
+                        embed=quest_complete_log_embed,
+                    )
+                except Exception as e:
+                    espeon_log(
+                        tag="error",
+                        message=(
+                            f"Failed to send Melaryne Quest completion log webhook "
+                            f"in cafe logs channel: {e}"
+                        ),
+                        label="💖 CODE CLAIM LISTENER",
+                    )   

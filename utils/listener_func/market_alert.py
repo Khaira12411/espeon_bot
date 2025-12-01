@@ -22,6 +22,7 @@ from config.straymons_constants import (
 )
 from utils.cache.cache_list import _market_alert_index, _role_cache, market_alert_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
+from utils.function.webhook import send_webhook
 
 ALLOWED_WEBHOOKS = {
     1301883013571022892,  # Shiny
@@ -184,12 +185,25 @@ async def snipe_handler(
                 text="Please check listing before purchase. 🪻",
                 icon_url=message.guild.icon.url,
             )
-            await snipe_channel.send(content=content, embed=snipe_embed)
-            espeon_log(
-                "sent",
-                f"Sent snipe alert for {display_pokemon_name} to channel {snipe_channel.id}",
-                context=EspeonContext.STRAYMONS,
-            )
+            #await snipe_channel.send(content=content, embed=snipe_embed)
+            try:
+                await send_webhook(
+                    bot,
+                    snipe_channel,
+                    content=content,
+                    embed=snipe_embed,
+                )
+                espeon_log(
+                    "sent",
+                    f"Sent snipe alert for {display_pokemon_name} to channel {snipe_channel.id}",
+                    context=EspeonContext.STRAYMONS,
+                )
+            except Exception as e:
+                espeon_log(
+                    "error",
+                    f"Failed to send snipe alert: {e}",
+                    context=EspeonContext.STRAYMONS,
+                )
 
 
 async def process_market_alert_message(

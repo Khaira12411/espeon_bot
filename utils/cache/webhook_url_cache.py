@@ -1,0 +1,61 @@
+import discord
+
+from utils.cache.cache_list import webhook_url_cache
+from utils.database.webhook_url_db import fetch_all_webhook_urls
+from utils.loggers.espeon_log import EspeonContext, espeon_log
+
+
+async def load_webhook_url_cache(bot: discord.Client):
+    """
+    Loads all webhook URLs from the database into the cache.
+    """
+    webhook_url_cache.clear()
+    rows = await fetch_all_webhook_urls(bot)
+    for channel_id, url, channel_name in rows:
+        webhook_url_cache[channel_id] = {
+            "channel_name": channel_name,
+            "url": url,
+        }
+
+    espeon_log(
+        tag="cache",
+        message=f"Loaded {len(rows)} webhook URLs into cache",
+        label="🌐 WEBHOOK URL CACHE",
+        context=EspeonContext.ESPEON,
+    )
+    return webhook_url_cache
+
+def upsert_webhook_url_in_cache(
+    channel: discord.TextChannel,
+    webhook_url: str,
+):
+    """
+    Upserts a webhook URL into the cache.
+    """
+    channel_id = channel.id
+    channel_name = channel.name
+    webhook_url_cache[channel_id] = {
+        "channel_name": channel_name,
+        "url": webhook_url,
+    }
+    espeon_log(
+        tag="cache",
+        message=f"Upserted webhook URL for channel '{channel_name}' (ID: {channel_id}) into cache",
+        label="🌐 WEBHOOK URL CACHE",
+        context=EspeonContext.ESPEON,
+    )
+
+def remove_webhook_url_from_cache(channel: discord.TextChannel):
+    """
+    Removes a webhook URL from the cache.
+    """
+    channel_id = channel.id
+    channel_name = channel.name
+    if channel_id in webhook_url_cache:
+        del webhook_url_cache[channel_id]
+        espeon_log(
+            tag="cache",
+            message=f"Removed webhook URL for channel '{channel_name}' (ID: {channel_id}) from cache",
+            label="🌐 WEBHOOK URL CACHE",
+            context=EspeonContext.ESPEON,
+        )

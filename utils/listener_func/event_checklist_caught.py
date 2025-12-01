@@ -18,6 +18,7 @@ from utils.database.server_currency import (
 )
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 from utils.loggers.espeon_log import espeon_log
+from utils.function.webhook import send_webhook
 
 # key = embed_color
 SHINY_COLOR = 16751052
@@ -463,4 +464,22 @@ async def event_checklist_caught(
             )
             if source_image_url:
                 embed.set_thumbnail(url=source_image_url)
-            await bot_log_channel.send(embed=embed)
+
+            #await bot_log_channel.send(embed=embed)
+            try:
+                await send_webhook(
+                    bot=bot,
+                    channel=bot_log_channel,
+                    embed=embed,
+                )
+                espeon_log(
+                    "info",
+                    f"Logged rare catch to bot log channel for member: {member.display_name}",
+                    source="Event Checklist Caught",
+                )
+            except Exception as e:
+                espeon_log(
+                    "error",
+                    f"Failed to log rare catch to bot log channel: {e}",
+                    source="Event Checklist Caught",
+                )
