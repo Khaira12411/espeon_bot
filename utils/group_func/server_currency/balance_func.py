@@ -356,15 +356,15 @@ async def view_balance_func(
     info_embed = discord.Embed(
         title="🍒 Cherry Pin Rewards Info 🍒",
         description=(
+            f"Shiny Event – 2 {CHERRY_PIN}\n"
+            f"Exclusive Event – 3 {CHERRY_PIN}\n"
+            f"Fishing Shiny Event (if any) – 5 {CHERRY_PIN}\n"
+            f"Fishing Exclusive Event (if any) – 2 {CHERRY_PIN}\n"
             f"Legendary – 1 {CHERRY_PIN}\n"
-            f"Shiny checklist – 2 {CHERRY_PIN}\n"
-            f"Fishing exclusive checklist (if any) – 2 {CHERRY_PIN}\n"
-            f"Shiny full-odds – 2 {CHERRY_PIN}\n"
-            f"Exclusive checklist – 3 {CHERRY_PIN}\n"
-            f"Fishing legendary – 3 {CHERRY_PIN}\n"
-            f"Fishing shiny – 5 {CHERRY_PIN}\n"
-            f"Fishing shiny exclusive checklist (if any) – 5 {CHERRY_PIN}\n"
-            f"Shiny legendary full-odds – 5 {CHERRY_PIN}"
+            f"Shiny Full Odds – 2 {CHERRY_PIN}\n"
+            f"Shiny Legendary Full Odds – 5 {CHERRY_PIN}\n"
+            f"Fishing Legendary – 2 {CHERRY_PIN}\n"
+            f"Fishing Shiny – 5 {CHERRY_PIN}\n"
         ),
         color=COLOR,
         timestamp=datetime.now(),
