@@ -159,6 +159,7 @@ async def add_market_alert_func(
 
     clan_staff = interaction.guild.get_role(STRAYMONS__ROLES.clan_staff)
     is_staff = clan_staff in user.roles or interaction.guild.id == STAFF_SERVER_GUILD_ID
+    original_name = target_name
     target_name = target_name.title()
     target_name = parse_prefix(target_name)
     desc_lines = [
@@ -183,7 +184,7 @@ async def add_market_alert_func(
     user_embed = design_embed(
         embed=user_embed,
         user=user,
-        pokemon_name=target_name.lower(),
+        pokemon_name=original_name.lower(),
         footer_text=footer_text,
     )
 
@@ -204,7 +205,9 @@ async def add_market_alert_func(
             color=0xFF99FF,
             timestamp=datetime.now(),
         )
-        log_embed = design_embed(embed=log_embed, user=user, pokemon_name=target_name.lower())
+        log_embed = design_embed(
+            embed=log_embed, user=user, pokemon_name=original_name.lower()
+        )
 
     # 💜 Stop loader and show final embed
     await loader.success(embed=user_embed, content="")

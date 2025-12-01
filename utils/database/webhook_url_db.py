@@ -3,6 +3,7 @@ import discord
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 """CREATE TABLE webhook_url (
+    bot_id BIGINT NOT NULL,
     channel_id BIGINT PRIMARY KEY,
     channel_name TEXT NOT NULL,
     url TEXT NOT NULL

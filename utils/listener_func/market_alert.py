@@ -21,8 +21,8 @@ from config.straymons_constants import (
     STRAYMONS__TEXT_CHANNELS,
 )
 from utils.cache.cache_list import _market_alert_index, _role_cache, market_alert_cache
-from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.function.webhook import send_webhook
+from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 ALLOWED_WEBHOOKS = {
     1301883013571022892,  # Shiny
@@ -106,8 +106,10 @@ async def snipe_handler(
     message: discord.Message,
     embed: discord.Embed,
 ):
-    embed_color = embed.color.value
-    rarity = get_rarity_by_color(embed_color)
+    embed_color = None
+    if embed and hasattr(embed, "color") and embed.color is not None:
+        embed_color = embed.color.value
+    rarity = get_rarity_by_color(embed_color) if embed_color is not None else "unknown"
     second_snipe_rarity_role = None
     if poke_name.title() in PRE_MEGA_LIST and (rarity != "shiny" and rarity != "mega"):
         second_rarity_role_id = STRAYMONS__ROLES.premega_snipe
@@ -185,7 +187,7 @@ async def snipe_handler(
                 text="Please check listing before purchase. 🪻",
                 icon_url=message.guild.icon.url,
             )
-            #await snipe_channel.send(content=content, embed=snipe_embed)
+            # await snipe_channel.send(content=content, embed=snipe_embed)
             try:
                 await send_webhook(
                     bot,
