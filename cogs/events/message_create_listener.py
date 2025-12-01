@@ -66,102 +66,124 @@ class MessageCreateListener(commands.Cog):
     # 💜────────────────────────────────────────────
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        try:
-            # ---- WB SUB PING
-            if message.channel.id == STRAYMONS__TEXT_CHANNELS.worldboss_tracker:
-                try:
-                    await ping_wb_subscribers(bot=self.bot, message=message)
-
-                except Exception as e:
-                    espeon_log(
-                        "error",
-                        f"WB Sub ping failed for message {message.id}: {e}",
-                    )
-            # 🚫 Ignore bots except PokéMeow, but allow webhooks
-            if (
-                message.author.bot
-                and message.author.id != POKEMEOW_APPLICATION_ID
-                and not message.webhook_id
-            ):
-                return
-            # ---- afk reply
+        # ---- WB SUB PING
+        if message.channel.id == STRAYMONS__TEXT_CHANNELS.worldboss_tracker:
             try:
-                await afk_reply_on_mention(message)
-            except Exception as afk_e:
+                await ping_wb_subscribers(bot=self.bot, message=message)
+
+            except Exception as e:
                 espeon_log(
                     "error",
-                    f"AFK reply failed for message {message.id}: {afk_e}",
-                    source="MessageCreateListener",
+                    f"WB Sub ping failed for message {message.id}: {e}",
                 )
+        # 🚫 Ignore bots except PokéMeow, but allow webhooks
+        if (
+            message.author.bot
+            and message.author.id != POKEMEOW_APPLICATION_ID
+            and not message.webhook_id
+        ):
+            return
+        # ---- afk reply
+        try:
+            await afk_reply_on_mention(message)
+        except Exception as afk_e:
+            espeon_log(
+                "error",
+                f"AFK reply failed for message {message.id}: {afk_e}",
+                source="MessageCreateListener",
+            )
 
-            # --- Weakness chart processing (Active + Staff Guilds) ---
-            if message.guild and message.guild.id == STRAYMONS_GUILD_ID:
-                # ✨───────────────────────────────────────────────✨
-                # 🪻 Petal Lace News Post
-                # ✨───────────────────────────────────────────────✨
-                if (
-                    message.content
-                    and message.content.lower() == "!post"
-                    and message.author.id == KHY_USER_ID
-                ):
-                    await post_news_func(bot=self.bot, message=message)
+        # --- Weakness chart processing (Active + Staff Guilds) ---
+        if message.guild and message.guild.id == STRAYMONS_GUILD_ID:
 
-                # ✨───────────────────────────────────────────────✨
-                # 🪻 MARKET ALERT
-                # ✨───────────────────────────────────────────────✨
-                if message.channel.id in MARKETFEED_CHANNELS:
+            # ✨───────────────────────────────────────────────✨
+            # 🪻 MARKET ALERT
+            # ✨───────────────────────────────────────────────✨
+            if message.channel.id in MARKETFEED_CHANNELS:
+                try:
                     await process_market_alert_message(
                         self.bot, message, STRAYMONS__CATEGORIES.MONSTREET_EXCHANGE
                     )
-                # ✨───────────────────────────────────────────────✨
-                # 🪻 Egg Hatch Listener
-                # ✨───────────────────────────────────────────────✨
-                if (
-                    message.embeds
-                    and message.embeds[0]
-                    and message.content
-                    and message.embeds[0].author
-                    and "hatched an Egg!" in (message.embeds[0].author.name or "")
-                    and "just hatched a" in message.content
-                ):
+                except Exception as ma_e:
+                    espeon_log(
+                        "error",
+                        f"Market alert processing failed for message {message.id} in {message.channel.name}: {ma_e}",
+                        source="process_market_alert_message",
+                    )
+            # ✨───────────────────────────────────────────────✨
+            # 🪻 Egg Hatch Listener
+            # ✨───────────────────────────────────────────────✨
+            if (
+                message.embeds
+                and message.embeds[0]
+                and message.content
+                and message.embeds[0].author
+                and "hatched an Egg!" in (message.embeds[0].author.name or "")
+                and "just hatched a" in message.content
+            ):
+                try:
                     await egg_hatch_listener_func(bot=self.bot, message=message)
-                # ✨───────────────────────────────────────────────✨
-                # 🪻 Code Claim Listener
-                # ✨───────────────────────────────────────────────✨
-                if (
-                    message.content
-                    and triggers["code_use"].lower() in message.content.lower()
-                ):
+                except Exception as eh_e:
+                    espeon_log(
+                        "error",
+                        f"Egg hatch processing failed for message {message.id} in {message.channel.name}: {eh_e}",
+                        source="egg_hatch_listener_func",
+                    )
+            # ✨───────────────────────────────────────────────✨
+            # 🪻 Code Claim Listener
+            # ✨───────────────────────────────────────────────✨
+            if (
+                message.content
+                and triggers["code_use"].lower() in message.content.lower()
+            ):
+                try:
                     await handle_code_claim(bot=self.bot, message=message)
-                # ✨───────────────────────────────────────────────✨
-                # 🪻 MR WEAKNESS CHART
-                # ✨───────────────────────────────────────────────✨
-                if message.embeds and message.embeds[0]:
-                    embed_title = message.embeds[0].title or ""
-                    if "Wave" in embed_title:
+                except Exception as cc_e:
+                    espeon_log(
+                        "error",
+                        f"Code claim processing failed for message {message.id} in {message.channel.name}: {cc_e}",
+                        source="handle_code_claim",
+                    )
+            # ✨───────────────────────────────────────────────✨
+            # 🪻 MR WEAKNESS CHART
+            # ✨───────────────────────────────────────────────✨
+            if message.embeds and message.embeds[0]:
+                embed_title = message.embeds[0].title or ""
+                if "Wave" in embed_title:
+                    try:
                         await mr_weakness_chart(bot=self.bot, message=message)
-
-                # ✨───────────────────────────────────────────────✨
-                # 🪻 EV TRAINING
-                # ✨───────────────────────────────────────────────✨
-                if message.content and "won the battle" in message.content:
+                    except Exception as mw_e:
+                        espeon_log(
+                            "error",
+                            f"Mr. Weakness processing failed for message {message.id} in {message.channel.name}: {mw_e}",
+                            source="mr_weakness_chart",
+                        )
+            # ✨───────────────────────────────────────────────✨
+            # 🪻 EV TRAINING
+            # ✨───────────────────────────────────────────────✨
+            if message.content and "won the battle" in message.content:
+                try:
                     await handle_pokemeow_battle_message(bot=self.bot, message=message)
-
-                # ✨───────────────────────────────────────────────✨
-                # 🪻 EV TRACKER BUD
-                # ✨───────────────────────────────────────────────✨
-                if message.embeds and message.embeds[0]:
-                    embed_description = message.embeds[0].description
-                    if embed_description and bud_info_trigger in embed_description:
+                except Exception as ev_e:
+                    espeon_log(
+                        "error",
+                        f"EV Tracker battle processing failed for message {message.id} in {message.channel.name}: {ev_e}",
+                        source="handle_pokemeow_battle_message",
+                    )
+            # ✨───────────────────────────────────────────────✨
+            # 🪻 EV TRACKER BUD
+            # ✨───────────────────────────────────────────────✨
+            if message.embeds and message.embeds[0]:
+                embed_description = message.embeds[0].description
+                if embed_description and bud_info_trigger in embed_description:
+                    try:
                         await handle_pokemeow_embed_sync(bot=self.bot, message=message)
-
-        except Exception as e:
-            espeon_log(
-                "critical",
-                f"Unhandled exception in on_message: {e}",
-                include_trace=True,
-                source="MessageCreateListener",
-            )
+                    except Exception as ev_e:
+                        espeon_log(
+                            "error",
+                            f"EV Tracker sync failed for message {message.id} in {message.channel.name}: {ev_e}",
+                            source="handle_pokemeow_embed_sync",
+                        )
 
 
 # 💜────────────────────────────────────────────
