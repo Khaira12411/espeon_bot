@@ -131,18 +131,17 @@ async def add_points_to_user(
         )
     # Send confirmation message
     embed = discord.Embed(
-        title="🎉 Points Awarded!",
         description=(
-            f"You have been awarded {points} points for catching {display_pokemon_name}!\n"
-            f"**Catch Type:** {catch_type}\n"
-            f"**New Balance:** {new_balance} {CHERRY_PIN}"
+            f"You have earned {points} {CHERRY_PIN} for catching {display_pokemon_name}!\n"
+            f"{Espeon_Emoji.pink_star} **Catch Type:** {catch_type}\n"
+            f"{Espeon_Emoji.pink_heart_two} **New Balance:** {new_balance} {CHERRY_PIN}"
         ),
-        color=0x00FF00,
+        color=COLOR,
     )
     embed.set_author(name=user.display_name, icon_url=user.display_avatar.url)
     if message.embeds and message.embeds[0].image:
         embed.set_thumbnail(url=message.embeds[0].image.url)
-
+    embed.set_image(url=DIVIDER)
     await message.channel.send(content=user.mention, embed=embed)
 
 
