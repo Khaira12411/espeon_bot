@@ -108,7 +108,11 @@ async def snipe_handler(
 ):
     embed_color = None
     if embed and hasattr(embed, "color") and embed.color is not None:
-        embed_color = embed.color.value
+        # Defensive: Only access .value if it exists
+        if hasattr(embed.color, "value"):
+            embed_color = embed.color.value
+        else:
+            embed_color = None
     rarity = get_rarity_by_color(embed_color) if embed_color is not None else "unknown"
     second_snipe_rarity_role = None
     if poke_name.title() in PRE_MEGA_LIST and (rarity != "shiny" and rarity != "mega"):
