@@ -65,6 +65,7 @@ PRE_MEGA_LIST = [
     "Tyranitar",
     "Sceptile",
     "Blaziken",
+    "Steelix"
     "Swampert",
     "Gardevoir",
     "Sableye",
