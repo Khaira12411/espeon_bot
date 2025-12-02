@@ -53,7 +53,7 @@ processed_egg_hatches = set()
 SERVER_ID = CC_GUILD_ID
 
 
-enable_debug(f"{__name__}.egg_hatch_listener_func")
+#enable_debug(f"{__name__}.egg_hatch_listener_func")
 
 
 # ❀─────────────────────────────────────────❀

@@ -22,6 +22,7 @@ from config.straymons_constants import (
 )
 from utils.cache.cache_list import _market_alert_index, _role_cache, market_alert_cache
 from utils.function.webhook import send_webhook
+from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 ALLOWED_WEBHOOKS = {
@@ -93,7 +94,8 @@ PRE_MEGA_LIST = [
 
 processed_market_feed_message_ids = set()
 processed_snipe_ids = set()
-
+enable_debug(f"{__name__}.snipe_handler")
+enable_debug(f"{__name__}.process_market_alert_message")
 
 async def snipe_handler(
     bot: discord.Client,
@@ -106,6 +108,9 @@ async def snipe_handler(
     message: discord.Message,
     embed: discord.Embed,
 ):
+    debug_log(
+        f"snipe_handler called for {poke_name} id={id} listed_price={listed_price} lowest_market={lowest_market}"
+    )
     DEFAULT_COLOR = 0x0855FB
     embed_color = None
     if embed and hasattr(embed, "color") and embed.color is not None:
@@ -114,12 +119,15 @@ async def snipe_handler(
             embed_color = embed.color.value
     if embed_color is None:
         embed_color = DEFAULT_COLOR
-        
+
+    debug_log(f"embed_color resolved to {embed_color}")
     rarity = get_rarity_by_color(embed_color) if embed_color is not None else "unknown"
+    debug_log(f"rarity resolved to {rarity}")
     second_snipe_rarity_role = None
     if poke_name.title() in PRE_MEGA_LIST and (rarity != "shiny" and rarity != "mega"):
         second_rarity_role_id = STRAYMONS__ROLES.premega_snipe
         second_snipe_rarity_role = message.guild.get_role(second_rarity_role_id)
+        debug_log(f"second_snipe_rarity_role resolved to {second_snipe_rarity_role}")
 
     elif rarity == "unknown":
         if "shiny" in poke_name.lower():
@@ -130,11 +138,13 @@ async def snipe_handler(
             rarity = "gmax"
         elif embed.author and embed.author.icon_url == Legendary_icon_url:
             rarity = "legendary"
+        debug_log(f"rarity fallback resolved to {rarity}")
     elif rarity == "event_exclusive":
         icon_url = embed.author.icon_url
         if poke_name.title() in paldean_mons:
             second_rarity_role_id = STRAYMONS__ROLES.paldean_snipe
             second_snipe_rarity_role = message.guild.get_role(second_rarity_role_id)
+            debug_log(f"paldean_snipe role resolved to {second_snipe_rarity_role}")
         else:
             second_snipe_rarity = icon_url_map.get(icon_url)
             if second_snipe_rarity:
@@ -145,28 +155,33 @@ async def snipe_handler(
                     second_snipe_rarity_role = message.guild.get_role(
                         second_rarity_role_id
                     )
+                    debug_log(
+                        f"second_snipe_rarity_role from icon_url_map resolved to {second_snipe_rarity_role}"
+                    )
 
     ping_role_id = SNIPE_MAP.get(rarity, {}).get("role")
+    debug_log(f"ping_role_id resolved to {ping_role_id}")
     if ping_role_id:
         guild = message.guild
         role = guild.get_role(ping_role_id)
         snipe_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.market_snipe)
+        debug_log(f"role resolved to {role}, snipe_channel resolved to {snipe_channel}")
         # snipe_channel = guild.get_channel(STRAYMONS__TEXT_CHANNELS.test_snipe)
         if role and snipe_channel:
             display_pokemon_name = poke_name.title()
             if second_snipe_rarity_role:
-                content = content = (
-                    f"{role.mention} {second_snipe_rarity_role.mention} {display_pokemon_name} listed for {PokeCoin} {listed_price:,} each"
-                )
+                content = f"{role.mention} {second_snipe_rarity_role.mention} {display_pokemon_name} listed for {PokeCoin} {listed_price:,} each"
             else:
                 content = f"{role.mention} {display_pokemon_name} listed for {PokeCoin} {listed_price:,} each"
 
+            debug_log(f"content for snipe alert: {content}")
             # Check if lowest market is int or "?"
             if isinstance(lowest_market, int):
                 lowest_market_str = f"{PokeCoin} {lowest_market:,}"
             else:
                 lowest_market_str = f"{PokeCoin} {lowest_market}"
 
+            debug_log(f"lowest_market_str resolved to {lowest_market_str}")
             # Build embed
             snipe_embed = Embed(color=embed.color or 0x0855FB)
             if embed.thumbnail:
@@ -195,6 +210,7 @@ async def snipe_handler(
             )
             # await snipe_channel.send(content=content, embed=snipe_embed)
             try:
+                debug_log(f"Sending snipe alert to channel {snipe_channel.id}")
                 await send_webhook(
                     bot,
                     snipe_channel,
@@ -207,6 +223,7 @@ async def snipe_handler(
                     context=EspeonContext.STRAYMONS,
                 )
             except Exception as e:
+                debug_log(f"Failed to send snipe alert: {e}")
                 espeon_log(
                     "error",
                     f"Failed to send snipe alert: {e}",
@@ -218,21 +235,36 @@ async def process_market_alert_message(
     bot: discord.Client, message: discord.Message, market_category_id: int
 ):
 
+    debug_log(
+        f"process_market_alert_message called for message.id={message.id}, channel={getattr(message.channel, 'id', None)}"
+    )
     if message.channel.category_id != market_category_id:
+        debug_log(
+            f"Skipping message.id={message.id}: wrong category_id {getattr(message.channel, 'category_id', None)}"
+        )
         return
     if message.webhook_id not in ALLOWED_WEBHOOKS:
+        debug_log(
+            f"Skipping message.id={message.id}: webhook_id {message.webhook_id} not allowed"
+        )
         return
     if not message.embeds:
+        debug_log(f"Skipping message.id={message.id}: no embeds")
         return
 
     if message.id in processed_market_feed_message_ids:
+        debug_log(f"Skipping message.id={message.id}: already processed")
         return
     processed_market_feed_message_ids.add(message.id)
 
     for embed in message.embeds:
+        debug_log(f"Processing embed in message.id={message.id}")
         embed_author_name = embed.author.name if embed.author else ""
         match = re.match(r"(.+?)\s+#(\d+)", embed_author_name)
         if not match:
+            debug_log(
+                f"Skipping embed: author name format not matched: {embed_author_name}"
+            )
             continue
 
         poke_name = match.group(1)
@@ -257,6 +289,7 @@ async def process_market_alert_message(
         author_icon_url = embed.author.icon_url if embed.author else None
         # Rebuild index if empty
         if not _market_alert_index:
+            debug_log("Rebuilding _market_alert_index from market_alert_cache")
             _market_alert_index.clear()
             for alert in market_alert_cache:
                 # key by pokemon.lower() only, keep list for multiple alerts per Pokemon
@@ -267,10 +300,13 @@ async def process_market_alert_message(
 
         # ✅ O(1) lookup using indexed cache
         alerts_to_check = _market_alert_index.get(poke_name.lower(), [])
+        debug_log(f"alerts_to_check for {poke_name}: {len(alerts_to_check)}")
 
         # --- Fallback to linear search if index is empty ---
         if not alerts_to_check:
-
+            debug_log(
+                f"No indexed alerts for {poke_name}, falling back to linear search"
+            )
             alerts_to_check = [
                 alert
                 for alert in market_alert_cache
@@ -281,6 +317,9 @@ async def process_market_alert_message(
         if original_id not in processed_snipe_ids:
             processed_snipe_ids.add(original_id)
             if lowest_market > 0 and listed_price <= lowest_market * 0.7:
+                debug_log(
+                    f"Snipe detected for {poke_name} #{poke_dex}: listed_price={listed_price}, lowest_market={lowest_market}"
+                )
                 espeon_log(
                     "info",
                     f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market: {lowest_market})",
@@ -298,6 +337,9 @@ async def process_market_alert_message(
                     embed,
                 )
             elif lowest_market == 0:
+                debug_log(
+                    f"Snipe detected for {poke_name} #{poke_dex}: listed_price={listed_price}, lowest_market unknown"
+                )
                 espeon_log(
                     "info",
                     f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market unknown)",
