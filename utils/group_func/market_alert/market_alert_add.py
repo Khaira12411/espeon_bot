@@ -117,6 +117,14 @@ async def add_market_alert_func(
         else:
             target_name, dex_number = resolve_pokemon_input(pokemon)
 
+        # Clean mega- names
+        if "mega-" in target_name.lower():
+            target_name = target_name.replace("Mega-", "Mega ")
+        elif "shiny mega-" in target_name.lower():
+            target_name = target_name.replace("Shiny Mega-", "Shiny Mega ")
+        elif "golden mega-" in target_name.lower():
+            target_name = target_name.replace("Golden Mega-", "Golden Mega ")
+
         # 🔹 Step 2: Validate max price
         await loader.edit(content="Validating max price...")
         max_price_int = int(max_price)
