@@ -179,6 +179,50 @@ def get_rarity_by_color(color_value):
         >>> get_rarity_by_color(16550924)
         'rare'
     """
+    # Try direct match first
+    for rarity_name, rarity_data in rarity_meta.items():
+        if rarity_data.get("color") == color_value:
+            return rarity_name
+
+    # Try converting between hex and decimal
+    # If input is int, try hex string
+    if isinstance(color_value, int):
+        hex_str = hex(color_value)
+        try:
+            hex_int = int(hex_str, 16)
+            for rarity_name, rarity_data in rarity_meta.items():
+                if rarity_data.get("color") == hex_int:
+                    return rarity_name
+        except Exception:
+            pass
+    # If input is str (hex), try converting to int
+    elif isinstance(color_value, str):
+        try:
+            dec_int = int(color_value, 16)
+            for rarity_name, rarity_data in rarity_meta.items():
+                if rarity_data.get("color") == dec_int:
+                    return rarity_name
+        except Exception:
+            pass
+    return "unknown"
+
+
+def old_get_rarity_by_color(color_value):
+    """
+    🎨 Reverse lookup: Get rarity name from color value
+
+    Args:
+        color_value (int): The color value to look up
+
+    Returns:
+        str: The rarity name, or "unknown" if not found
+
+    Example:
+        >>> get_rarity_by_color(810198)
+        'common'
+        >>> get_rarity_by_color(16550924)
+        'rare'
+    """
     for rarity_name, rarity_data in rarity_meta.items():
         if rarity_data["color"] == color_value:
             return rarity_name

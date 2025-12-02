@@ -97,6 +97,7 @@ processed_snipe_ids = set()
 enable_debug(f"{__name__}.snipe_handler")
 enable_debug(f"{__name__}.process_market_alert_message")
 
+
 async def snipe_handler(
     bot: discord.Client,
     poke_name: str,
@@ -183,7 +184,7 @@ async def snipe_handler(
 
             debug_log(f"lowest_market_str resolved to {lowest_market_str}")
             # Build embed
-            snipe_embed = Embed(color=embed.color or 0x0855FB)
+            snipe_embed = Embed(color=embed_color)
             if embed.thumbnail:
                 snipe_embed.set_thumbnail(url=embed.thumbnail.url)
             snipe_embed.set_author(
