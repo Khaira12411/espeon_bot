@@ -130,10 +130,16 @@ async def buy_item_func(
                 f"{user.mention} has purchased **{item_name}** from the Petal Lace Shop.\n"
                 f"Remaining stock: {new_stock}."
             )
+    elif stock == -1:
+        log_embed_title= f"Item Purchased: {item_name}"
+        log_embed_description = (
+            f"{user.mention} has purchased **{item_name}** from the Petal Lace Shop.\n"
+        )
 
     # Handle special case for boxes
     if "box" in item_name.lower():
         await bought_box(bot, user_id, item_name)
+        log_embed_title = f"Box Purchased: {item_name}"
 
     # Success embed
     embed = discord.Embed(
@@ -217,4 +223,3 @@ async def buy_item_func(
                 label="🛒 SERVER SHOP",
                 context=EspeonContext.ESPEON,
             )
-            
