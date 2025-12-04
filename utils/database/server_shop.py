@@ -14,8 +14,10 @@ def format_item_name(item_name: str) -> str:
     Format the item name for display.
     """
     LEGENDARY_ITEMS = ["Zacian", "Zamazenta", "MissingNo", "Arceus"]
-    SUPERRARE_ITEMS = ["castform-sunny", "alolan-ninetales"]
+    SUPERRARE_ITEMS = ["castform-sunny", "alolan-ninetales", "cetitan"]
     UNCOMMON_ITEMS = ["sprigatito"]
+    COMMON_ITEMS = ["nymble"]
+    RARE_ITEMS = ["grafaiai", "palafin"]
     MEGA_ITEMS = ["mega mewtwo y"]
     if "coin" in item_name.lower():
         return item_name  # No special formatting for currency items
@@ -36,6 +38,10 @@ def format_item_name(item_name: str) -> str:
         rarity = "uncommon"
     elif lower_name in MEGA_ITEMS:
         rarity = "mega"
+    elif lower_name in RARE_ITEMS:
+        rarity = "rare"
+    elif lower_name in COMMON_ITEMS:
+        rarity = "common"
 
 
     rarity_emoji = rarity_meta.get(rarity, {}).get("emoji", "") if rarity else ""
