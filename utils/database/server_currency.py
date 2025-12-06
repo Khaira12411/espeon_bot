@@ -31,7 +31,8 @@ async def fetch_all_user_balances(bot: discord.Client) -> list[asyncpg.Record]:
 
 async def bought_box(bot: discord.Client, user_id: int, box_type: str):
     """Mark that a user has bought a specific box."""
-    valid_boxes = ["daisyia", "gardelette", "melaryne"]
+    box_type = box_type.lower()
+    valid_boxes = ["daisyia box", "gardelette box", "melaryne box"]
     if box_type not in valid_boxes:
         espeon_log(
             tag="warn",
@@ -40,7 +41,8 @@ async def bought_box(bot: discord.Client, user_id: int, box_type: str):
             context=EspeonContext.ESPEON,
         )
         return
-
+    # Map box type to column name
+    box_type = box_type.replace(" ", "_")
     column_name = f"bought_{box_type}_box"
 
     try:
