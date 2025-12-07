@@ -8,12 +8,17 @@ from config.aesthetic import Espeon_Emoji
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
 from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 from utils.cache.cache_list import server_shop_cache
-from utils.database.server_currency import get_user_balance, update_user_balance, bought_box
+from utils.database.server_currency import (
+    bought_box,
+    get_user_balance,
+    update_user_balance,
+)
 from utils.database.server_shop import format_item_name, remove_item, update_stock
 from utils.essentials.loader import pretty_defer
-from utils.loggers.espeon_log import EspeonContext, espeon_log
-from utils.listener_func.event_checklist_caught import is_nov_30_101pm_or_later_manila
 from utils.function.webhook import send_webhook
+from utils.listener_func.event_checklist_caught import is_nov_30_101pm_or_later_manila
+from utils.loggers.espeon_log import EspeonContext, espeon_log
+
 
 async def buy_item_func(
     bot: commands.Bot,
@@ -131,15 +136,16 @@ async def buy_item_func(
                 f"Remaining stock: {new_stock}."
             )
     elif stock == -1:
-        log_embed_title= f"Item Purchased: {item_name}"
+        log_embed_title = f"Item Purchased: {item_name}"
         log_embed_description = (
             f"{user.mention} has purchased **{item_name}** from the Petal Lace Shop.\n"
         )
-
+    forward_line_str = f"{Espeon_Emoji.pink_flower} Please forward this message in <#1359856208961601638> and wait for Skaia to hand your prize."
     # Handle special case for boxes
     if "box" in item_name.lower():
         await bought_box(bot, user_id, item_name)
         log_embed_title = f"Box Purchased: {item_name}"
+        forward_line_str = f"{Espeon_Emoji.pink_flower} Please forward this message in <#1359856208961601638> and wait for Skaia to give you her wish."
 
     # Success embed
     embed = discord.Embed(
@@ -147,7 +153,7 @@ async def buy_item_func(
         description=(
             f"You have successfully purchased **{item_name}** for {price} {CHERRY_PIN}!\n"
             f"Your new balance is {new_balance} {CHERRY_PIN}.\n\n"
-            f"{Espeon_Emoji.pink_flower} Please forward this message in <#1359856208961601638> and wait for Skaia to hand your prize."
+            f"{forward_line_str}"
         ),
         color=COLOR,
         timestamp=datetime.now(),
@@ -188,7 +194,7 @@ async def buy_item_func(
     cafe_log_channel = guild.get_channel(cafe_log_channel_id)
     clan_event_log_channel = guild.get_channel(clan_event_log_id)
     if cafe_log_channel:
-        #await cafe_log_channel.send(embed=log_embed)
+        # await cafe_log_channel.send(embed=log_embed)
         try:
             await send_webhook(
                 bot,
@@ -206,7 +212,7 @@ async def buy_item_func(
                 context=EspeonContext.ESPEON,
             )
     if clan_event_log_channel:
-        #await clan_event_log_channel.send(embed=log_embed)
+        # await clan_event_log_channel.send(embed=log_embed)
         try:
             await send_webhook(
                 bot,
