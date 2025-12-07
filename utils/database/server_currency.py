@@ -43,7 +43,7 @@ async def bought_box(bot: discord.Client, user_id: int, box_type: str):
         return
     # Map box type to column name
     box_type = box_type.replace(" ", "_")
-    column_name = f"bought_{box_type}_box"
+    column_name = f"bought_{box_type}"
 
     try:
         async with bot.pg_pool.acquire() as conn:

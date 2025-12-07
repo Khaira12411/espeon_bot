@@ -446,7 +446,7 @@ async def event_checklist_caught(
                 else 0
             )
             desc = (
-                f"{Espeon_Emoji.pink_link} [Jump to Message]({after_message.jump_url})\n"
+                #f"{Espeon_Emoji.pink_link} [Jump to Message]({after_message.jump_url})\n"
                 f"{Espeon_Emoji.pink_ribbon} **Member:** {member.mention}\n"
                 f"{Espeon_Emoji.loveball} **Pokémon:** {display_pokemon_name}\n"
                 f"{Espeon_Emoji.pink_star} **Catch Type:** {context}\n"
@@ -455,6 +455,7 @@ async def event_checklist_caught(
             )
             embed = discord.Embed(
                 title=f"{Espeon_Emoji.pink_celebrate} Rare Catch Detected!",
+                url=after_message.jump_url,
                 description=desc,
                 color=embed_color,
             )
