@@ -127,24 +127,27 @@ async def buy_item_func(
             log_embed_title = f"{item_name} is Out of Stock"
             log_embed_description = (
                 f"{user.mention} has purchased the last stock of **{item_name}**.\n"
-                f"The item has been removed from the Petal Lace Shop."
+                f"The item has been removed from the Petal Lace Shop.\n"
+                f"**New Balance:** {new_balance} {CHERRY_PIN}"
             )
         else:
             log_embed_title = f"Item Purchased: {item_name}"
             log_embed_description = (
                 f"{user.mention} has purchased **{item_name}** from the Petal Lace Shop.\n"
-                f"Remaining stock: {new_stock}."
+                f"**Remaining stock:** {new_stock}"
+                f"\n**New Balance:** {new_balance} {CHERRY_PIN}"
             )
     elif stock == -1:
         log_embed_title = f"Item Purchased: {item_name}"
         log_embed_description = (
             f"{user.mention} has purchased **{item_name}** from the Petal Lace Shop.\n"
+            f"**New Balance:** {new_balance} {CHERRY_PIN}"
         )
     forward_line_str = f"{Espeon_Emoji.pink_flower} Please forward this message in <#1359856208961601638> and wait for Skaia to hand your prize."
     # Handle special case for boxes
     if "box" in item_name.lower():
         await bought_box(bot, user_id, item_name)
-        log_embed_title = f"Box Purchased: {item_name}"
+        log_embed_title = f"**Box Purchased:** {item_name}"
         forward_line_str = f"{Espeon_Emoji.pink_flower} Please forward this message in <#1359856208961601638> and wait for Skaia to give you her wish."
 
     # Success embed
