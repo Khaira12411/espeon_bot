@@ -77,6 +77,7 @@ class GOLDEN_MEGA_POKEMON_URL:
     mega_banette = "https://media.discordapp.net/attachments/706993472070090855/1428626241141084200/354-mega.gif?ex=68f32f5e&is=68f1ddde&hm=c489efe5bc8461fdb387b1ccc7f4bfdc03807d2af58aa84d62b6ac4dc1cf2aae&=&width=110&height=111"
 
     mega_ampharos = "https://media.discordapp.net/attachments/1323758555605631001/1436230286353629274/181-mega.gif?ex=690f81f0&is=690e3070&hm=d42199b333fb6b0172d50c7178595cfe0258eb8d6d6e58e53d0279528f480baa&=&width=111&height=126"
+    mega_sceptile = "https://media.discordapp.net/attachments/1448840751793307660/1451082691268051035/254-mega.gif?ex=69463311&is=6944e191&hm=c77542f5bf47d3fe36bbead225a069f959f556e0b113d752fdaf39eafa07d8cf&="
 
 
 class SHINY_POKEMON_URL:
@@ -99,6 +100,9 @@ class SHINY_POKEMON_URL:
 
 
 class GOLDEN_POKEMON_URL:
+    alolan_ninetales = "https://media.discordapp.net/attachments/1448840751793307660/1450700566547140739/alolan-ninetales.gif?ex=694620af&is=6944cf2f&hm=7c603f7269702447274e37f687748d94d205fb828c58fe7a949e42206fb538ab&="
+    alolan_vulpix = "https://media.discordapp.net/attachments/1448840751793307660/1450700309348356116/alolan-vulpix.gif?ex=69462072&is=6944cef2&hm=70b57d553b24a7fbd00a53f89e35b50771859ba29ed22b7bd3c58be2697b9b0b&="
+    stantler = "https://images-ext-1.discordapp.net/external/mIfn1aCvX0D-Wm8QLsmu5iDpOj2KU_PFSXlc9TFzqAQ/https/graphics.tppcrpg.net/xy/golden/234M.gif"
     galarian_moltres = "https://media.discordapp.net/attachments/982057517884510249/1427746320583753869/7758.gif?ex=690f9fe1&is=690e4e61&hm=cd6809044d5e493b14bf599e48a1de28e5dae9c3a4cbebc4c347ed53aeafc1cb&=&width=174&height=163"
 
     cofagrigus = "https://images-ext-1.discordapp.net/external/jWdJJUs7ra5BeqoRYPRK8j2a5OEdeZdI92EaFgc8UGE/https/graphics.tppcrpg.net/xy/golden/563M.gif?width=186&height=134"

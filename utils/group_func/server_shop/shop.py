@@ -120,6 +120,17 @@ class Shop_Paginator(View):
         return embed
 
 
+    async def on_timeout(self):
+        # Disable all buttons on timeout
+        for item in self.children:
+            item.disabled = True
+        if self.message:
+            try:
+                await self.message.edit(view=self)
+            except (discord.NotFound, discord.HTTPException):
+                pass
+
+
 async def shop_view_func(
     bot: commands.Bot,
     interaction: discord.Interaction,
@@ -135,7 +146,7 @@ async def shop_view_func(
             ephemeral=True,
         )
         return
-    
+
     if item_name:
         from utils.cache.server_shop_cache import fetch_shop_item_id_by_name
         item_id = fetch_shop_item_id_by_name(item_name)
