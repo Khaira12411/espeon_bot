@@ -4,11 +4,11 @@
 
 import sys
 
+from utils.cache.cache_list import _market_alert_index, _role_cache, market_alert_cache
 from utils.group_func.market_alert.db_func.market_alert_db_func import (
     fetch_active_market_alerts,
 )
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from utils.cache.cache_list import market_alert_cache, _market_alert_index, _role_cache
 
 
 # -------------------- Load Cache --------------------
@@ -160,7 +160,7 @@ def fetch_user_alerts_from_cache(user_id: int) -> list[dict]:
 def update_user_alerts_in_cache(
     user_id: int,
     new_channel_id: int | None = None,
-    new_role_id: int | None = None,
+    new_role_id: int | str = None,
     new_notify: bool | None = None,
     target_pokemon: str | None = None,
 ):
@@ -170,6 +170,9 @@ def update_user_alerts_in_cache(
     - If target_pokemon is provided → update only that Pokemon’s alert.
     Works on both the main cache list and the index.
     """
+    if isinstance(new_role_id, str) and new_role_id.lower() == "none":
+        new_role_id = None
+
     updated = 0
     target_pokemon = target_pokemon.lower() if target_pokemon else None
 
@@ -182,8 +185,10 @@ def update_user_alerts_in_cache(
         # Update alert dict
         if new_channel_id is not None:
             alert["channel_id"] = new_channel_id
-        if new_role_id is not None or new_role_id is None:  # allow explicit removal
+        if new_role_id is not None:
             alert["role_id"] = new_role_id
+        elif new_role_id is None:
+            alert["role_id"] = None  # Explicitly nullify role_id
         if new_notify is not None:
             alert["notify"] = new_notify
 

@@ -25,7 +25,7 @@ BOT_LOG_ID = TEST_BOT_LOG_ID
 # TODO insert mon later
 CHECKLIST_REWARD_MON = "shiny yamper"
 
-enable_debug(f"{__name__}.handle_code_claim")
+#enable_debug(f"{__name__}.handle_code_claim")
 
 
 async def handle_code_claim(bot: discord.Client, message: discord.Message):
@@ -194,4 +194,4 @@ async def handle_code_claim(bot: discord.Client, message: discord.Message):
                             f"in cafe logs channel: {e}"
                         ),
                         label="💖 CODE CLAIM LISTENER",
-                    )   
+                    )

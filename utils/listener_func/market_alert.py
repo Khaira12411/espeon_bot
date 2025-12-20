@@ -95,8 +95,8 @@ PRE_MEGA_LIST = [
 
 processed_market_feed_message_ids = set()
 processed_snipe_ids = set()
-enable_debug(f"{__name__}.snipe_handler")
-enable_debug(f"{__name__}.process_market_alert_message")
+#enable_debug(f"{__name__}.snipe_handler")
+#enable_debug(f"{__name__}.process_market_alert_message")
 
 
 async def snipe_handler(

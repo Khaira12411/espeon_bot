@@ -242,7 +242,7 @@ async def update_user_alerts_channel_or_role(
     bot,
     user_id: int,
     channel_id: int = None,
-    role_id: int = None,
+    role_id: int | str = None,
 ):
     """
     Bulk update all alerts for a user to a new channel or role.
@@ -253,6 +253,9 @@ async def update_user_alerts_channel_or_role(
     """
     if channel_id is None and role_id is None:
         raise ValueError("Must provide at least channel_id or role_id to update.")
+
+    if isinstance(role_id, str) and role_id.lower() == "none":
+        role_id = None
 
     set_clauses = []
     values = []
