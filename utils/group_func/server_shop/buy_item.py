@@ -51,6 +51,10 @@ async def buy_item_func(
         await loader.error(content=f"Item '{item_name}' does not exist in the shop.")
         return
 
+    if amount <= 0:
+        await loader.error(content="You must purchase at least 1 item.")
+        return
+
     # Get item details
     item = server_shop_cache.get(item_id)
     item_name = item.get("item_name", "Unknown Item")
@@ -210,7 +214,6 @@ async def buy_item_func(
     cafe_log_channel = guild.get_channel(cafe_log_channel_id)
     clan_event_log_channel = guild.get_channel(clan_event_log_id)
     if cafe_log_channel:
-        # await cafe_log_channel.send(embed=log_embed)
         try:
             await send_webhook(
                 bot,
