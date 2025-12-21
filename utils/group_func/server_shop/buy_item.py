@@ -157,7 +157,7 @@ async def buy_item_func(
     elif stock == -1:
         log_embed_title = f"Item Purchased: {item_name}"
         log_embed_description = (
-            f"{user.mention} has purchased **{item_name}** from the Petal Lace Shop.\n"
+            f"{user.mention} has purchased {amount} **{item_name}** from the Petal Lace Shop.\n"
             f"**New Balance:** {new_balance} {CHERRY_PIN}"
         )
     forward_line_str = f"{Espeon_Emoji.pink_flower} Please forward this message in <#1359856208961601638> and wait for Skaia to hand your prize."
