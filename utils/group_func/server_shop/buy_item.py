@@ -171,7 +171,7 @@ async def buy_item_func(
     embed = discord.Embed(
         title="Purchase Successful",
         description=(
-            f"You have successfully purchased **{item_name}** for {price} {CHERRY_PIN}!\n"
+            f"You have successfully purchased {amount} **{item_name}** for {price} {CHERRY_PIN}!\n"
             f"Your new balance is {new_balance} {CHERRY_PIN}.\n\n"
             f"{forward_line_str}"
         ),
