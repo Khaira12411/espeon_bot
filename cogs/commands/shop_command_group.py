@@ -138,11 +138,13 @@ class ServerShop(commands.Cog):
     @app_commands.autocomplete(item_name=shop_item_autocomplete)  # 👈 attach autocomplete
     @app_commands.describe(
         item_name="Name of the item to buy",
+        amount="Amount of the item to buy",
     )
     async def buy_shop_item(
         self,
         interaction: discord.Interaction,
         item_name: str,
+        amount: int,
     ):
         slash_cmd_name = "shop buy-item"
 
@@ -152,6 +154,7 @@ class ServerShop(commands.Cog):
             slash_cmd_name=slash_cmd_name,
             command_func=buy_item_func,
             item_name=item_name,
+            amount=amount,
         )
     buy_shop_item.extras = {"category": "Public"}
 

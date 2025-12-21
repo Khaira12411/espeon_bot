@@ -24,6 +24,7 @@ async def buy_item_func(
     bot: commands.Bot,
     interaction: discord.Interaction,
     item_name: str,
+    amount: int,
 ):
     """
     Buy an item from the server shop.
@@ -68,8 +69,20 @@ async def buy_item_func(
     user_balance = await get_user_balance(bot, user_id)
     guild = interaction.guild
 
+    # Check if there are enough items in stock for the requested amount
+    if stock > 0 and amount > stock:
+        await loader.error(
+            content=(
+                f"Sorry, there are only {stock} '{item_name}' left in stock. "
+                f"You requested {amount}."
+            )
+        )
+        return
+
+    # Calculate total price
+    total = price * amount
     # Check if user has enough balance
-    if user_balance < price:
+    if user_balance < total:
         await loader.error(
             content=(
                 f"You do not have enough Cherry Pins to buy '{item_name}'.\n"
@@ -105,13 +118,13 @@ async def buy_item_func(
         return
 
     # Deduct price from user balance
-    new_balance = user_balance - price
+    new_balance = user_balance - total
     await update_user_balance(bot, user_id, user_name, new_balance)
     item_name = format_item_name(item_name)
 
     # Decrease stock if not unlimited
     if stock > 0:
-        new_stock = stock - 1
+        new_stock = stock - amount
         await update_stock(bot, item_id, new_stock)
         if new_stock == 0:
             # Remove from database
@@ -133,7 +146,7 @@ async def buy_item_func(
         else:
             log_embed_title = f"Item Purchased: {item_name}"
             log_embed_description = (
-                f"{user.mention} has purchased **{item_name}** from the Petal Lace Shop.\n"
+                f"{user.mention} has purchased {amount} **{item_name}** from the Petal Lace Shop.\n"
                 f"**Remaining stock:** {new_stock}"
                 f"\n**New Balance:** {new_balance} {CHERRY_PIN}"
             )
