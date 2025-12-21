@@ -143,21 +143,21 @@ async def buy_item_func(
             )
             log_embed_title = f"{item_name} is Out of Stock"
             log_embed_description = (
-                f"{user.mention} has purchased the last stock of **{item_name}**.\n"
+                f"{user.mention} has purchased the last stock of **{item_name}** for {total} {CHERRY_PIN}.\n"
                 f"The item has been removed from the Petal Lace Shop.\n"
                 f"**New Balance:** {new_balance} {CHERRY_PIN}"
             )
         else:
             log_embed_title = f"Item Purchased: {item_name}"
             log_embed_description = (
-                f"{user.mention} has purchased {amount} **{item_name}** from the Petal Lace Shop.\n"
+                f"{user.mention} has purchased {amount} **{item_name}** from the Petal Lace Shop for {total} {CHERRY_PIN}.\n"
                 f"**Remaining stock:** {new_stock}"
                 f"\n**New Balance:** {new_balance} {CHERRY_PIN}"
             )
     elif stock == -1:
         log_embed_title = f"Item Purchased: {item_name}"
         log_embed_description = (
-            f"{user.mention} has purchased {amount} **{item_name}** from the Petal Lace Shop.\n"
+            f"{user.mention} has purchased {amount} **{item_name}** from the Petal Lace Shop for {total} {CHERRY_PIN}.\n"
             f"**New Balance:** {new_balance} {CHERRY_PIN}"
         )
     forward_line_str = f"{Espeon_Emoji.pink_flower} Please forward this message in <#1359856208961601638> and wait for Skaia to hand your prize."
@@ -171,7 +171,7 @@ async def buy_item_func(
     embed = discord.Embed(
         title="Purchase Successful",
         description=(
-            f"You have successfully purchased {amount} **{item_name}** for {price} {CHERRY_PIN}!\n"
+            f"You have successfully purchased {amount} **{item_name}** for {total} {CHERRY_PIN}!\n"
             f"Your new balance is {new_balance} {CHERRY_PIN}.\n\n"
             f"{forward_line_str}"
         ),
