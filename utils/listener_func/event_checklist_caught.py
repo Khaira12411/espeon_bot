@@ -169,9 +169,6 @@ def extract_member_username_from_embed(embed: discord.Embed) -> str | None:
 def is_dec_28_1pm_or_later_manila():
     tz = pytz.timezone("Asia/Manila")
     now = datetime.now(tz)
-    # Only check for Dec 28, 1pm or later in 2025
-    if now.year != 2025:
-        return False
     target = tz.localize(datetime(2025, 12, 28, 13, 0, 0))
     return now >= target
 
@@ -179,9 +176,6 @@ def is_dec_28_1pm_or_later_manila():
 def is_nov_30_101pm_or_later_manila():
     tz = pytz.timezone("Asia/Manila")
     now = datetime.now(tz)
-    # Only check for Nov 30, 1:01pm or later in 2025
-    if now.year != 2025:
-        return False
     target = tz.localize(datetime(2025, 11, 30, 13, 0, 1))
     return now >= target
 
