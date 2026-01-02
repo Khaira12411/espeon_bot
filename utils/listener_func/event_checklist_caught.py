@@ -11,9 +11,11 @@ from config.paldea_galar_dict import legendary_mons, rarity_meta
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
 from config.straymons_constants import STRAYMONS__ROLES
 from utils.cache.cache_list import user_balance_cache
-from utils.database.server_currency import (get_user_balance,
-                                            update_user_balance,
-                                            upsert_user_balance)
+from utils.database.server_currency import (
+    get_user_balance,
+    update_user_balance,
+    upsert_user_balance,
+)
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 from utils.function.webhook import send_webhook
 from utils.loggers.espeon_log import espeon_log
@@ -177,7 +179,10 @@ def is_dec_28_1pm_or_later_manila():
 def is_nov_30_101pm_or_later_manila():
     tz = pytz.timezone("Asia/Manila")
     now = datetime.now(tz)
-    target = tz.localize(datetime(now.year, 11, 30, 13, 0, 1))
+    # Only check for Nov 30, 1:01pm or later in 2025
+    if now.year != 2025:
+        return False
+    target = tz.localize(datetime(2025, 11, 30, 13, 0, 1))
     return now >= target
 
 
@@ -217,8 +222,9 @@ async def event_checklist_caught(
             # Extract username from embed as fallback
             username = extract_member_username_from_embed(embed)
             if username:
-                from utils.cache.straymons_members_cache import \
-                    fetch_straymon_member_id_by_name
+                from utils.cache.straymons_members_cache import (
+                    fetch_straymon_member_id_by_name,
+                )
 
                 user_id = fetch_straymon_member_id_by_name(username)
                 if user_id:
@@ -446,7 +452,7 @@ async def event_checklist_caught(
                 else 0
             )
             desc = (
-                #f"{Espeon_Emoji.pink_link} [Jump to Message]({after_message.jump_url})\n"
+                # f"{Espeon_Emoji.pink_link} [Jump to Message]({after_message.jump_url})\n"
                 f"{Espeon_Emoji.pink_ribbon} **Member:** {member.mention}\n"
                 f"{Espeon_Emoji.loveball} **Pokémon:** {display_pokemon_name}\n"
                 f"{Espeon_Emoji.pink_star} **Catch Type:** {context}\n"
@@ -465,7 +471,7 @@ async def event_checklist_caught(
             if source_image_url:
                 embed.set_thumbnail(url=source_image_url)
 
-            #await bot_log_channel.send(embed=embed)
+            # await bot_log_channel.send(embed=embed)
             try:
                 await send_webhook(
                     bot=bot,
