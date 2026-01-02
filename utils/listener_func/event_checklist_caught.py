@@ -11,14 +11,12 @@ from config.paldea_galar_dict import legendary_mons, rarity_meta
 from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
 from config.straymons_constants import STRAYMONS__ROLES
 from utils.cache.cache_list import user_balance_cache
-from utils.database.server_currency import (
-    get_user_balance,
-    update_user_balance,
-    upsert_user_balance,
-)
+from utils.database.server_currency import (get_user_balance,
+                                            update_user_balance,
+                                            upsert_user_balance)
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
-from utils.loggers.espeon_log import espeon_log
 from utils.function.webhook import send_webhook
+from utils.loggers.espeon_log import espeon_log
 
 # key = embed_color
 SHINY_COLOR = 16751052
@@ -169,7 +167,10 @@ def extract_member_username_from_embed(embed: discord.Embed) -> str | None:
 def is_dec_28_1pm_or_later_manila():
     tz = pytz.timezone("Asia/Manila")
     now = datetime.now(tz)
-    target = tz.localize(datetime(now.year, 12, 28, 13, 0, 0))
+    # Only check for Dec 28, 1pm or later in 2025
+    if now.year != 2025:
+        return False
+    target = tz.localize(datetime(2025, 12, 28, 13, 0, 0))
     return now >= target
 
 
@@ -216,9 +217,8 @@ async def event_checklist_caught(
             # Extract username from embed as fallback
             username = extract_member_username_from_embed(embed)
             if username:
-                from utils.cache.straymons_members_cache import (
-                    fetch_straymon_member_id_by_name,
-                )
+                from utils.cache.straymons_members_cache import \
+                    fetch_straymon_member_id_by_name
 
                 user_id = fetch_straymon_member_id_by_name(username)
                 if user_id:

@@ -90,6 +90,8 @@ legendary_mons = [
     "Calyrex",
     # Paldea (add new legendaries/mythicals here as needed)
 ]
+
+
 # palar_galar_dict
 # just replace the emojis at the bottom with infusion emoji
 from config.emojis import RarityEmojis
