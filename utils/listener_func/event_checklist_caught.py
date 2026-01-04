@@ -8,7 +8,7 @@ from discord.ext import commands
 from config.aesthetic import Espeon_Emoji
 from config.current_setup import CC_GUILD_ID, STRAYMONS_GUILD_ID
 from config.paldea_galar_dict import legendary_mons, rarity_meta
-from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
+from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER, SHOP_EVENT
 from config.straymons_constants import STRAYMONS__ROLES
 from utils.cache.cache_list import user_balance_cache
 from utils.database.server_currency import (

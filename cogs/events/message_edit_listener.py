@@ -5,6 +5,7 @@ from config.current_setup import POKEMEOW_APPLICATION_ID, STRAYMONS_GUILD_ID
 from config.paldea_galar_dict import rarity_meta
 from utils.listener_func.event_checklist_caught import event_checklist_caught
 from utils.loggers.espeon_log import espeon_log
+from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER, SHOP_EVENT
 
 SHINY_COLOR = 16751052
 EVENT_EXCLUSIVE_COLOR = 16751052
@@ -15,7 +16,6 @@ LOW_RARITY_COLORS = [
     rarity_meta["common"]["color"],
     rarity_meta["uncommon"]["color"],
 ]
-
 
 class MessageEditListener(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -43,7 +43,7 @@ class MessageEditListener(commands.Cog):
         # 💜────────────────────────────────────────────
         #           👂 Event Checklist Caught (Debug)
         # 💜────────────────────────────────────────────
-        if embed and embed_color not in LOW_RARITY_COLORS:
+        if embed and embed_color not in LOW_RARITY_COLORS and SHOP_EVENT is True:
             if "You caught" in embed_desc:
                 espeon_log(
                     "info",

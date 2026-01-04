@@ -6,7 +6,7 @@ from discord.ext import commands
 from config.aesthetic import Espeon_Emoji
 from config.current_setup import STRAYMONS_GUILD_ID
 from config.paldea_galar_dict import rarity_meta
-from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
+from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER, SHOP_EVENT
 from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 from utils.cache.cache_list import (
     server_shop_cache,
@@ -40,6 +40,9 @@ async def handle_role_add(
     # ————————————————————————————————
     # 🩵 Straymon Weekly Role Add
     # ————————————————————————————————
+    if not SHOP_EVENT:
+        return
+    
     if role_id in WEEKLY_ROLES:
         # Check if user has all weekly roles
         espeon_log(

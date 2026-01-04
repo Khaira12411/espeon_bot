@@ -23,6 +23,7 @@ from utils.listener_func.mr_weakness import mr_weakness_chart
 from utils.listener_func.wb_sub import ping_wb_subscribers
 from utils.loggers.espeon_log import espeon_log
 from utils.quick_codes.petal_lace_event_post import post_news_func
+from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER, SHOP_EVENT
 
 MARKETFEED_CHANNELS = {
     STRAYMONS__TEXT_CHANNELS.ic_u_r_s_market_feed,
@@ -110,7 +111,7 @@ class MessageCreateListener(commands.Cog):
                         f"Market alert processing failed for message {message.id} in {message.channel.name}: {ma_e}",
                         source="process_market_alert_message",
                     )
-            # ✨───────────────────────────────────────────────✨
+            """"# ✨───────────────────────────────────────────────✨
             # 🪻 Egg Hatch Listener
             # ✨───────────────────────────────────────────────✨
             if (
@@ -128,8 +129,8 @@ class MessageCreateListener(commands.Cog):
                         "error",
                         f"Egg hatch processing failed for message {message.id} in {message.channel.name}: {eh_e}",
                         source="egg_hatch_listener_func",
-                    )
-            # ✨───────────────────────────────────────────────✨
+                    )"""
+            """"# ✨───────────────────────────────────────────────✨
             # 🪻 Code Claim Listener
             # ✨───────────────────────────────────────────────✨
             if (
@@ -143,7 +144,7 @@ class MessageCreateListener(commands.Cog):
                         "error",
                         f"Code claim processing failed for message {message.id} in {message.channel.name}: {cc_e}",
                         source="handle_code_claim",
-                    )
+                    )"""
             # ✨───────────────────────────────────────────────✨
             # 🪻 MR WEAKNESS CHART
             # ✨───────────────────────────────────────────────✨
