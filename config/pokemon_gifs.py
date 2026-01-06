@@ -79,7 +79,6 @@ class GOLDEN_MEGA_POKEMON_URL:
     mega_ampharos = "https://media.discordapp.net/attachments/1323758555605631001/1436230286353629274/181-mega.gif?ex=690f81f0&is=690e3070&hm=d42199b333fb6b0172d50c7178595cfe0258eb8d6d6e58e53d0279528f480baa&=&width=111&height=126"
     mega_sceptile = "https://media.discordapp.net/attachments/1448840751793307660/1451082691268051035/254-mega.gif?ex=69463311&is=6944e191&hm=c77542f5bf47d3fe36bbead225a069f959f556e0b113d752fdaf39eafa07d8cf&="
 
-
 class SHINY_POKEMON_URL:
     # 🌌 Arceus Forms
     arceus_normal = "https://images-ext-1.discordapp.net/external/5cORhDO0Vij4n3N6ILgkxkaQGpWIRsWHGsVOqPu0mtI/https/play.pokemonshowdown.com/sprites/ani-shiny/arceus.gif?width=92&height=128"
@@ -100,11 +99,12 @@ class SHINY_POKEMON_URL:
 
 
 class GOLDEN_POKEMON_URL:
+    togedemaru = "https://graphics.tppcrpg.net/xy/golden/777M.gif"
     alolan_ninetales = "https://media.discordapp.net/attachments/1448840751793307660/1450700566547140739/alolan-ninetales.gif?ex=694620af&is=6944cf2f&hm=7c603f7269702447274e37f687748d94d205fb828c58fe7a949e42206fb538ab&="
     alolan_vulpix = "https://media.discordapp.net/attachments/1448840751793307660/1450700309348356116/alolan-vulpix.gif?ex=69462072&is=6944cef2&hm=70b57d553b24a7fbd00a53f89e35b50771859ba29ed22b7bd3c58be2697b9b0b&="
     stantler = "https://images-ext-1.discordapp.net/external/mIfn1aCvX0D-Wm8QLsmu5iDpOj2KU_PFSXlc9TFzqAQ/https/graphics.tppcrpg.net/xy/golden/234M.gif"
     galarian_moltres = "https://media.discordapp.net/attachments/982057517884510249/1427746320583753869/7758.gif?ex=690f9fe1&is=690e4e61&hm=cd6809044d5e493b14bf599e48a1de28e5dae9c3a4cbebc4c347ed53aeafc1cb&=&width=174&height=163"
-
+    smeargle = "https://graphics.tppcrpg.net/xy/golden/235M.gif"
     cofagrigus = "https://images-ext-1.discordapp.net/external/jWdJJUs7ra5BeqoRYPRK8j2a5OEdeZdI92EaFgc8UGE/https/graphics.tppcrpg.net/xy/golden/563M.gif?width=186&height=134"
     guzzlord = "https://images-ext-1.discordapp.net/external/0Zs7SSh5ppBzvykfvQFJSlNwoMss0_evpESQEizCJ_0/https/graphics.tppcrpg.net/xy/golden/799M.gif?width=154&height=99"
     yamask = "https://images-ext-1.discordapp.net/external/eeG-4VKrhmd82RSwqmkAGjUkS_qRIleCXdsHwe1hUc4/https/graphics.tppcrpg.net/xy/golden/562M.gif?width=72&height=75"
@@ -526,23 +526,23 @@ class GOLDEN_POKEMON_URL:
 
     drifloon = "https://graphics.tppcrpg.net/xy/golden/425M.gif?quality=lossless"
 
-    buneary = "https://graphics.tppcrpg.net/xy/golden/426M.gif?quality=lossless"
+    buneary = "https://graphics.tppcrpg.net/xy/golden/427M.gif?quality=lossless"
 
-    lopunny = "https://graphics.tppcrpg.net/xy/golden/427M.gif?quality=lossless"
+    lopunny = "https://graphics.tppcrpg.net/xy/golden/428M.gif?quality=lossless"
 
-    mismagius = "https://graphics.tppcrpg.net/xy/golden/428M.gif?quality=lossless"
+    mismagius = "https://graphics.tppcrpg.net/xy/golden/429M.gif?quality=lossless"
 
-    bonsly = "https://graphics.tppcrpg.net/xy/golden/429M.gif?quality=lossless"
+    bonsly = "https://graphics.tppcrpg.net/xy/golden/438M.gif?quality=lossless"
 
-    mimejr = "https://graphics.tppcrpg.net/xy/golden/438M.gif?quality=lossless"
+    mimejr = "https://graphics.tppcrpg.net/xy/golden/439M.gif?quality=lossless"
 
-    chatot = "https://graphics.tppcrpg.net/xy/golden/439M.gif?quality=lossless"
+    chatot = "https://graphics.tppcrpg.net/xy/golden/441M.gif?quality=lossless"
 
-    spiritomb = "https://graphics.tppcrpg.net/xy/golden/441M.gif?quality=lossless"
+    spiritomb = "https://graphics.tppcrpg.net/xy/golden/442M.gif?quality=lossless"
 
-    gible = "https://graphics.tppcrpg.net/xy/golden/442M.gif?quality=lossless"
+    gible = "https://graphics.tppcrpg.net/xy/golden/443M.gif?quality=lossless"
 
-    gabite = "https://graphics.tppcrpg.net/xy/golden/443M.gif?quality=lossless"
+    gabite = "https://graphics.tppcrpg.net/xy/golden/444M.gif?quality=lossless"
 
     garchomp = "https://graphics.tppcrpg.net/xy/golden/445M.gif?quality=lossless"
 
