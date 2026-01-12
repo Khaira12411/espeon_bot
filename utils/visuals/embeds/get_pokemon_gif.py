@@ -127,6 +127,15 @@ def get_pokemon_gif(input_name: str):
                 gif_url = f"https://play.pokemonshowdown.com/sprites/{shiny_prefix}/charizard-megay.gif?quality=lossless"
             else:
                 gif_url = f"https://play.pokemonshowdown.com/sprites/{shiny_prefix}/{base_name}{suffix}.gif?quality=lossless"
+
+        elif "primal" in base_name:
+            # Make it groudon-primal or kyogre-primal
+            if "groudon" in base_name:
+                gif_url = f"https://play.pokemonshowdown.com/sprites/{shiny_prefix}/groudon-primal.gif?quality=lossless"
+            elif "kyogre" in base_name:
+                gif_url = f"https://play.pokemonshowdown.com/sprites/{shiny_prefix}/kyogre-primal.gif?quality=lossless"
+            elif "dialga" in base_name:
+                gif_url = REGULAR_POKEMON_URL.primal_dialga
         else:
             gif_url = f"https://play.pokemonshowdown.com/sprites/{shiny_prefix}/{base_name}{suffix}.gif?quality=lossless"
 
@@ -139,6 +148,5 @@ def get_pokemon_gif(input_name: str):
     espeon_log(
         tag="debug" if gif_url else "error",
         message=(f"Fetched GIF URL for '{gif_name}': {gif_url}" if gif_url else error),
-        context=EspeonContext.ESPEON,
     )
     return gif_url
