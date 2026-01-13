@@ -7,42 +7,49 @@ import discord
 
 from config.paldea_galar_dict import rarity_meta
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
+from config.pokemons import *
 
 def format_item_name(item_name: str) -> str:
     """
     Format the item name for display.
     """
-    LEGENDARY_ITEMS = ["Zacian", "Zamazenta", "MissingNo", "Arceus"]
-    SUPERRARE_ITEMS = ["castform-sunny", "alolan-ninetales", "cetitan"]
-    UNCOMMON_ITEMS = ["sprigatito"]
-    COMMON_ITEMS = ["nymble"]
-    RARE_ITEMS = ["grafaiai", "palafin"]
+
     MEGA_ITEMS = ["mega mewtwo y"]
     if "coin" in item_name.lower():
         return item_name  # No special formatting for currency items
 
     rarity = None
     lower_name = item_name.lower()
-    if "Shiny " in item_name:
+    if "shiny mega " in lower_name or "smega " in lower_name:
+        rarity = "shiny mega"
+        item_name = item_name.replace("Shiny Mega ", "").replace("SMega ", "")
+    elif "shiny gigantamax" in lower_name:
+        rarity = "shiny gigantamax"
+        item_name = item_name.replace("Shiny Gigantamax ", "")
+    elif "shiny " in lower_name:
         rarity = "shiny"
         item_name = item_name.replace("Shiny ", "")
-    elif "Golden " in item_name:
+    elif "golden mega " in lower_name or "gmega " in lower_name:
+        rarity = "golden mega"
+        item_name = item_name.replace("Golden Mega ", "").replace("GMega ", "")
+
+    elif "golden " in lower_name:
         rarity = "golden"
         item_name = item_name.replace("Golden ", "")
-    elif item_name in LEGENDARY_ITEMS:
+    elif lower_name in legendary_mons:
         rarity = "legendary"
-    elif lower_name in SUPERRARE_ITEMS:
+    elif lower_name in superrare_mons:
         rarity = "superrare"
-    elif lower_name in UNCOMMON_ITEMS:
+    elif lower_name in uncommon_mons:
         rarity = "uncommon"
-    elif lower_name in MEGA_ITEMS:
-        rarity = "mega"
-    elif lower_name in RARE_ITEMS:
-        rarity = "rare"
-    elif lower_name in COMMON_ITEMS:
-        rarity = "common"
 
+    elif "gigantamax" in lower_name:
+        rarity = "gmax"
+        item_name = item_name.replace("Gigantamax ", "")
+
+    elif lower_name in MEGA_ITEMS or "mega " in lower_name:
+        rarity = "mega"
+        item_name = item_name.replace("Mega ", "")
 
     rarity_emoji = rarity_meta.get(rarity, {}).get("emoji", "") if rarity else ""
     display_name = f"{rarity_emoji} {item_name.title()}" if rarity_emoji else item_name.title()
