@@ -34,6 +34,9 @@ class REGULAR_POKEMON_URL:
 
 
 class GOLDEN_MEGA_POKEMON_URL:
+    mega_blaziken ="https://media.discordapp.net/attachments/1451369765393141913/1458815330687254548/257-mega.gif?ex=69679aa6&is=69664926&hm=d2893eb4ea4239d5b02514cbbab588d23d836dc0b61fb953eb45f897660b0bf1&=&width=111&height=100"
+    mega_swampert = "https://media.discordapp.net/attachments/677400893758373930/1354974559480057956/260-mega.gif?ex=696833e5&is=6966e265&hm=d0c71d0c6ad0bd8b83fb632e81240d0066a5cba4e63c0f93c11e8754abbd2ade&=&width=114&height=75"
+    mega_garchomp = "https://media.discordapp.net/attachments/1302003337272627300/1302815986553983048/445-mega.gif?ex=6967a2b0&is=69665130&hm=dc1a25ab2e874decb473d3719aea8c4b976a569125fc246643041b63972142d0&=&width=124&height=100"
     mega_heracross = "https://media.discordapp.net/attachments/1410396560151543830/1444319875089698947/214-mega.gif?ex=692c4734&is=692af5b4&hm=54dc65a3141a51c6d01acc19d15591ecacfee49e891d8e1c996753bf36b3de1c&=&width=98&height=98"
     mega_charizard_x = "https://cdn.discordapp.com/attachments/1331944490935517184/1331991187162140755/006-mega-x.gif?ex=67ccfa36&is=67cba8b6&hm=ae7ce2e28ceae6b6552bb8438dbcd5c40688529517d871bdb366ef2083b54117&"
 
@@ -101,6 +104,25 @@ class SHINY_POKEMON_URL:
 
 
 class GOLDEN_POKEMON_URL:
+    toxel = "https://graphics.tppcrpg.net/xy/golden/848M.gif"
+    toxtricity = "https://graphics.tppcrpg.net/xy/golden/849M.gif"
+    magnemite = "https://graphics.tppcrpg.net/xy/golden/081M.gif"
+    magneton = "https://graphics.tppcrpg.net/xy/golden/082M.gif"
+    magnezone = "https://graphics.tppcrpg.net/xy/golden/462M.gif"
+    chinchou = "https://graphics.tppcrpg.net/xy/golden/170M.gif"
+    lanturn = "https://graphics.tppcrpg.net/xy/golden/171M.gif"
+    bronzor = "https://graphics.tppcrpg.net/xy/golden/436M.gif"
+    bronzong = "https://graphics.tppcrpg.net/xy/golden/437M.gif"
+
+    pidgey = "https://graphics.tppcrpg.net/xy/golden/016M.gif"
+    pidgeotto = "https://graphics.tppcrpg.net/xy/golden/017M.gif"
+    pidgeot = "https://graphics.tppcrpg.net/xy/golden/018M.gif"
+    exeggcute = "https://graphics.tppcrpg.net/xy/golden/102M.gif"
+    exeggutor = "https://graphics.tppcrpg.net/xy/golden/103M.gif"
+    clefable = "https://graphics.tppcrpg.net/xy/golden/036M.gif"
+    clefairy = "https://graphics.tppcrpg.net/xy/golden/035M.gif"
+    cleffa = "https://graphics.tppcrpg.net/xy/golden/173M.gif"
+    zamazenta = "https://graphics.tppcrpg.net/xy/golden/889M.gif"
     togedemaru = "https://graphics.tppcrpg.net/xy/golden/777M.gif"
     alolan_ninetales = "https://media.discordapp.net/attachments/1448840751793307660/1450700566547140739/alolan-ninetales.gif?ex=694620af&is=6944cf2f&hm=7c603f7269702447274e37f687748d94d205fb828c58fe7a949e42206fb538ab&="
     alolan_vulpix = "https://media.discordapp.net/attachments/1448840751793307660/1450700309348356116/alolan-vulpix.gif?ex=69462072&is=6944cef2&hm=70b57d553b24a7fbd00a53f89e35b50771859ba29ed22b7bd3c58be2697b9b0b&="
@@ -527,7 +549,7 @@ class GOLDEN_POKEMON_URL:
     pachirisu = "https://graphics.tppcrpg.net/xy/golden/417M.gif?quality=lossless"
 
     drifloon = "https://graphics.tppcrpg.net/xy/golden/425M.gif?quality=lossless"
-
+    drifblim = "https://graphics.tppcrpg.net/xy/golden/426M.gif?quality=lossless"
     buneary = "https://graphics.tppcrpg.net/xy/golden/427M.gif?quality=lossless"
 
     lopunny = "https://graphics.tppcrpg.net/xy/golden/428M.gif?quality=lossless"
