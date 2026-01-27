@@ -10,20 +10,17 @@ async def load_webhook_url_cache(bot: discord.Client):
     Loads all webhook URLs from the database into the cache.
     """
     webhook_url_cache.clear()
-    rows = await fetch_all_webhook_urls(bot)
-    for channel_id, url, channel_name in rows:
-        webhook_url_cache[channel_id] = {
-            "channel_name": channel_name,
-            "url": url,
-        }
+    webhook_urls = await fetch_all_webhook_urls(bot)
+    webhook_url_cache.update(webhook_urls)
 
     espeon_log(
         tag="cache",
-        message=f"Loaded {len(rows)} webhook URLs into cache",
+        message=f"Loaded {len(webhook_url_cache)} webhook URLs into cache",
         label="🌐 WEBHOOK URL CACHE",
         context=EspeonContext.ESPEON,
     )
     return webhook_url_cache
+
 
 def upsert_webhook_url_in_cache(
     channel: discord.TextChannel,
@@ -44,6 +41,7 @@ def upsert_webhook_url_in_cache(
         label="🌐 WEBHOOK URL CACHE",
         context=EspeonContext.ESPEON,
     )
+
 
 def remove_webhook_url_from_cache(channel: discord.TextChannel):
     """

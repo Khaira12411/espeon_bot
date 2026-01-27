@@ -45,7 +45,7 @@ async def send_webhook(
         elif "shop" in channel_name.lower():
             webhook_name = "Espeon Shop Updates 🌺"
         else:
-            webhook_name = f"Espeon Webhook {channel_name}"
+            webhook_name = f"Espeon 🪻"
         webhook_url = await create_webhook_func(bot, channel, webhook_name)
         if not webhook_url:
             espeon_log(
