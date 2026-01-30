@@ -1562,3 +1562,16 @@ dex = {
     998: "Baxcalibur",
     999: "Gimmighoul",
 }
+
+
+def get_dex_number_by_name(name: str) -> int | None:
+    """
+    Returns the dex number for a given Pokémon name.
+    Example: get_dex_number_by_name("flutter-mane") -> 987
+    Returns None if not found.
+    """
+    # Only return if the name matches exactly (case-sensitive)
+    for dex_num, poke_name in dex.items():
+        if poke_name == name:
+            return dex_num
+    return None

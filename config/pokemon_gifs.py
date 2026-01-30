@@ -1,4 +1,5 @@
 class REGULAR_POKEMON_URL:
+    walking_wake = "https://play.pokemonshowdown.com/sprites/ani/walkingwake.gif"
     primal_dialga = "https://media.discordapp.net/attachments/897481393322475520/914666106969530390/jfa7a1g.gif?ex=69658a31&is=696438b1&hm=a280e887792a23a65eb9f34a89f80c2974467bb3afeff7205006c19efd5b9d3d&=&width=94&height=114"
     miraidon = "https://media.discordapp.net/attachments/706993472070090855/1443715101717823518/miraidon.gif?ex=692c0e37&is=692abcb7&hm=e371ec7dbe667d5a1aa8e08ff9d68ad8232a1f78f732d8f9fa48e9d0b22778af&=&width=103&height=120"
     missingno = "https://images-ext-1.discordapp.net/external/hvd_B-gSWeoAlOQolPLFq_79tfAmtuYC982RGOR2ZT0/https/i.ibb.co/x7YzV7v/YIFFB5I.gif"
@@ -34,7 +35,7 @@ class REGULAR_POKEMON_URL:
 
 
 class GOLDEN_MEGA_POKEMON_URL:
-    mega_blaziken ="https://media.discordapp.net/attachments/1451369765393141913/1458815330687254548/257-mega.gif?ex=69679aa6&is=69664926&hm=d2893eb4ea4239d5b02514cbbab588d23d836dc0b61fb953eb45f897660b0bf1&=&width=111&height=100"
+    mega_blaziken = "https://media.discordapp.net/attachments/1451369765393141913/1458815330687254548/257-mega.gif?ex=69679aa6&is=69664926&hm=d2893eb4ea4239d5b02514cbbab588d23d836dc0b61fb953eb45f897660b0bf1&=&width=111&height=100"
     mega_swampert = "https://media.discordapp.net/attachments/677400893758373930/1354974559480057956/260-mega.gif?ex=696833e5&is=6966e265&hm=d0c71d0c6ad0bd8b83fb632e81240d0066a5cba4e63c0f93c11e8754abbd2ade&=&width=114&height=75"
     mega_garchomp = "https://media.discordapp.net/attachments/1302003337272627300/1302815986553983048/445-mega.gif?ex=6967a2b0&is=69665130&hm=dc1a25ab2e874decb473d3719aea8c4b976a569125fc246643041b63972142d0&=&width=124&height=100"
     mega_heracross = "https://media.discordapp.net/attachments/1410396560151543830/1444319875089698947/214-mega.gif?ex=692c4734&is=692af5b4&hm=54dc65a3141a51c6d01acc19d15591ecacfee49e891d8e1c996753bf36b3de1c&=&width=98&height=98"
@@ -82,6 +83,7 @@ class GOLDEN_MEGA_POKEMON_URL:
 
     mega_ampharos = "https://media.discordapp.net/attachments/1323758555605631001/1436230286353629274/181-mega.gif?ex=690f81f0&is=690e3070&hm=d42199b333fb6b0172d50c7178595cfe0258eb8d6d6e58e53d0279528f480baa&=&width=111&height=126"
     mega_sceptile = "https://media.discordapp.net/attachments/1448840751793307660/1451082691268051035/254-mega.gif?ex=69463311&is=6944e191&hm=c77542f5bf47d3fe36bbead225a069f959f556e0b113d752fdaf39eafa07d8cf&="
+    mega_houndoom = "https://media.discordapp.net/attachments/1451369765393141913/1465896459869098185/7078.gif?ex=697e11b7&is=697cc037&hm=40f3bf41a33868a08d5b233021dcd14dcc088a3e7cbecf31ffa28dc130913528&="
 
 
 class SHINY_POKEMON_URL:
@@ -104,6 +106,9 @@ class SHINY_POKEMON_URL:
 
 
 class GOLDEN_POKEMON_URL:
+
+    stufful = "https://graphics.tppcrpg.net/xy/golden/759M.gif"
+    bewear = "https://graphics.tppcrpg.net/xy/golden/760M.gif"
     toxel = "https://graphics.tppcrpg.net/xy/golden/848M.gif"
     toxtricity = "https://graphics.tppcrpg.net/xy/golden/849M.gif"
     magnemite = "https://graphics.tppcrpg.net/xy/golden/081M.gif"
