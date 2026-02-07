@@ -6,10 +6,11 @@ import asyncpg
 import discord
 
 from config.paldea_galar_dict import rarity_meta
-from utils.loggers.espeon_log import EspeonContext, espeon_log
 from config.pokemons import *
+from utils.loggers.espeon_log import EspeonContext, espeon_log
 
-def format_item_name(item_name: str) -> str:
+
+def format_item_name(item_name: str, dex: str = None) -> str:
     """
     Format the item name for display.
     """
@@ -42,6 +43,8 @@ def format_item_name(item_name: str) -> str:
         rarity = "superrare"
     elif lower_name in uncommon_mons:
         rarity = "uncommon"
+    elif lower_name in common_mons:
+        rarity = "common"
 
     elif "gigantamax" in lower_name:
         rarity = "gmax"
@@ -52,13 +55,58 @@ def format_item_name(item_name: str) -> str:
         item_name = item_name.replace("Mega ", "")
 
     rarity_emoji = rarity_meta.get(rarity, {}).get("emoji", "") if rarity else ""
-    display_name = f"{rarity_emoji} {item_name.title()}" if rarity_emoji else item_name.title()
+    display_name = (
+        f"{rarity_emoji} {item_name.title()}" if rarity_emoji else item_name.title()
+    )
+    has_dex = False
+    if dex and dex != "N/A":
+        has_dex = True
+    display_name = f"{display_name} #{dex}" if has_dex else display_name
     return display_name
 
 
 def generate_item_id(length=8):
     """Generate a random alphanumeric item_id of given length."""
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
+
+
+async def box_item_autocomplete(
+    interaction: discord.Interaction, current: str
+) -> List[discord.app_commands.Choice[str]]:
+    """
+    Autocomplete for box items from the database.
+    Choice.name = "Item Name"
+    Choice.value = "item_name"
+    Matches both names and item IDs.
+    """
+    from utils.cache.server_shop_cache import fetch_all_box_items
+
+    try:
+        items = fetch_all_box_items()
+    except Exception as e:
+        espeon_log(
+            tag="warn",
+            message=f"⚠️ Failed to fetch box items from cache: {e}",
+            exc=e,
+            label="🛒 SERVER SHOP",
+            context=EspeonContext.ESPEON,
+        )
+        items = {}
+    current = (current or "").lower().strip()
+    results: List[discord.app_commands.Choice[str]] = []
+    for item_id, item in items.items():
+        item_name = str(item.get("item_name", "Unnamed Item"))
+        if (
+            not current
+            or current in item_name.lower()
+            or current in str(item_id).lower()
+        ):
+            results.append(discord.app_commands.Choice(name=item_name, value=item_name))
+        if len(results) >= 25:
+            break
+    if not results:
+        results.append(discord.app_commands.Choice(name="No matches found", value=""))
+    return results
 
 
 async def shop_item_autocomplete(
@@ -114,6 +162,7 @@ async def upsert_item(
     stock: int,
     image_link: str,
     description: str = None,
+    dex: str = None,
 ) -> str:
     """
     Insert or update an item by name in the server_shop table.
@@ -131,12 +180,13 @@ async def upsert_item(
                 item_id = row["item_id"]
             else:
                 item_id = generate_item_id()
+
             await conn.execute(
                 """
-                INSERT INTO server_shop (item_name, price, stock, item_id, image_link, description)
-                VALUES ($1, $2, $3, $4, $5, $6)
+                INSERT INTO server_shop (item_name, price, stock, item_id, image_link, description, dex)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
                 ON CONFLICT (item_id)
-                DO UPDATE SET item_name = EXCLUDED.item_name, price = EXCLUDED.price, stock = EXCLUDED.stock, image_link = EXCLUDED.image_link;
+                DO UPDATE SET item_name = EXCLUDED.item_name, price = EXCLUDED.price, stock = EXCLUDED.stock, image_link = EXCLUDED.image_link, description = EXCLUDED.description, dex = EXCLUDED.dex;
                 """,
                 item_name,
                 price,
@@ -144,17 +194,20 @@ async def upsert_item(
                 item_id,
                 image_link,
                 description,
+                dex,
             )
             espeon_log(
                 tag="db",
-                message=f"Upserted item '{item_name}' (item_id: {item_id}, price: {price}, stock: {stock})",
+                message=f"Upserted item '{item_name}' (item_id: {item_id}, price: {price}, stock: {stock}, dex: {dex})",
                 label="🛒 SERVER SHOP",
                 context=EspeonContext.ESPEON,
             )
             # Upsert in cache as well
             from utils.cache.server_shop_cache import upsert_shop_item
 
-            upsert_shop_item(item_id, item_name, price, stock, image_link, description)
+            upsert_shop_item(
+                item_id, item_name, price, stock, image_link, description, dex
+            )
 
         return item_id
     except Exception as e:
@@ -167,13 +220,16 @@ async def upsert_item(
         )
         return None
 
+
 async def remove_item_by_name(bot: discord.Client, item_name: str) -> None:
     """
     Remove an item by name from the server_shop table.
     """
     try:
         async with bot.pg_pool.acquire() as conn:
-            await conn.execute("DELETE FROM server_shop WHERE item_name = $1;", item_name)
+            await conn.execute(
+                "DELETE FROM server_shop WHERE item_name = $1;", item_name
+            )
             espeon_log(
                 tag="db",
                 message=f"Removed item '{item_name}' from shop.",
@@ -194,6 +250,7 @@ async def remove_item_by_name(bot: discord.Client, item_name: str) -> None:
             label="🛒 SERVER SHOP",
             context=EspeonContext.ESPEON,
         )
+
 
 async def remove_item(bot: discord.Client, item_id: str) -> None:
     """

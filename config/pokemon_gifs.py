@@ -32,8 +32,8 @@ class REGULAR_POKEMON_URL:
     enamorous_therian = "https://images-ext-1.discordapp.net/external/W2twYEqZSNqd2VgdB8-h6BjWt9vNlJTcBGvIu-eWPx0/https/play.pokemonshowdown.com/sprites/ani/enamorus-therian.gif?width=83&height=80"
     pikachu_partner = "https://images-ext-1.discordapp.net/external/PsEp46xUWCw_2pz_0h3ubj_1BX7_G_J6Bdt_BW322I0/https/play.pokemonshowdown.com/sprites/ani/pikachu-partner.gif?width=68&height=66"
     koraidon = "https://media.discordapp.net/attachments/1323758555605631001/1435999397459787879/koraidon.gif?ex=690f53a7&is=690e0227&hm=1d53039bea3b12405303c8448da7bfa63810f985e8a1be4fafc2004eabc11ccb&=&width=119&height=141"
-
-
+    dialga_origin = "https://media.discordapp.net/attachments/996739716206563461/1006017592013631631/dialga-origin.gif?ex=6987ece4&is=69869b64&hm=f112d350ec6d948e809a9c6f6a01e925de3e330c3bcbf0734b6405ba9b8355db&=&width=110&height=165"
+    palkia_origin = "https://media.discordapp.net/attachments/996739716206563461/1016076322826625035/palkia-origin.gif?ex=69879ad1&is=69864951&hm=b33d260429bf5618477cea0b22e91a20adb911d22370099b849fc0cbf86a0d35&=&width=125&height=165"
 class GOLDEN_MEGA_POKEMON_URL:
     mega_blaziken = "https://media.discordapp.net/attachments/1451369765393141913/1458815330687254548/257-mega.gif?ex=69679aa6&is=69664926&hm=d2893eb4ea4239d5b02514cbbab588d23d836dc0b61fb953eb45f897660b0bf1&=&width=111&height=100"
     mega_swampert = "https://media.discordapp.net/attachments/677400893758373930/1354974559480057956/260-mega.gif?ex=696833e5&is=6966e265&hm=d0c71d0c6ad0bd8b83fb632e81240d0066a5cba4e63c0f93c11e8754abbd2ade&=&width=114&height=75"
@@ -88,6 +88,8 @@ class GOLDEN_MEGA_POKEMON_URL:
 
 class SHINY_POKEMON_URL:
     # 🌌 Arceus Forms
+    palkia_origin = "https://media.discordapp.net/attachments/1032422074540638300/1045493622797246516/palkia-origin.gif?ex=6987d650&is=698684d0&hm=50d266ee91292e7dcf731859818c8746d307dd4312d9d30d05d63e60e7b12195&=&width=125&height=165"
+    dialga_origin = "https://media.discordapp.net/attachments/1032422074540638300/1039384671252910151/dialga-origin.gif?ex=69880668&is=6986b4e8&hm=cc3affa65219c5a32a47b013e01ff54bb96660c58d190c045b7bf42b3bebd04b&=&width=110&height=165"
     arceus_normal = "https://images-ext-1.discordapp.net/external/5cORhDO0Vij4n3N6ILgkxkaQGpWIRsWHGsVOqPu0mtI/https/play.pokemonshowdown.com/sprites/ani-shiny/arceus.gif?width=92&height=128"
     arceus_flying = "https://media.discordapp.net/attachments/797746750512693262/1423408415740395591/arceus-flying.gif?ex=68e0dca3&is=68df8b23&hm=a1ae90e7d4e768b94f7857177b4ad6039bb241c62b8c59ea79cc974630f213bd&=&width=97&height=131"
     arceus_bug = "https://media.discordapp.net/attachments/1331944490935517184/1331996972588204094/7667.gif?ex=68e08919&is=68df3799&hm=a66e7ef12d543a7bcca8328a5cb32e3f5cab8935a4298b16f1b7fe16eab49cb0&=&width=97&height=131"

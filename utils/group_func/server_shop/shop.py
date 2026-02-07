@@ -7,7 +7,7 @@ from discord.ui import Button, View
 
 from config.aesthetic import Espeon_Emoji
 from config.current_setup import STRAYMONS_GUILD_ID
-from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
+from config.petal_lace_settings import SERVER_CURRENCY_EMOJI, COLOR, DIVIDER
 from utils.cache.cache_list import server_shop_cache
 from utils.database.server_shop import fetch_all_items, format_item_name
 from utils.essentials.loader import pretty_defer
@@ -83,7 +83,7 @@ class Shop_Paginator(View):
         page_items = self.items[start:end]
 
         title = "🌸 Petal Lace Shop 🌸"
-        description = "Welcome to the Petal Lace Shop — where your Cherry Pins bloom into exclusive treasures."
+        description = "Welcome to the Petal Lace Shop ~"
         embed = discord.Embed(
             title=title, description=description, color=COLOR, timestamp=datetime.now()
         )
@@ -94,8 +94,9 @@ class Shop_Paginator(View):
             item_name = item.get("item_name", "Unknown Item")
             price = item.get("price", 0)
             stock = item.get("stock", 0)
+            dex = item.get("dex", "N/A")
             stock_display = "Unlimited" if stock == -1 else str(stock)
-            display_item = format_item_name(item_name)
+            display_item = format_item_name(item_name, dex=dex)
             desc_line = item.get("description")
             if desc_line:
                 desc_line_str = f"\n> - Description: {desc_line}"
@@ -104,7 +105,7 @@ class Shop_Paginator(View):
 
             embed.add_field(
                 name=f"{number}. {display_item}",
-                value=f"> - ID: {item_id}\n> - Price: {price} {CHERRY_PIN}\n> - Stock: {stock_display}{desc_line_str}",
+                value=f"> - ID: {item_id}\n> - Price: {price} {SERVER_CURRENCY_EMOJI}\n> - Stock: {stock_display}{desc_line_str}",
                 inline=False,
             )
         total_items = len(self.items)
@@ -154,7 +155,9 @@ async def shop_view_func(
             item = server_shop_cache.get(item_id)
             if item:
                 # Show single item embed
-                display_item_name = format_item_name(item.get("item_name", "Unknown Item"))
+                ITEM = item.get("item_name", "Unknown Item")
+                dex = item.get("dex", "N/A")
+                display_item_name = format_item_name(ITEM, dex=dex)
                 price = item.get("price", 0)
                 stock = item.get("stock", 0)
                 image_link = item.get("image_link", "")
@@ -171,7 +174,7 @@ async def shop_view_func(
                     name=display_item_name,
                     value=(
                         f"> - ID: {item_id}\n"
-                        f"> - Price: {price} {CHERRY_PIN}\n"
+                        f"> - Price: {price} {SERVER_CURRENCY_EMOJI}\n"
                         f"> - Stock: {stock_display}"
                         f"{f'\n> - Description: {description_line}' if description_line else ''}"
                     ),

@@ -1,5 +1,5 @@
 from .add_item import add_item_func
-from .buy_item import buy_item_func
+from .new_buy_item import buy_item_func
 from .edit_item import edit_item_func
 from .remove_item import remove_item_func, shop_clear_func
 from .shop import shop_view_func

@@ -1,6 +1,7 @@
 # cogs/essentials/role_checks.py
 import discord
 from discord import app_commands
+
 from config.current_setup import STAFF_SERVER_GUILD_ID
 from config.straymons_constants import STRAYMONS__ROLES
 
@@ -32,6 +33,10 @@ class TestingMessage(app_commands.CheckFailure):
     pass
 
 
+class BerryGardenCheckFailure(app_commands.CheckFailure):
+    pass
+
+
 # 🌸──────────────────────────────────────────────────────
 # 🐾💫 Cute Error Messages by Server — Cottagecore Style 💫🌿
 # ───────────────────────────────────────────────────────
@@ -44,6 +49,7 @@ ERROR_MESSAGES = {
         "owner": "👑 This command is just for the Clan Owner, sorry! 💜",
         "owner_and_co_owner": "👑 & 🤝 Only Clan Owner and Co-Owner can use this. 🌷",
         "espeon_roles": f"🌸 Access restricted: Only members holding <@&{STRAYMONS__ROLES.ethereal_eclair}>, <@&{STRAYMONS__ROLES.sunrise_scone}>, or <@&{STRAYMONS__ROLES.vip}> are permitted to use this command. ✨",
+        "berry_garden": "🍓 Only Khy and Skaia can use this command.",
     },
 }
 
@@ -139,6 +145,20 @@ def espeon_roles_only():
         ):
             raise OwnerCoownerCheckFailure(ERROR_MESSAGES["straymons"]["espeon_roles"])
 
+        return True
+
+    return app_commands.check(predicate)
+
+
+def berry_garden_only():
+    async def predicate(interaction: discord.Interaction):
+        user_roles = [role.id for role in interaction.user.roles]
+        # Check if user has the khy_empy or fluorescence role
+        if (
+            STRAYMONS__ROLES.khy_empy not in user_roles
+            and STRAYMONS__ROLES.fluorescence not in user_roles
+        ):
+            raise BerryGardenCheckFailure(ERROR_MESSAGES["straymons"]["berry_garden"])
         return True
 
     return app_commands.check(predicate)

@@ -40,7 +40,7 @@ def debug_log(
         return
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_line = f"[{timestamp}] [🧪 SMART DEBUG] [{func_name}] {message}"
+    log_line = f"[{timestamp}] [🧪 {func_name}] {message}"
 
     # 🌸 pastel pink + underline for highlights
     COLOR_PASTEL_PINK = "\033[38;2;255;182;193m\033[4m"

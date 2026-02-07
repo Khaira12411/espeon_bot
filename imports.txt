@@ -24,6 +24,7 @@ fetch_pokemon_gif usage
         if tracked_list:
             pokemon_gif_url = await fetch_pokemon_gif(pokemon=tracked_list)
 
+from utils.group_func.box.add_item import log_event
 
 # 🟣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   💜 Espeon Helper Function › Function Name 💜

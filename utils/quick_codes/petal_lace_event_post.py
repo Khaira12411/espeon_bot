@@ -5,7 +5,7 @@ import pytz
 
 from config.aesthetic import Espeon_Emoji
 from config.current_setup import STRAYMONS_GUILD_ID
-from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
+from config.petal_lace_settings import SERVER_CURRENCY_EMOJI, COLOR, DIVIDER
 from config.straymons_constants import (
     STRAYMONS__EMOJIS,
     STRAYMONS__ROLES,
@@ -52,20 +52,20 @@ async def post_news_func(bot: discord.Client, message: discord.Message):
     NEWS_POST_DESC = f"""# __Carnivalesque__ {Espeon_Emoji.sakura_moon}
     -# This special event has opened its doors to our {charming_hershey_espresso_role.mention} and all who wish to join during said event!
 
-    For this year, we have a brand new shop that just opened up here in Straymons. This magical shop only appears once a year and lasts about a month until it disappears. The shop only accepts special currency called Cherry Pin {CHERRY_PIN} to buy wares and that currency only drops if you catch any Pokémon from your `;e cl` event checklist.
+    For this year, we have a brand new shop that just opened up here in Straymons. This magical shop only appears once a year and lasts about a month until it disappears. The shop only accepts special currency called Cherry Pin {SERVER_CURRENCY_EMOJI} to buy wares and that currency only drops if you catch any Pokémon from your `;e cl` event checklist.
 
     You can purchase as many items as you like until the stocks run out as long as you earn that currency. Some items are said to have more value than the other but have limited stocks, so be sure to grab them before it runs out!
 
     -# The amount earned are calculated as follows:
-    ```Shiny Event - 2 {CHERRY_PIN}
-    Exclusive Event - 3 {CHERRY_PIN}
-    Fishing Shiny Event (if any) - 2 {CHERRY_PIN}
-    Fishing Exclusive Event (if any) - 5 {CHERRY_PIN}
+    ```Shiny Event - 2 {SERVER_CURRENCY_EMOJI}
+    Exclusive Event - 3 {SERVER_CURRENCY_EMOJI}
+    Fishing Shiny Event (if any) - 2 {SERVER_CURRENCY_EMOJI}
+    Fishing Exclusive Event (if any) - 5 {SERVER_CURRENCY_EMOJI}
     Legendary - 1 Cherry Pin
-    Shiny Full Odds - 2 {CHERRY_PIN}
-    Shiny Legendary Full Odds - 5 {CHERRY_PIN}
-    Fishing Legendary - 2 {CHERRY_PIN}
-    Fishing Shiny - 4 {CHERRY_PIN}```
+    Shiny Full Odds - 2 {SERVER_CURRENCY_EMOJI}
+    Shiny Legendary Full Odds - 5 {SERVER_CURRENCY_EMOJI}
+    Fishing Legendary - 2 {SERVER_CURRENCY_EMOJI}
+    Fishing Shiny - 4 {SERVER_CURRENCY_EMOJI}```
     To purchase an item • `/shop buy`
     To view the shop • `/shop view`
     To check your balance • `/balance view`

@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ui import Modal, TextInput
 
-from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
+from config.petal_lace_settings import SERVER_CURRENCY_EMOJI, COLOR, DIVIDER
 from utils.essentials.loader import pretty_defer
 from utils.essentials.role_checks import *
 from utils.loggers.espeon_log import EspeonContext, espeon_log

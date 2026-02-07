@@ -8,7 +8,7 @@ from discord.ext import commands
 from config.aesthetic import Espeon_Emoji
 from config.current_setup import CC_GUILD_ID, STRAYMONS_GUILD_ID
 from config.paldea_galar_dict import legendary_mons, rarity_meta
-from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER, SHOP_EVENT
+from config.petal_lace_settings import SERVER_CURRENCY_EMOJI, COLOR, DIVIDER, SHOP_EVENT
 from config.straymons_constants import STRAYMONS__ROLES
 from utils.cache.cache_list import user_balance_cache
 from utils.database.server_currency import (
@@ -132,9 +132,9 @@ async def add_points_to_user(
     # Send confirmation message
     embed = discord.Embed(
         description=(
-            f"You have earned {points} {CHERRY_PIN} for catching {display_pokemon_name}!\n"
+            f"You have earned {points} {SERVER_CURRENCY_EMOJI} for catching {display_pokemon_name}!\n"
             f"{Espeon_Emoji.pink_star} **Catch Type:** {catch_type}\n"
-            f"{Espeon_Emoji.pink_heart_two} **New Balance:** {new_balance} {CHERRY_PIN}"
+            f"{Espeon_Emoji.pink_heart_two} **New Balance:** {new_balance} {SERVER_CURRENCY_EMOJI}"
         ),
         color=COLOR,
     )
@@ -450,8 +450,8 @@ async def event_checklist_caught(
                 f"{Espeon_Emoji.pink_ribbon} **Member:** {member.mention}\n"
                 f"{Espeon_Emoji.loveball} **Pokémon:** {display_pokemon_name}\n"
                 f"{Espeon_Emoji.pink_star} **Catch Type:** {context}\n"
-                f"{Espeon_Emoji.pink_cupcake} **Reward:** {points}{CHERRY_PIN}\n"
-                f"{Espeon_Emoji.pink_heart_two} **New Balance:** {current_balance}{CHERRY_PIN}"
+                f"{Espeon_Emoji.pink_cupcake} **Reward:** {points}{SERVER_CURRENCY_EMOJI}\n"
+                f"{Espeon_Emoji.pink_heart_two} **New Balance:** {current_balance}{SERVER_CURRENCY_EMOJI}"
             )
             embed = discord.Embed(
                 title=f"{Espeon_Emoji.pink_celebrate} Rare Catch Detected!",

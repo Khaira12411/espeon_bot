@@ -128,6 +128,8 @@ server_shop_cache: dict[int, dict] = {}
 #       "price": int,
 #       "stock": int,
 #       "image_link": str,
+#       "description": str,
+#       "dex": str,
 #   },
 #   ...
 # }
@@ -195,3 +197,4 @@ webhook_url_cache: dict[int, dict] = {}
 #       "url": str,
 #   },
 #   ...
+

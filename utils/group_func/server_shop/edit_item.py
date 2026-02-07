@@ -4,7 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from config.petal_lace_settings import CHERRY_PIN, COLOR
+from config.petal_lace_settings import SERVER_CURRENCY_EMOJI, COLOR
 from utils.cache.cache_list import server_shop_cache
 from utils.database.server_shop import fetch_item_by_id, format_item_name, update_item
 from utils.essentials.loader import pretty_defer
@@ -40,8 +40,9 @@ async def edit_item_func(
     old_image_link = existing_item.get("image_link")
     old_price = existing_item.get("price")
     old_stock = existing_item.get("stock")
+    dex = existing_item.get("dex")
     old_item_name = existing_item.get("item_name")
-    old_item_name = format_item_name(old_item_name)
+    old_item_name = format_item_name(old_item_name, dex=dex)
 
     # Check if user provided at least one field to update
     if new_price is None and new_stock is None and new_image_link is None:
@@ -67,7 +68,7 @@ async def edit_item_func(
     )
 
     if new_price is not None:
-        value_str = f"> - **Old:** {old_price} {CHERRY_PIN}\n> - **New:** {new_price} {CHERRY_PIN}"
+        value_str = f"> - **Old:** {old_price} {SERVER_CURRENCY_EMOJI}\n> - **New:** {new_price} {SERVER_CURRENCY_EMOJI}"
         embed.add_field(name="Price", value=value_str, inline=False)
 
     if new_stock is not None:

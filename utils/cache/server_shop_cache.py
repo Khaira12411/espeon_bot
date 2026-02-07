@@ -21,6 +21,7 @@ async def load_server_shop_cache(bot):
             "stock": row.get("stock"),
             "image_link": row.get("image_link"),
             "description": row.get("description"),
+            "dex": row.get("dex"),
         }
 
     espeon_log(
@@ -37,7 +38,7 @@ async def load_server_shop_cache(bot):
 #       💜 Server Shop Cache Helpers 💜
 # ─────────────────────────────────────────────
 def upsert_shop_item(
-    item_id: str, item_name: str, price: int, stock: int, image_link: str, description: str = None
+    item_id: str, item_name: str, price: int, stock: int, image_link: str, description: str = None, dex: str = None
 ):
     """Insert or update a server shop item in cache."""
     server_shop_cache[item_id] = {
@@ -46,6 +47,7 @@ def upsert_shop_item(
         "stock": stock,
         "image_link": image_link,
         "description": description,
+        "dex": dex,
     }
     espeon_log(
         tag="",
@@ -130,3 +132,11 @@ def fetch_shop_item(item_id: str) -> dict | None:
 def fetch_all_shop_items() -> dict[str, dict]:
     """Fetch all server shop items from cache."""
     return server_shop_cache
+
+def fetch_all_box_items() -> dict[str, dict]:
+    """Fetch all server shop items then filters only box items (those with 'box' in their name) and returns them."""
+    box_items = {}
+    for item_id, item in server_shop_cache.items():
+        if "box" in item.get("item_name", "").lower():
+            box_items[item_id] = item
+    return box_items

@@ -6,7 +6,7 @@ from discord.ext import commands
 from discord.ui import Button, View
 
 from config.aesthetic import Espeon_Emoji
-from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
+from config.petal_lace_settings import SERVER_CURRENCY_EMOJI, SERVER_CURRENCY_NAME, COLOR, DIVIDER
 from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 from utils.cache.cache_list import server_shop_cache, user_balance_cache
 from utils.database.server_currency import (
@@ -74,8 +74,8 @@ async def add_balance_func(
     embed = discord.Embed(
         title="Balance Updated",
         description=(
-            f"Successfully added {amount} {CHERRY_PIN} to {member.mention}'s account.\n"
-            f"New Balance: {new_balance} {CHERRY_PIN}"
+            f"Successfully added {amount} {SERVER_CURRENCY_EMOJI} to {member.mention}'s account.\n"
+            f"New Balance: {new_balance} {SERVER_CURRENCY_EMOJI}"
         ),
         color=COLOR,
         timestamp=datetime.now(),
@@ -98,12 +98,12 @@ async def add_balance_func(
     log_channel = bot.get_channel(LOG_CHANNEL_ID)
     if log_channel:
         log_embed = discord.Embed(
-            title=f"{CHERRY_PIN} Cherry Pin Balance Updated",
+            title=f"{SERVER_CURRENCY_EMOJI} {SERVER_CURRENCY_NAME} Balance Updated",
             description=(
                 f"**User:** {member.mention}\n"
                 f"**Added by:** {interaction.user.mention}\n"
-                f"**Amount Added:** {amount} {CHERRY_PIN}\n"
-                f"**New Balance:** {new_balance} {CHERRY_PIN}"
+                f"**Amount Added:** {amount} {SERVER_CURRENCY_EMOJI}\n"
+                f"**New Balance:** {new_balance} {SERVER_CURRENCY_EMOJI}"
             ),
             color=COLOR,
             timestamp=datetime.now(),
@@ -147,7 +147,7 @@ async def remove_balance_func(
         await upsert_user_balance(bot, member.id, member.name)
         # Exit early since balance is already 0
         await loader.error(
-            content=f"{member.mention} has a balance of 0 {CHERRY_PIN}. Cannot remove balance."
+            content=f"{member.mention} has a balance of 0 {SERVER_CURRENCY_EMOJI}. Cannot remove balance."
         )
         return
 
@@ -164,8 +164,8 @@ async def remove_balance_func(
     embed = discord.Embed(
         title="Balance Updated",
         description=(
-            f"Successfully removed {amount} {CHERRY_PIN} from {member.mention}'s account.\n"
-            f"New Balance: {new_balance} {CHERRY_PIN}"
+            f"Successfully removed {amount} {SERVER_CURRENCY_EMOJI} from {member.mention}'s account.\n"
+            f"New Balance: {new_balance} {SERVER_CURRENCY_EMOJI}"
         ),
         color=COLOR,
         timestamp=datetime.now(),
@@ -188,12 +188,12 @@ async def remove_balance_func(
     log_channel = bot.get_channel(LOG_CHANNEL_ID)
     if log_channel:
         log_embed = discord.Embed(
-            title=f"{CHERRY_PIN} Cherry Pin Balance Updated",
+            title=f"{SERVER_CURRENCY_EMOJI} {SERVER_CURRENCY_NAME} Balance Updated",
             description=(
                 f"**User:** {member.mention}\n"
                 f"**Removed by:** {interaction.user.mention}\n"
-                f"**Amount Removed:** {amount} {CHERRY_PIN}\n"
-                f"**New Balance:** {new_balance} {CHERRY_PIN}"
+                f"**Amount Removed:** {amount} {SERVER_CURRENCY_EMOJI}\n"
+                f"**New Balance:** {new_balance} {SERVER_CURRENCY_EMOJI}"
             ),
             color=COLOR,
             timestamp=datetime.now(),
@@ -253,7 +253,7 @@ async def reset_balance_func(
             user_id=member.id,
             new_balance=0,
         )
-        description = f"Successfully reset {member.mention}'s {CHERRY_PIN} to 0."
+        description = f"Successfully reset {member.mention}'s {SERVER_CURRENCY_EMOJI} to 0."
         espeon_log(
             tag="info",
             message=f"✅ {interaction.user.name} reset balance for {member.name}.",
@@ -280,7 +280,7 @@ async def reset_balance_func(
     log_channel = bot.get_channel(LOG_CHANNEL_ID)
     if log_channel:
         log_embed = discord.Embed(
-            title=f"{CHERRY_PIN} Cherry Pin Balance Reset",
+            title=f"{SERVER_CURRENCY_EMOJI} {SERVER_CURRENCY_NAME} Balance Reset",
             description=description,
             color=COLOR,
             timestamp=datetime.now(),
@@ -305,12 +305,12 @@ async def view_balance_func(
     member: discord.Member = None,
 ):
     """
-    Check your Cherry Pin balance.
+    Check your Server Currency balance.
     """
     # Check if its nov 30 1:01pm manila time or later
     if not is_nov_30_101pm_or_later_manila():
         await interaction.response.send_message(
-            content="The Cherry Pin system is not yet active. Please try again later.",
+            content="The Server Currency system is not yet active. Please try again later.",
             ephemeral=True,
         )
         return
@@ -336,8 +336,8 @@ async def view_balance_func(
     # Build balance embed
     title_str = "Your" if member is None else f"{member.display_name}'s"
     balance_embed = discord.Embed(
-        title=f"🍒 {title_str} Cherry Pin Balance 🍒",
-        description=f"**{user_balance} {CHERRY_PIN}**.",
+        title=f"{title_str} {SERVER_CURRENCY_EMOJI} {SERVER_CURRENCY_NAME} Balance",
+        description=f"**{user_balance} {SERVER_CURRENCY_EMOJI}**.",
         color=COLOR,
         timestamp=datetime.now(),
     )
@@ -354,17 +354,17 @@ async def view_balance_func(
 
     # Build info embed
     info_embed = discord.Embed(
-        title="🍒 Cherry Pin Rewards Info 🍒",
+        title=f"{SERVER_CURRENCY_EMOJI} {SERVER_CURRENCY_NAME} Rewards Info",
         description=(
-            f"Shiny Event – 2 {CHERRY_PIN}\n"
-            f"Exclusive Event – 3 {CHERRY_PIN}\n"
-            f"Fishing Shiny Event (if any) – 5 {CHERRY_PIN}\n"
-            f"Fishing Exclusive Event (if any) – 2 {CHERRY_PIN}\n"
-            f"Legendary – 1 {CHERRY_PIN}\n"
-            f"Shiny Full Odds – 2 {CHERRY_PIN}\n"
-            f"Shiny Legendary Full Odds – 5 {CHERRY_PIN}\n"
-            f"Fishing Legendary – 2 {CHERRY_PIN}\n"
-            f"Fishing Shiny – 5 {CHERRY_PIN}\n"
+            f"Shiny Event – 2 {SERVER_CURRENCY_EMOJI}\n"
+            f"Exclusive Event – 3 {SERVER_CURRENCY_EMOJI}\n"
+            f"Fishing Shiny Event (if any) – 5 {SERVER_CURRENCY_EMOJI}\n"
+            f"Fishing Exclusive Event (if any) – 2 {SERVER_CURRENCY_EMOJI}\n"
+            f"Legendary – 1 {SERVER_CURRENCY_EMOJI}\n"
+            f"Shiny Full Odds – 2 {SERVER_CURRENCY_EMOJI}\n"
+            f"Shiny Legendary Full Odds – 5 {SERVER_CURRENCY_EMOJI}\n"
+            f"Fishing Legendary – 2 {SERVER_CURRENCY_EMOJI}\n"
+            f"Fishing Shiny – 5 {SERVER_CURRENCY_EMOJI}\n"
         ),
         color=COLOR,
         timestamp=datetime.now(),
@@ -387,7 +387,7 @@ async def view_balance_func(
                 f"**{box_type.title()} Box**: Not Purchased | Quest: {box_data['quest']}"
             )
 
-    view = Cherry_Pin_Reward_Info(
+    view = SERVER_CURRENCY_EMOJI_Reward_Info(
         interaction.user,
         balance_embed=balance_embed,
         info_embed=info_embed,
@@ -407,7 +407,7 @@ async def view_balance_func(
     )
 
 
-class Cherry_Pin_Reward_Info(discord.ui.View):
+class SERVER_CURRENCY_EMOJI_Reward_Info(discord.ui.View):
     def __init__(self, user, balance_embed, info_embed, has_box, timeout=180):
         super().__init__(timeout=timeout)
 
@@ -422,14 +422,14 @@ class Cherry_Pin_Reward_Info(discord.ui.View):
         # Conditionally add Box Info button
         espeon_log(
             tag="debug",
-            message=f"Cherry_Pin_Reward_Info initialized for {user.name} with has_box={has_box}.",
+            message=f"SERVER_CURRENCY_EMOJI_Reward_Info initialized for {user.name} with has_box={has_box}.",
         )
         if has_box:
             box_info_btn = discord.ui.Button(
                 label="Box Info",
                 emoji=Espeon_Emoji.pink_box,
                 style=discord.ButtonStyle.secondary,
-                custom_id="cherry_pin_box_info_button",
+                custom_id="SERVER_CURRENCY_EMOJI_box_info_button",
             )
             box_info_btn.callback = self.box_info_button_callback
             self.add_item(box_info_btn)
@@ -437,9 +437,9 @@ class Cherry_Pin_Reward_Info(discord.ui.View):
     # BALANCE BUTTON
     @discord.ui.button(
         label="Balance",
-        emoji=CHERRY_PIN,
+        emoji=SERVER_CURRENCY_EMOJI,
         style=discord.ButtonStyle.secondary,
-        custom_id="cherry_pin_balance_button",
+        custom_id="SERVER_CURRENCY_EMOJI_balance_button",
     )
     async def balance_button(self, interaction, button):
         if interaction.user.id != self.user.id:
@@ -455,7 +455,7 @@ class Cherry_Pin_Reward_Info(discord.ui.View):
         for child in self.children:
             if (
                 hasattr(child, "custom_id")
-                and child.custom_id == "cherry_pin_box_info_button"
+                and child.custom_id == "SERVER_CURRENCY_EMOJI_box_info_button"
             ):
                 child.disabled = False
 
@@ -466,7 +466,7 @@ class Cherry_Pin_Reward_Info(discord.ui.View):
         label="Info",
         emoji=Espeon_Emoji.pink_flower_two,
         style=discord.ButtonStyle.secondary,
-        custom_id="cherry_pin_info_button",
+        custom_id="SERVER_CURRENCY_EMOJI_info_button",
     )
     async def info_button(self, interaction, button):
         if interaction.user.id != self.user.id:
@@ -482,7 +482,7 @@ class Cherry_Pin_Reward_Info(discord.ui.View):
         for child in self.children:
             if (
                 hasattr(child, "custom_id")
-                and child.custom_id == "cherry_pin_box_info_button"
+                and child.custom_id == "SERVER_CURRENCY_EMOJI_box_info_button"
             ):
                 child.disabled = False
 

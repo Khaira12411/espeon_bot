@@ -5,7 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from config.aesthetic import Espeon_Emoji
-from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER
+from config.petal_lace_settings import SERVER_CURRENCY_EMOJI, COLOR, DIVIDER, SERVER_CURRENCY_NAME
 from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 from utils.cache.cache_list import server_shop_cache
 from utils.database.server_currency import (
@@ -60,6 +60,7 @@ async def buy_item_func(
     item_name = item.get("item_name", "Unknown Item")
     price = item.get("price", 0)
     stock = item.get("stock", 0)
+    dex = item.get("dex", "N/A")
 
     # Check stock
     if stock == 0:
@@ -89,42 +90,31 @@ async def buy_item_func(
     if user_balance < total:
         await loader.error(
             content=(
-                f"You do not have enough Cherry Pins to buy '{item_name}'.\n"
-                f"You currently have {user_balance} {CHERRY_PIN}."
+                f"You do not have enough {SERVER_CURRENCY_NAME} to buy '{item_name}'.\n"
+                f"You currently have {user_balance} {SERVER_CURRENCY_EMOJI}."
             )
         )
         return
     # Check if user has donated role and doesn't have non weekly role and not donated role
-    donated_role_id = STRAYMONS__ROLES.donated
-    not_donated_role_id = STRAYMONS__ROLES.not_donated
-    non_weekly_role_id = STRAYMONS__ROLES.non_weekly
+    role_errors = {
+        STRAYMONS__ROLES.donated: "You need to have the Donated role to make purchases from the petal lace shop.\n",
+        STRAYMONS__ROLES.non_weekly: "Users with the Non-Weekly role cannot make purchases from the petal lace shop.\n",
+        STRAYMONS__ROLES.not_donated: "Users with the Not Donated role cannot make purchases from the petal lace shop.\n",
+    }
     user_roles = [role.id for role in interaction.user.roles]
-    if donated_role_id not in user_roles:
-        await loader.error(
-            content=(
-                "You need to have the Donated role to make purchases from the petal lace shop.\n"
-            )
-        )
+
+    if STRAYMONS__ROLES.donated not in user_roles:
+        await loader.error(content=role_errors[STRAYMONS__ROLES.donated])
         return
-    if non_weekly_role_id in user_roles:
-        await loader.error(
-            content=(
-                "Users with the Non-Weekly role cannot make purchases from the petal lace shop.\n"
-            )
-        )
-        return
-    if not_donated_role_id in user_roles:
-        await loader.error(
-            content=(
-                "Users with the Not Donated role cannot make purchases from the petal lace shop.\n"
-            )
-        )
-        return
+    for role_id in [STRAYMONS__ROLES.non_weekly, STRAYMONS__ROLES.not_donated]:
+        if role_id in user_roles:
+            await loader.error(content=role_errors[role_id])
+            return
 
     # Deduct price from user balance
     new_balance = user_balance - total
     await update_user_balance(bot, user_id, user_name, new_balance)
-    item_name = format_item_name(item_name)
+    item_name = format_item_name(item_name, dex=dex)
 
     # Decrease stock if not unlimited
     if stock > 0:
@@ -143,22 +133,22 @@ async def buy_item_func(
             )
             log_embed_title = f"{item_name} is Out of Stock"
             log_embed_description = (
-                f"{user.mention} has purchased the last stock of **{item_name}** for {total} {CHERRY_PIN}.\n"
+                f"{user.mention} has purchased the last stock of **{item_name}** for {total} {SERVER_CURRENCY_EMOJI}.\n"
                 f"The item has been removed from the Petal Lace Shop.\n"
-                f"**New Balance:** {new_balance} {CHERRY_PIN}"
+                f"**New Balance:** {new_balance} {SERVER_CURRENCY_EMOJI}"
             )
         else:
             log_embed_title = f"Item Purchased: {item_name}"
             log_embed_description = (
-                f"{user.mention} has purchased {amount} **{item_name}** from the Petal Lace Shop for {total} {CHERRY_PIN}.\n"
+                f"{user.mention} has purchased {amount} **{item_name}** from the Petal Lace Shop for {total} {SERVER_CURRENCY_EMOJI}.\n"
                 f"**Remaining stock:** {new_stock}"
-                f"\n**New Balance:** {new_balance} {CHERRY_PIN}"
+                f"\n**New Balance:** {new_balance} {SERVER_CURRENCY_EMOJI}"
             )
     elif stock == -1:
         log_embed_title = f"Item Purchased: {item_name}"
         log_embed_description = (
-            f"{user.mention} has purchased {amount} **{item_name}** from the Petal Lace Shop for {total} {CHERRY_PIN}.\n"
-            f"**New Balance:** {new_balance} {CHERRY_PIN}"
+            f"{user.mention} has purchased {amount} **{item_name}** from the Petal Lace Shop for {total} {SERVER_CURRENCY_EMOJI}.\n"
+            f"**New Balance:** {new_balance} {SERVER_CURRENCY_EMOJI}"
         )
     forward_line_str = f"{Espeon_Emoji.pink_flower} Please forward this message in <#1359856208961601638> and wait for Skaia to hand your prize."
     # Handle special case for boxes
@@ -171,8 +161,8 @@ async def buy_item_func(
     embed = discord.Embed(
         title="Purchase Successful",
         description=(
-            f"You have successfully purchased {amount} **{item_name}** for {total} {CHERRY_PIN}!\n"
-            f"Your new balance is {new_balance} {CHERRY_PIN}.\n\n"
+            f"You have successfully purchased {amount} **{item_name}** for {total} {SERVER_CURRENCY_EMOJI}!\n"
+            f"Your new balance is {new_balance} {SERVER_CURRENCY_EMOJI}.\n\n"
             f"{forward_line_str}"
         ),
         color=COLOR,
