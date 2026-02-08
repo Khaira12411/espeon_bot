@@ -22,7 +22,8 @@ from utils.misc.number_parser import parse_compact_number
 from utils.misc.string_parser import parse_prefix
 from utils.visuals.embeds.get_log_channel import get_log_channel
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
-
+from utils.function.webhook import send_webhook
+from utils.database.server_shop import format_item_name
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   ✨ Espeon Core Function › Market Alert Add ✨
@@ -169,10 +170,10 @@ async def add_market_alert_func(
     is_staff = clan_staff in user.roles or interaction.guild.id == STAFF_SERVER_GUILD_ID
     original_name = target_name
     target_name = target_name.title()
-    target_name = parse_prefix(target_name)
+    formatted_name = format_item_name(target_name, dex=dex_number)
     desc_lines = [
         f"- **Member:** {user.mention}",
-        f"- **Pokemon:** {target_name} #{dex_number}",
+        f"- **Pokemon:** {formatted_name}",
         f"- **Max Price:** {PokeCoin} {max_price_int:,}",
         f"- **Channel:** {channel.mention}",
     ]
@@ -199,7 +200,7 @@ async def add_market_alert_func(
     if log_channel:
         desc_lines = [
             f"{status['message']}\n" f"- **Member:** {user.mention}",
-            f"- **Pokemon:** {target_name} #{dex_number}",
+            f"- **Pokemon:** {formatted_name}",
             f"- **Max Price:** {PokeCoin} {max_price_int:,}",
             f"- **Channel:** {channel.mention}",
         ]
@@ -228,7 +229,11 @@ async def add_market_alert_func(
             source="MarketAlert",
         )
         if log_channel:
-            await log_channel.send(embed=log_embed)
+            await send_webhook(
+                bot=bot,
+                channel=log_channel,
+                embed=log_embed,
+            )
     except Exception as e:
         espeon_log(
             "error",

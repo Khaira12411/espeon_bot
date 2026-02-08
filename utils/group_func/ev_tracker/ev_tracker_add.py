@@ -8,7 +8,9 @@ import discord
 from config.aesthetic import *
 from config.straymons_constants import STRAYMONS__TEXT_CHANNELS
 from utils.cache.cache_list import ev_tracker_cache
+from utils.database.server_shop import format_item_name
 from utils.essentials.loader import pretty_defer
+from utils.function.webhook import send_webhook
 from utils.group_func.ev_tracker.ev_tracker_db_func import add_or_update_ev
 from utils.group_func.market_alert.parsers import (
     parse_special_mega_input,
@@ -190,12 +192,13 @@ async def ev_tracker_add_func(
             message=f"User {user.name} started tracking {pokemon_title} EVs: {evs_to_track} with goals {goals_to_track}",
             context=EspeonContext.STRAYMONS,
         )
+        formatted_name = format_item_name(pokemon_title, dex=dex_number)
 
         # ✨──────── Step 5 › Send Staff Log Embed ─────✨
         staff_channel = bot.get_channel(STAFF_LOG_CHANNEL_ID)
         if staff_channel:
             staff_desc_lines = [
-                f"- **Member:** {user.mention}\n- **Pokemon:** {pokemon_title} #{dex_number}\n{Espeon_Emoji.purple_pie} **EVs:**"
+                f"- **Member:** {user.mention}\n- **Pokemon:** {formatted_name}\n{Espeon_Emoji.purple_pie} **EVs:**"
             ]
             staff_desc_lines.extend(build_ev_lines(evs_to_track, goals_to_track))
 

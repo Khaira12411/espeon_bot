@@ -7,7 +7,9 @@ from datetime import datetime
 import discord
 
 from config.aesthetic import *
+from utils.database.server_shop import format_item_name
 from utils.essentials.loader import pretty_defer
+from utils.function.webhook import send_webhook
 from utils.group_func.market_alert.db_func.market_alert_counter import *
 from utils.group_func.market_alert.db_func.market_alert_db_func import (
     fetch_user_alerts,
@@ -184,7 +186,7 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
     log_channel = get_log_channel(bot=bot)
     if removed_alerts and log_channel:
         log_description = "\n".join(
-            [f"> - {name} #{dex}" for name, dex in removed_alerts]
+            [f"> - {format_item_name(name, dex)}" for name, dex in removed_alerts]
         )
         log_embed = discord.Embed(
             title=f"{Espeon_Emoji.purple_hearts_one} Market Alert Removed",
@@ -205,4 +207,8 @@ async def remove_market_alert_func(bot, interaction: discord.Interaction, pokemo
     )
 
     if log_channel and removed_alerts:
-        await log_channel.send(embed=log_embed)
+        await send_webhook(
+            bot=bot,
+            channel=log_channel,
+            embed=log_embed,
+        )

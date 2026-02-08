@@ -6,7 +6,12 @@ from discord.ext import commands
 from discord.ui import Button, View
 
 from config.aesthetic import Espeon_Emoji
-from config.petal_lace_settings import SERVER_CURRENCY_EMOJI, SERVER_CURRENCY_NAME, COLOR, DIVIDER
+from config.petal_lace_settings import (
+    COLOR,
+    DIVIDER,
+    SERVER_CURRENCY_EMOJI,
+    SERVER_CURRENCY_NAME,
+)
 from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 from utils.cache.cache_list import server_shop_cache, user_balance_cache
 from utils.database.server_currency import (
@@ -16,6 +21,7 @@ from utils.database.server_currency import (
     upsert_user_balance,
 )
 from utils.essentials.loader import pretty_defer
+from utils.function.webhook import send_webhook
 from utils.listener_func.event_checklist_caught import is_nov_30_101pm_or_later_manila
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
@@ -100,10 +106,10 @@ async def add_balance_func(
         log_embed = discord.Embed(
             title=f"{SERVER_CURRENCY_EMOJI} {SERVER_CURRENCY_NAME} Balance Updated",
             description=(
-                f"**User:** {member.mention}\n"
-                f"**Added by:** {interaction.user.mention}\n"
-                f"**Amount Added:** {amount} {SERVER_CURRENCY_EMOJI}\n"
-                f"**New Balance:** {new_balance} {SERVER_CURRENCY_EMOJI}"
+                f"- **User:** {member.mention}\n"
+                f"- **Added by:** {interaction.user.mention}\n"
+                f"- **Amount Added:** {amount} {SERVER_CURRENCY_EMOJI}\n"
+                f"- **New Balance:** {new_balance} {SERVER_CURRENCY_EMOJI}"
             ),
             color=COLOR,
             timestamp=datetime.now(),
@@ -113,9 +119,13 @@ async def add_balance_func(
             name=member.display_name, icon_url=member.display_avatar.url
         )
         log_embed.set_footer(
-            text=f"User ID: {member.id}", icon_url=member.display_avatar.url
+            text=f"User ID: {member.id}", icon_url=member.guild.icon.url
         )
-        await log_channel.send(embed=log_embed)
+        await send_webhook(
+            bot=bot,
+            channel=log_channel,
+            embed=log_embed,
+        )
 
 
 # 🟣────────────────────────────────────────────
@@ -190,10 +200,10 @@ async def remove_balance_func(
         log_embed = discord.Embed(
             title=f"{SERVER_CURRENCY_EMOJI} {SERVER_CURRENCY_NAME} Balance Updated",
             description=(
-                f"**User:** {member.mention}\n"
-                f"**Removed by:** {interaction.user.mention}\n"
-                f"**Amount Removed:** {amount} {SERVER_CURRENCY_EMOJI}\n"
-                f"**New Balance:** {new_balance} {SERVER_CURRENCY_EMOJI}"
+                f"- **User:** {member.mention}\n"
+                f"- **Removed by:** {interaction.user.mention}\n"
+                f"- **Amount Removed:** {amount} {SERVER_CURRENCY_EMOJI}\n"
+                f"- **New Balance:** {new_balance} {SERVER_CURRENCY_EMOJI}"
             ),
             color=COLOR,
             timestamp=datetime.now(),
@@ -203,9 +213,13 @@ async def remove_balance_func(
             name=member.display_name, icon_url=member.display_avatar.url
         )
         log_embed.set_footer(
-            text=f"User ID: {member.id}", icon_url=member.display_avatar.url
+            text=f"User ID: {member.id}", icon_url=member.guild.icon.url
         )
-        await log_channel.send(embed=log_embed)
+        await send_webhook(
+            bot=bot,
+            channel=log_channel,
+            embed=log_embed,
+        )
 
 
 # 🟣────────────────────────────────────────────
@@ -253,7 +267,9 @@ async def reset_balance_func(
             user_id=member.id,
             new_balance=0,
         )
-        description = f"Successfully reset {member.mention}'s {SERVER_CURRENCY_EMOJI} to 0."
+        description = (
+            f"Successfully reset {member.mention}'s {SERVER_CURRENCY_EMOJI} to 0."
+        )
         espeon_log(
             tag="info",
             message=f"✅ {interaction.user.name} reset balance for {member.name}.",

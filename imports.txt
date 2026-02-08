@@ -7,7 +7,12 @@ from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.essentials.loader import pretty_defer
 from utils.essentials.role_checks import *
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
+
 from utils.function.webhook import send_webhook
+from utils.database.server_shop import format_item_name
+
+from utils.group_func.box.add_item import log_event
+
 
 from utils.misc.number_parser import parse_compact_number
 from utils.misc.string_parser import parse_prefix
@@ -24,7 +29,7 @@ fetch_pokemon_gif usage
         if tracked_list:
             pokemon_gif_url = await fetch_pokemon_gif(pokemon=tracked_list)
 
-from utils.group_func.box.add_item import log_event
+
 
 # 🟣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   💜 Espeon Helper Function › Function Name 💜
