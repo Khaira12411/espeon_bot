@@ -132,8 +132,9 @@ def get_pokemon_gif(input_name: str):
             )
         else:
             if dex_number:
-                # Try the direct URL first
-                gif_url = f"https://graphics.tppcrpg.net/xy/golden/{dex_number}M.gif"
+                # Pad dex_number to 3 digits
+                padded_dex = str(dex_number).zfill(3)
+                gif_url = f"https://graphics.tppcrpg.net/xy/golden/{padded_dex}M.gif"
                 debug_log(f"Golden regular form: direct gif_url={gif_url}")
 
             else:

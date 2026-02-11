@@ -50,7 +50,7 @@ def format_item_name(item_name: str, dex: str = None) -> str:
         rarity = "gmax"
         item_name = item_name.replace("Gigantamax ", "")
 
-    elif lower_name in MEGA_ITEMS or "mega " in lower_name:
+    elif lower_name in MEGA_ITEMS or lower_name.startswith("mega "):
         rarity = "mega"
         item_name = item_name.replace("Mega ", "")
 
