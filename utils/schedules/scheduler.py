@@ -17,6 +17,7 @@ from .petal_lace_schedules import (
     scheduled_petal_lace_event_end,
     scheduled_petal_lace_opening,
     scheduled_petal_lace_shop_clear,
+    reset_battle_roles
 )
 
 # 💫━━━━━━━━━━━━━━━━━━
@@ -37,16 +38,17 @@ async def setup_scheduler(bot):
     Set up scheduled tasks for the bot.
     """
 
-    # 🌸 Petal Lace Opening Announcement at Nov 30 1 PM Asia/Manila
+    # 🌸 Petal Lace Opening Announcement at Feb 27 at 1 pm Asia/Manila Time
     try:
         job = scheduler_manager.add_cron_job(
             func=scheduled_petal_lace_opening,
             name="petal_lace_opening_announcement",
             hour=13,
             minute=0,
-            month=11,
-            day_of_month=30,
+            month=2,
+            day_of_month=27,
             args=[bot],
+            year=2026,  # Only runs in 2026
             timezone=MANILA,
         )
         espeon_log(
@@ -61,53 +63,28 @@ async def setup_scheduler(bot):
             source="Scheduler Setup",
         )
 
-    # 🌸 Event Close Dec 28th 1pm Asia/Manila
-    try:
+    # 🌸 Reset battle roles everyday at 12:00 AM Est
+    """try:
         job = scheduler_manager.add_cron_job(
-            func=scheduled_petal_lace_event_end,
-            name="petal_lace_closing_announcement",
-            hour=13,
+            func=reset_battle_roles,
+            name="daily_battle_role_reset",
+            hour=0,
             minute=0,
-            day_of_month=28,
-            month=12,
             args=[bot],
-            timezone=MANILA,
+            timezone=NYC,  # Use NYC timezone to auto-handle EST/EDT
         )
         espeon_log(
             "schedule_success",
-            f"Scheduled Petal Lace closing announcement: {job.trigger}",
+            f"Scheduled daily battle role reset: {job.trigger}",
         )
 
     except Exception as e:
         espeon_log(
             "error",
-            f"Failed to schedule Petal Lace closing announcement: {e}",
+            f"Failed to schedule daily battle role reset: {e}",
             source="Scheduler Setup",
-        )
+        )"""
 
-    # 🌸 Shop Clear Jan 4th 1pm Asia/Manila
-    try:
-        job = scheduler_manager.add_cron_job(
-            func=scheduled_petal_lace_shop_clear,
-            name="petal_lace_shop_clear",
-            hour=13,
-            minute=0,
-            day_of_month=4,
-            month=1,
-            args=[bot],
-            timezone=MANILA,
-        )
-        espeon_log(
-            "schedule_success",
-            f"Scheduled Petal Lace shop clear: {job.trigger}",
-        )
-
-    except Exception as e:
-        espeon_log(
-            "error",
-            f"Failed to schedule Petal Lace shop clear: {e}",
-            source="Scheduler Setup",
-        )
     # Start the scheduler
     scheduler_manager.start()
     espeon_log("schedule_success", "Scheduler started successfully.")

@@ -6,13 +6,15 @@ from discord.ext import commands
 from discord.ui import Button, View
 
 from config.aesthetic import Espeon_Emoji
-from config.current_setup import STRAYMONS_GUILD_ID
-from config.petal_lace_settings import SERVER_CURRENCY_EMOJI, COLOR, DIVIDER, LEADERBOARD_THUMBNAIL, SERVER_CURRENCY_NAME
-from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
+from config.current_setup import KHY_USER_ID, STRAYMONS_GUILD_ID
+from config.petal_lace_settings import (COLOR, DIVIDER, LEADERBOARD_THUMBNAIL,
+                                        SERVER_CURRENCY_EMOJI,
+                                        SERVER_CURRENCY_NAME)
+from config.straymons_constants import (STRAYMONS__ROLES,
+                                        STRAYMONS__TEXT_CHANNELS)
 from utils.cache.cache_list import server_shop_cache, user_balance_cache
 from utils.database.server_currency import fetch_all_user_balances
 from utils.essentials.loader import pretty_defer
-from utils.listener_func.event_checklist_caught import is_nov_30_101pm_or_later_manila
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 
@@ -172,3 +174,4 @@ async def balance_leaderboard_func(
         view=paginator,
     )
     paginator.message = sent_message
+

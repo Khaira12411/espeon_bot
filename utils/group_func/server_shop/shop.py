@@ -6,13 +6,14 @@ from discord.ext import commands
 from discord.ui import Button, View
 
 from config.aesthetic import Espeon_Emoji
-from config.current_setup import STRAYMONS_GUILD_ID
-from config.petal_lace_settings import SERVER_CURRENCY_EMOJI, COLOR, DIVIDER
+from config.current_setup import KHY_USER_ID, STRAYMONS_GUILD_ID
+from config.petal_lace_settings import COLOR, DIVIDER, SERVER_CURRENCY_EMOJI
 from utils.cache.cache_list import server_shop_cache
 from utils.database.server_shop import fetch_all_items, format_item_name
 from utils.essentials.loader import pretty_defer
+from utils.function.event_func import is_event_active_now_manila
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from utils.listener_func.event_checklist_caught import is_nov_30_101pm_or_later_manila
+
 
 # 🌸───────────────────────────────────────────────🌸
 # 🩷 ⏰ PAGINATED SHOP VIEW       🩷
@@ -120,7 +121,6 @@ class Shop_Paginator(View):
         )
         return embed
 
-
     async def on_timeout(self):
         # Disable all buttons on timeout
         for item in self.children:
@@ -140,16 +140,20 @@ async def shop_view_func(
     """
     View all items in the server shop.
     """
-    # Check if it is nov 30 1:01pm manila time or later
-    if not is_nov_30_101pm_or_later_manila():
-        await interaction.response.send_message(
-            content="The Petal Lace Shop is not yet open. Please try again later.",
-            ephemeral=True,
+    # Check if event is active or khy is viewing for testing
+    success, error_msg = is_event_active_now_manila()
+    if not success and interaction.user.id != KHY_USER_ID:
+        await interaction.response.send_message(content=error_msg, ephemeral=True)
+        espeon_log(
+            "info",
+            f"User {interaction.user} attempted to view the shop but the event is not active. Reason: {error_msg}",
+            source="Shop View Command",
         )
         return
 
     if item_name:
         from utils.cache.server_shop_cache import fetch_shop_item_id_by_name
+
         item_id = fetch_shop_item_id_by_name(item_name)
         if item_id:
             item = server_shop_cache.get(item_id)
@@ -226,4 +230,5 @@ async def shop_view_func(
         embed = await paginator.get_embed()
 
         sent_message = await loader.success(embed=embed, content="", view=paginator)
+        paginator.message = sent_message
         paginator.message = sent_message

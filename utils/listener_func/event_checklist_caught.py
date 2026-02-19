@@ -4,11 +4,11 @@ from datetime import datetime
 import discord
 import pytz
 from discord.ext import commands
-
+from config.petal_lace_settings import POINT_MAP
 from config.aesthetic import Espeon_Emoji
 from config.current_setup import CC_GUILD_ID, STRAYMONS_GUILD_ID
 from config.paldea_galar_dict import legendary_mons, rarity_meta
-from config.petal_lace_settings import SERVER_CURRENCY_EMOJI, COLOR, DIVIDER, SHOP_EVENT
+from config.petal_lace_settings import COLOR, DIVIDER, SERVER_CURRENCY_EMOJI, SHOP_EVENT
 from config.straymons_constants import STRAYMONS__ROLES
 from utils.cache.cache_list import user_balance_cache
 from utils.database.server_currency import (
@@ -19,7 +19,7 @@ from utils.database.server_currency import (
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 from utils.function.webhook import send_webhook
 from utils.loggers.espeon_log import espeon_log
-
+from utils.function.event_func import is_event_active_now_manila
 # key = embed_color
 SHINY_COLOR = 16751052
 LEGENDARY_COLOR = 10487800
@@ -35,23 +35,7 @@ LOW_RARITY_COLORS = [
     rarity_meta["uncommon"]["color"],
 ]
 
-POINT_MAP = {
-    "legendary": {"points": 1, "context": "Legendary"},
-    "fishing_legendary": {"points": 2, "context": "Fishing Legendary"},
-    "fishing_shiny": {"points": 5, "context": "Fishing Shiny"},
-    "fishing_exclusive_checklist": {
-        "points": 2,
-        "context": "Fishing Exclusive Checklist",
-    },
-    "fishing_shiny_exclusive_checklist": {
-        "points": 5,
-        "context": "Fishing Shiny Exclusive Checklist",
-    },
-    "event_shiny": {"points": 2, "context": "Shiny Checklist"},
-    "event_exclusive": {"points": 3, "context": "Event Exclusive Checklist"},
-    "full_odds_shiny": {"points": 2, "context": "Shiny Full-Odds"},
-    "shiny_legendary_full_odds": {"points": 5, "context": "Shiny Legendary Full-Odds"},
-}
+
 TEST_BOT_LOG_ID = 1220786187401302036
 REAL_BOT_LOG_ID = 1076441765059502233
 BOT_LOG_ID = TEST_BOT_LOG_ID
@@ -166,19 +150,6 @@ def extract_member_username_from_embed(embed: discord.Embed) -> str | None:
     return None
 
 
-def is_dec_28_1pm_or_later_manila():
-    tz = pytz.timezone("Asia/Manila")
-    now = datetime.now(tz)
-    target = tz.localize(datetime(2025, 12, 28, 13, 0, 0))
-    return now >= target
-
-
-def is_nov_30_101pm_or_later_manila():
-    tz = pytz.timezone("Asia/Manila")
-    now = datetime.now(tz)
-    target = tz.localize(datetime(2025, 11, 30, 13, 0, 1))
-    return now >= target
-
 
 async def event_checklist_caught(
     bot: discord.Client,
@@ -195,14 +166,15 @@ async def event_checklist_caught(
     rarity = None
     guild = after_message.guild
 
-    if is_dec_28_1pm_or_later_manila():
-        # dont process if after dec 28 1pm manila time
+    success, error_msg = is_event_active_now_manila()
+    if not success:
         espeon_log(
             "info",
-            "Current time is after Dec 28, 1 PM Manila time. Skipping rare catch processing.",
+            f"Event is not active. Skipping processing of catch. Reason: {error_msg}",
             source="Event Checklist Caught",
         )
         return
+
     if after_message.id in processed_rare_catches:
         return  # Already processed this message
 
@@ -413,15 +385,6 @@ async def event_checklist_caught(
     display_pokemon_name = f"{rarity_emoji} {pokemon_name}"
     source_image_url = embed.image.url if embed.image else None
 
-    # TODO Remove eventuallly
-    if not is_nov_30_101pm_or_later_manila():
-        # dont process if before nov 30 1:01pm manila time
-        espeon_log(
-            "info",
-            "Current time is before Nov 30, 1:01 PM Manila time. Skipping points addition.",
-            source="Event Checklist Caught",
-        )
-        return
 
     # Add points to user balance
     await add_points_to_user(

@@ -22,6 +22,7 @@ class SchedulerManager:
         day_of_week=None,
         day_of_month=None,  # ← monthly support
         month=None,  # ← add month support
+        year=None,  # ← add year support
         args=None,
         timezone=None,  # ← NEW optional timezone
         replace_existing=True,
@@ -35,6 +36,8 @@ class SchedulerManager:
         }
         if month is not None:
             trigger_kwargs["month"] = month
+        if year is not None:
+            trigger_kwargs["year"] = year
         trigger = CronTrigger(**trigger_kwargs)
         job = self.scheduler.add_job(
             func, trigger, args=args or [], id=name, replace_existing=replace_existing

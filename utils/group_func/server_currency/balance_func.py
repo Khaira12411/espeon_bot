@@ -4,7 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.ui import Button, View
-
+from config.current_setup import KHY_USER_ID
 from config.aesthetic import Espeon_Emoji
 from config.petal_lace_settings import (
     COLOR,
@@ -22,9 +22,9 @@ from utils.database.server_currency import (
 )
 from utils.essentials.loader import pretty_defer
 from utils.function.webhook import send_webhook
-from utils.listener_func.event_checklist_caught import is_nov_30_101pm_or_later_manila
+from utils.function.event_func import is_event_active_now_manila
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
+from utils.function.event_func import generate_event_points_description
 LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
 BOX_MAP = {
     "daisyia": {
@@ -323,11 +323,14 @@ async def view_balance_func(
     """
     Check your Server Currency balance.
     """
-    # Check if its nov 30 1:01pm manila time or later
-    if not is_nov_30_101pm_or_later_manila():
-        await interaction.response.send_message(
-            content="The Server Currency system is not yet active. Please try again later.",
-            ephemeral=True,
+    # Check if event is active or khy is viewing for testing
+    success, error_msg = is_event_active_now_manila()
+    if not success and interaction.user.id != KHY_USER_ID:
+        await interaction.response.send_message(content=error_msg, ephemeral=True)
+        espeon_log(
+            "info",
+            f"User {interaction.user} attempted to view balance but the event is not active. Reason: {error_msg}",
+            source="View Balance Command",
         )
         return
 
@@ -367,21 +370,12 @@ async def view_balance_func(
     )
     balance_embed.set_author(name=author_name, icon_url=author_icon_url)
     balance_embed.set_image(url=DIVIDER)
+    event_currency_info = generate_event_points_description()
 
     # Build info embed
     info_embed = discord.Embed(
         title=f"{SERVER_CURRENCY_EMOJI} {SERVER_CURRENCY_NAME} Rewards Info",
-        description=(
-            f"Shiny Event – 2 {SERVER_CURRENCY_EMOJI}\n"
-            f"Exclusive Event – 3 {SERVER_CURRENCY_EMOJI}\n"
-            f"Fishing Shiny Event (if any) – 5 {SERVER_CURRENCY_EMOJI}\n"
-            f"Fishing Exclusive Event (if any) – 2 {SERVER_CURRENCY_EMOJI}\n"
-            f"Legendary – 1 {SERVER_CURRENCY_EMOJI}\n"
-            f"Shiny Full Odds – 2 {SERVER_CURRENCY_EMOJI}\n"
-            f"Shiny Legendary Full Odds – 5 {SERVER_CURRENCY_EMOJI}\n"
-            f"Fishing Legendary – 2 {SERVER_CURRENCY_EMOJI}\n"
-            f"Fishing Shiny – 5 {SERVER_CURRENCY_EMOJI}\n"
-        ),
+        description=event_currency_info,
         color=COLOR,
         timestamp=datetime.now(),
     )

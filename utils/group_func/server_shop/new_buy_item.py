@@ -33,7 +33,9 @@ from utils.essentials.get_dex import get_dex
 from utils.essentials.loader import pretty_defer
 from utils.function.webhook import send_webhook
 from utils.group_func.box.add_item import log_event
-from utils.listener_func.event_checklist_caught import is_nov_30_101pm_or_later_manila
+from utils.function.event_func import (
+    is_event_active_now_manila,
+)
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed, get_pokemon_gif
 testing = True # Set to True to skip certain checks and database updates for testing purposes. Remember to set back to False after testing!
@@ -101,11 +103,14 @@ async def buy_item_func(
     """
     Buy an item from the server shop.
     """
-    # Check if it is nov 30 1:01pm manila time or later
-    if not is_nov_30_101pm_or_later_manila() and interaction.user.id != KHY_USER_ID:
-        await interaction.response.send_message(
-            content="The Petal Lace Shop is not yet open. Please try again later.",
-            ephemeral=True,
+    # Check if event is active or khy is buying for testing
+    success, error_msg = is_event_active_now_manila()
+    if not success and interaction.user.id != KHY_USER_ID:
+        await interaction.response.send_message(content=error_msg, ephemeral=True)
+        espeon_log(
+            "info",
+            f"User {interaction.user} attempted to buy an item but the event is not active. Reason: {error_msg}",
+            source="Buy Item Command",
         )
         return
 

@@ -6,18 +6,25 @@ from discord.ext import commands
 from config.aesthetic import Espeon_Emoji
 from config.current_setup import STRAYMONS_GUILD_ID
 from config.paldea_galar_dict import rarity_meta
-from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER, SHOP_EVENT
+from config.petal_lace_settings import (
+    CHERRY_PIN,
+    COLOR,
+    DIVIDER,
+    SHOP_EVENT,
+    SPECIAL_EVENT_ROLE_ID,
+)
 from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 from utils.cache.cache_list import (
     server_shop_cache,
     straymon_member_cache,
     user_balance_cache,
 )
+from utils.database.event_roles_db import upsert_user_w_role
 from utils.database.server_currency import get_user_balance
 from utils.database.server_shop import fetch_item_by_name, remove_item_by_name
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
-from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.function.webhook import send_webhook
+from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 WEEKLY_ROLES = [
     STRAYMONS__ROLES.weekly_angler,
@@ -36,13 +43,28 @@ async def handle_role_add(
 ):
     """Handle role addition events."""
     role_id = role.id
+    # ————————————————————————————————
+    # 🩵 Straymon Special Event Role Add
+    # ————————————————————————————————
+    """if role_id == SPECIAL_EVENT_ROLE_ID:
+        espeon_log(
+            tag="info",
+            message=f"Handling special event role addition for {member}.",
+        )
+        await upsert_user_w_role(
+            bot=bot,
+            role_id=role.id,
+            user_id=member.id,
+            user_name=member.name,
+            role_name=role.name,
+        )"""
 
     # ————————————————————————————————
     # 🩵 Straymon Weekly Role Add
     # ————————————————————————————————
     if not SHOP_EVENT:
         return
-    
+
     if role_id in WEEKLY_ROLES:
         # Check if user has all weekly roles
         espeon_log(
@@ -114,9 +136,7 @@ async def handle_role_add(
                         # Log gardelette quest completion
                         log_embed = discord.Embed(
                             title="🌸 Gardelette Quest Completed 🌸",
-                            description=(
-                                f"- **User:** {member.mention}\n"
-                            ),
+                            description=(f"- **User:** {member.mention}\n"),
                             color=COLOR,
                             timestamp=datetime.now(),
                         )
@@ -133,10 +153,14 @@ async def handle_role_add(
                             ),
                         )
 
-                        cafe_log_channel = member.guild.get_channel(STRAYMONS__TEXT_CHANNELS.cafe_logs)
-                        clan_event_log_channel = member.guild.get_channel(STRAYMONS__TEXT_CHANNELS.clan_event_log)
+                        cafe_log_channel = member.guild.get_channel(
+                            STRAYMONS__TEXT_CHANNELS.cafe_logs
+                        )
+                        clan_event_log_channel = member.guild.get_channel(
+                            STRAYMONS__TEXT_CHANNELS.clan_event_log
+                        )
                         if cafe_log_channel:
-                            #await cafe_log_channel.send(embed=log_embed)
+                            # await cafe_log_channel.send(embed=log_embed)
                             try:
                                 await send_webhook(
                                     bot,
@@ -151,7 +175,7 @@ async def handle_role_add(
                                     ),
                                 )
                         if clan_event_log_channel:
-                            #await clan_event_log_channel.send(embed=log_embed)
+                            # await clan_event_log_channel.send(embed=log_embed)
                             try:
                                 await send_webhook(
                                     bot,

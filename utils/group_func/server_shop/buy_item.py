@@ -5,7 +5,12 @@ from discord import app_commands
 from discord.ext import commands
 
 from config.aesthetic import Espeon_Emoji
-from config.petal_lace_settings import SERVER_CURRENCY_EMOJI, COLOR, DIVIDER, SERVER_CURRENCY_NAME
+from config.petal_lace_settings import (
+    COLOR,
+    DIVIDER,
+    SERVER_CURRENCY_EMOJI,
+    SERVER_CURRENCY_NAME,
+)
 from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
 from utils.cache.cache_list import server_shop_cache
 from utils.database.server_currency import (
@@ -15,8 +20,8 @@ from utils.database.server_currency import (
 )
 from utils.database.server_shop import format_item_name, remove_item, update_stock
 from utils.essentials.loader import pretty_defer
+from utils.function.event_func import is_event_active_now_manila
 from utils.function.webhook import send_webhook
-from utils.listener_func.event_checklist_caught import is_nov_30_101pm_or_later_manila
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 
@@ -30,11 +35,14 @@ async def buy_item_func(
     Buy an item from the server shop.
     """
 
-    # Check if it is nov 30 1:01pm manila time or later
-    if not is_nov_30_101pm_or_later_manila():
-        await interaction.response.send_message(
-            content="The Petal Lace Shop is not yet open. Please try again later.",
-            ephemeral=True,
+    # Check if event is active
+    success, error_msg = is_event_active_now_manila()
+    if not success:
+        await interaction.response.send_message(content=error_msg, ephemeral=True)
+        espeon_log(
+            "info",
+            f"User {interaction.user} attempted to buy an item but the event is not active. Reason: {error_msg}",
+            source="Buy Item Command",
         )
         return
 

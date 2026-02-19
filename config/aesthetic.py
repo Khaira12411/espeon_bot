@@ -1,4 +1,5 @@
 class Espeon_Emoji:
+    sakura_branch = "<a:sakura_branch:1473977291276161251>"
     lumire = "<a:Lumire:1463453894997835892>"
     hana_hug = "<a:hana_hug:1444216005550149794>"
     pink_heart_two = "<:pink_heart_two:1443560621479297095>"
