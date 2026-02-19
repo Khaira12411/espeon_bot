@@ -221,7 +221,7 @@ async def snipe_handler(
                     embed=snipe_embed,
                 )
                 espeon_log(
-                    "sent",
+                    "snipe",
                     f"Sent snipe alert for {display_pokemon_name} to channel {snipe_channel.id}",
                     context=EspeonContext.STRAYMONS,
                 )
@@ -327,7 +327,7 @@ async def process_market_alert_message(
                     f"Snipe detected for {poke_name} #{poke_dex}: listed_price={listed_price}, lowest_market={lowest_market}"
                 )
                 espeon_log(
-                    "info",
+                    "snipe",
                     f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market: {lowest_market})",
                     context=EspeonContext.STRAYMONS,
                 )
@@ -347,7 +347,7 @@ async def process_market_alert_message(
                     f"Snipe detected for {poke_name} #{poke_dex}: listed_price={listed_price}, lowest_market unknown"
                 )
                 espeon_log(
-                    "info",
+                    "snipe",
                     f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market unknown)",
                     context=EspeonContext.STRAYMONS,
                 )
@@ -444,7 +444,7 @@ async def process_market_alert_message(
             try:
                 await channel.send(content=content, embed=new_embed)
                 espeon_log(
-                    "info",
+                    "market_alert",
                     f"Sent market alert for {poke_name} #{poke_dex} to channel {alert['channel_id']}",
                     context=EspeonContext.STRAYMONS,
                 )
@@ -532,6 +532,6 @@ async def process_market_alert_message(
                     image_link=thumbnail_url,
                 )
                 espeon_log(
-                    "debug",
+                    "market_value",
                     f"Updated market cache & DB for {poke_name}: embed_lowest={lowest_market:,}, current={listed_price:,}, true_lowest={true_lowest:,}, seen={listing_seen}",
                 )

@@ -34,6 +34,9 @@ ESPEON_TAGS = {
     "warn": "🌹 WARN",
     "critical": "🚨 CRITICAL",
     "schedule_success": "🌸 SCHEDULE",
+    "snipe": "✨ SNIPE",
+    "market_alert": "💌 MARKET ALERT",
+    "market_value": "🏷️ MARKET VALUE",
 }
 
 
