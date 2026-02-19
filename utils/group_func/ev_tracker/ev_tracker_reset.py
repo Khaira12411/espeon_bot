@@ -18,7 +18,7 @@ STAFF_LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
 from config.aesthetic import *
 from utils.visuals.embeds.get_pokemon_gif import get_pokemon_gif
 from utils.visuals.gif import fetch_pokemon_gif
-
+from utils.function.webhook import send_webhook
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   ✨ Espeon Core Function › EV Tracker Reset ✨
@@ -90,7 +90,11 @@ async def ev_tracker_reset_func(bot, interaction: discord.Interaction):
             staff_embed = design_embed(
                 embed=staff_embed, user=user, thumbnail_url=thumbnail_url
             )
-            await staff_channel.send(embed=staff_embed)
+            await send_webhook(
+                bot=bot,
+                channel=staff_channel,
+                embed=staff_embed,
+            )
 
     except Exception as e:
         espeon_log(

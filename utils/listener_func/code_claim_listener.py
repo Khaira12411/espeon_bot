@@ -17,7 +17,7 @@ from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed
 from utils.function.webhook import send_webhook
-from .event_checklist_caught import is_dec_28_1pm_or_later_manila
+
 
 TEST_BOT_LOG_ID = 1220786187401302036
 REAL_BOT_LOG_ID = 1076441765059502233
@@ -42,14 +42,7 @@ async def handle_code_claim(bot: discord.Client, message: discord.Message):
 
     guild = message.guild
 
-    if is_dec_28_1pm_or_later_manila():
-        # dont process if after dec 28 1pm manila time
-        espeon_log(
-            "info",
-            "Current time is after Dec 28, 1 PM Manila time. Skipping code claim processing.",
-            source="Code Claim Listener",
-        )
-        return
+
 
     # Extract pokemon name
     pokemon_name = re.search(r"\*\*(.*?)\*\*", content)

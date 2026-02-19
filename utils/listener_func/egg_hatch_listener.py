@@ -18,7 +18,7 @@ from utils.function.webhook import send_webhook
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
-from .event_checklist_caught import is_dec_28_1pm_or_later_manila
+
 
 RARE_EGG_EXCLUSIVES = [
     "chingling",
@@ -73,14 +73,6 @@ async def egg_hatch_listener_func(
         debug_log(f"No embed or content found in message ID {message.id}, skipping.")
         return
 
-    if is_dec_28_1pm_or_later_manila():
-        # dont process if after dec 28 1pm manila time
-        espeon_log(
-            "info",
-            "Current time is after Dec 28, 1 PM Manila time. Skipping egg hatch processing.",
-            source="Egg Hatch Listener",
-        )
-        return
 
     # Color
     embed_color = embed.color.value if embed and embed.color else None

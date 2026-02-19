@@ -217,7 +217,11 @@ async def ev_tracker_add_func(
                 embed=staff_embed, user=user, pokemon_name=pokemon_title
             )
 
-            await staff_channel.send(embed=staff_embed)
+            await send_webhook(
+                bot=bot,
+                channel=staff_channel,
+                embed=staff_embed,
+            )
 
     except Exception as e:
         espeon_log(
