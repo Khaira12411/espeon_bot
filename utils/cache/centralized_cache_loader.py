@@ -13,7 +13,8 @@ from utils.cache.cache_list import (
     server_shop_cache,
     user_balance_cache,
     straymon_member_cache,
-    webhook_url_cache
+    webhook_url_cache,
+    market_value_cache
 
 )
 from utils.cache.ev_tracker_cache import load_ev_tracker_cache
@@ -25,7 +26,7 @@ from utils.cache.server_shop_cache import load_server_shop_cache
 from utils.cache.user_balance_cache import load_user_balance_cache
 from utils.cache.straymons_members_cache import load_straymon_members_cache
 from utils.cache.webhook_url_cache import load_webhook_url_cache
-
+from utils.database.market_value_db import load_market_cache_from_db
 
 # 💜────────────────────────────────────────────
 #     🟣 Load Everything in One Go
@@ -63,6 +64,9 @@ async def load_all_caches(bot):
         # 🛒 Load Server Shop Cache
         await load_server_shop_cache(bot)
 
+        # Load Market Value Cache from database
+        await load_market_cache_from_db(bot)
+
         # 🎀 Unified summary log
         espeon_log(
             tag="",
@@ -75,6 +79,7 @@ async def load_all_caches(bot):
                 f"Webhook URLs: {len(webhook_url_cache)} ~{get_deep_size(webhook_url_cache)//1024} KB + "
                 f"EV Trackers: {len(ev_tracker_cache)} ~{get_deep_size(ev_tracker_cache)//1024} KB + "
                 f"WB Pings: {len(WB_PING_CACHE)} ~{get_deep_size(WB_PING_CACHE)//1024} KB + "
+                f"Market Values: {len(market_value_cache)} ~{get_deep_size(market_value_cache)//1024} KB + "
                 f"Server Shop Items: {len(server_shop_cache)} ~{get_deep_size(server_shop_cache)//1024} KB + "
                 f"User Balances: {len(user_balance_cache)} ~{get_deep_size(user_balance_cache)//1024} KB + "
                 f"AFK Users: {len(AFK_CACHE)} ~{get_deep_size(AFK_CACHE)//1024} KB)"

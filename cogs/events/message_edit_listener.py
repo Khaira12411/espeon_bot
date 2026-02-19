@@ -3,9 +3,12 @@ from discord.ext import commands
 
 from config.current_setup import POKEMEOW_APPLICATION_ID, STRAYMONS_GUILD_ID
 from config.paldea_galar_dict import rarity_meta
+from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER, SHOP_EVENT
+from utils.listener_func.dex_listener import dex_listener
 from utils.listener_func.event_checklist_caught import event_checklist_caught
 from utils.loggers.espeon_log import espeon_log
-from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER, SHOP_EVENT
+
+from .message_create_listener import embed_has_field_name
 
 SHINY_COLOR = 16751052
 EVENT_EXCLUSIVE_COLOR = 16751052
@@ -16,6 +19,7 @@ LOW_RARITY_COLORS = [
     rarity_meta["common"]["color"],
     rarity_meta["uncommon"]["color"],
 ]
+
 
 class MessageEditListener(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -36,10 +40,23 @@ class MessageEditListener(commands.Cog):
         ):
             return
 
+        # ✨───────────────────────────────────────────────✨
+        # 🪻 Message Variables
+        # ✨───────────────────────────────────────────────✨
         embed = after.embeds[0] if after.embeds else None
         embed_desc = embed.description if embed else ""
         embed_color = embed.color.value if embed else None
 
+        content = after.content if after.content else ""
+        first_embed = after.embeds[0] if after.embeds else None
+        first_embed_author_text = (
+            first_embed.author.name if first_embed and first_embed.author else ""
+        )
+        first_embed_description = first_embed.description if first_embed else ""
+        first_embed_footer_text = (
+            first_embed.footer.text if first_embed and first_embed.footer else ""
+        )
+        first_embed_title = first_embed.title if first_embed else ""
         # 💜────────────────────────────────────────────
         #           👂 Event Checklist Caught (Debug)
         # 💜────────────────────────────────────────────
@@ -55,6 +72,16 @@ class MessageEditListener(commands.Cog):
                     before_message=before,
                     after_message=after,
                 )
+        # ✨───────────────────────────────────────────────✨
+        # 🪻 DEX LISTENER
+        # ✨───────────────────────────────────────────────✨
+        if first_embed:
+            if embed_has_field_name(first_embed, "Dex Number"):
+                espeon_log(
+                    "info",
+                    f"Detected dex command embed with 'Dex Number' field. Triggering dex listener.",
+                )
+                await dex_listener(self.bot, after)
 
 
 async def setup(bot: commands.Bot):

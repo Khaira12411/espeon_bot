@@ -63,6 +63,7 @@ ev_tracker_cache: dict[int, dict] = {}
 #       "user_name": str,
 #       "pokemon": str,
 #       "dex_number": int,
+#        "emoji_id": str,
 #       "evs": {
 #           "hp": int,
 #           "atk": int,
@@ -198,3 +199,4 @@ webhook_url_cache: dict[int, dict] = {}
 #   },
 #   ...
 
+market_value_cache: dict[str, dict] = {}

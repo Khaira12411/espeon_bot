@@ -5,6 +5,8 @@ from config.paldea_galar_dict import get_dex_number_by_name
 from config.pokemon_gifs import *
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
+from utils.database.market_value_db import fetch_image_link_cache
+from utils.function.pokemon_func import format_names_for_market_value_lookup
 
 enable_debug(f"{__name__}.get_pokemon_gif")
 hyphen_mon_names = [
@@ -18,7 +20,32 @@ hyphen_mon_names = [
 ]
 
 
-def get_pokemon_gif(input_name: str):
+def get_pokemon_gif(pokemon_name: str):
+    formatted_name = format_names_for_market_value_lookup(pokemon_name)
+    image_url = fetch_image_link_cache(formatted_name)
+    if not image_url:
+        espeon_log(
+            tag="info",
+            message=(
+                f"Image URL not found in cache for '{pokemon_name}' (formatted: '{formatted_name}')"
+            ),
+        )
+        # Fallback to fetching the GIF using the original name formatting
+        image_url = get_pokemon_gif_from_local_data(pokemon_name)
+        if not image_url:
+            espeon_log(
+                tag="info",
+                message=(
+                    f"Failed to fetch Pokémon GIF for '{pokemon_name}' using fallback method."
+                ),
+            )
+            return None
+        return image_url
+    else:
+        return image_url
+
+
+def get_pokemon_gif_from_local_data(input_name: str):
     """
     Returns the pokemon gif
     """

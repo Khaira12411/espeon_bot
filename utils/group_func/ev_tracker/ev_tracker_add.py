@@ -57,6 +57,7 @@ async def ev_tracker_add_func(
 ):
     from utils.cache.ev_tracker_cache import load_ev_tracker_cache
 
+    emoji_id = None
     user = interaction.user
     user_id = user.id
 
@@ -166,6 +167,7 @@ async def ev_tracker_add_func(
                 "user_id": user_id,
                 "user_name": user.name,
                 "pokemon": pokemon_title,
+                "emoji_id": emoji_id,
                 "dex_number": dex_number,
                 **evs_to_track,
                 **{f"{k}_goal": v for k, v in goals_to_track.items()},
@@ -185,7 +187,10 @@ async def ev_tracker_add_func(
         )
         embed = design_embed(embed=embed, user=user, pokemon_name=pokemon_title)
 
-        await handle.success(embed=embed, content="")
+        await handle.success(
+            embed=embed,
+            content=f"Kindly do `;bud info {dex_number}` to let me know your Pokémon's dex emoji for tracking EVs!",
+        )
 
         espeon_log(
             tag="sent",

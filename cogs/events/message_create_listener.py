@@ -12,10 +12,12 @@ from config.current_setup import (
     POKEMEOW_APPLICATION_ID,
     STRAYMONS_GUILD_ID,
 )
+from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER, SHOP_EVENT
 from config.straymons_constants import STRAYMONS__CATEGORIES, STRAYMONS__TEXT_CHANNELS
 from utils.listener_func.afk import afk_reply_on_mention
 from utils.listener_func.bud_ev_listener import handle_pokemeow_embed_sync
 from utils.listener_func.code_claim_listener import handle_code_claim
+from utils.listener_func.dex_listener import dex_listener
 from utils.listener_func.egg_hatch_listener import egg_hatch_listener_func
 from utils.listener_func.ev_tracker_listener import handle_pokemeow_battle_message
 from utils.listener_func.market_alert import process_market_alert_message
@@ -23,7 +25,6 @@ from utils.listener_func.mr_weakness import mr_weakness_chart
 from utils.listener_func.wb_sub import ping_wb_subscribers
 from utils.loggers.espeon_log import espeon_log
 from utils.quick_codes.petal_lace_event_post import post_news_func
-from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER, SHOP_EVENT
 
 MARKETFEED_CHANNELS = {
     STRAYMONS__TEXT_CHANNELS.ic_u_r_s_market_feed,
@@ -36,6 +37,19 @@ bud_info_trigger = "**Level**:"
 triggers = {
     "code_use": "<:checkedbox:752302633141665812> you used a code to claim a :gift:",
 }
+
+
+def embed_has_field_name(embed, name_to_match: str) -> bool:
+    """
+    Returns True if any field name in the embed matches the given string.
+    Returns False immediately if the embed has no fields.
+    """
+    if not hasattr(embed, "fields") or not embed.fields:
+        return False
+    for field in embed.fields:
+        if field.name == name_to_match:
+            return True
+    return False
 
 
 class MessageCreateListener(commands.Cog):
@@ -96,7 +110,25 @@ class MessageCreateListener(commands.Cog):
 
         # --- Weakness chart processing (Active + Staff Guilds) ---
         if message.guild and message.guild.id == STRAYMONS_GUILD_ID:
-
+            # ✨───────────────────────────────────────────────✨
+            # 🪻 Message Variables
+            # ✨───────────────────────────────────────────────✨
+            content = message.content
+            first_embed = message.embeds[0] if message.embeds else None
+            first_embed_author = (
+                first_embed.author.name if first_embed and first_embed.author else ""
+            )
+            first_embed_description = (
+                first_embed.description
+                if first_embed and first_embed.description
+                else ""
+            )
+            first_embed_footer = (
+                first_embed.footer.text if first_embed and first_embed.footer else ""
+            )
+            first_embed_title = (
+                first_embed.title if first_embed and first_embed.title else ""
+            )
             # ✨───────────────────────────────────────────────✨
             # 🪻 MARKET ALERT
             # ✨───────────────────────────────────────────────✨
@@ -107,8 +139,8 @@ class MessageCreateListener(commands.Cog):
                     )
                 except Exception as ma_e:
                     espeon_log(
-                        "error",
-                        f"Market alert processing failed for message {message.id} in {message.channel.name}: {ma_e}",
+                        tag="error",
+                        message=f"Market alert processing failed for message {message.id} in {message.channel.name}: {ma_e}",
                         source="process_market_alert_message",
                     )
             """"# ✨───────────────────────────────────────────────✨
@@ -145,6 +177,16 @@ class MessageCreateListener(commands.Cog):
                         f"Code claim processing failed for message {message.id} in {message.channel.name}: {cc_e}",
                         source="handle_code_claim",
                     )"""
+            # ✨───────────────────────────────────────────────✨
+            # 🪻 DEX LISTENER
+            # ✨───────────────────────────────────────────────✨
+            if first_embed:
+                if embed_has_field_name(first_embed, "Dex Number"):
+                    espeon_log(
+                        "info",
+                        f"Detected dex command embed with 'Dex Number' field. Triggering dex listener.",
+                    )
+                    await dex_listener(self.bot, message)
             # ✨───────────────────────────────────────────────✨
             # 🪻 MR WEAKNESS CHART
             # ✨───────────────────────────────────────────────✨

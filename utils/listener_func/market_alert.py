@@ -20,7 +20,8 @@ from config.straymons_constants import (
     STRAYMONS__ROLES,
     STRAYMONS__TEXT_CHANNELS,
 )
-from utils.cache.cache_list import _market_alert_index, _role_cache, market_alert_cache
+from utils.cache.cache_list import _market_alert_index, _role_cache, market_alert_cache, market_value_cache
+from utils.database.market_value_db import set_market_value
 from utils.function.webhook import send_webhook
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
@@ -95,8 +96,8 @@ PRE_MEGA_LIST = [
 
 processed_market_feed_message_ids = set()
 processed_snipe_ids = set()
-#enable_debug(f"{__name__}.snipe_handler")
-#enable_debug(f"{__name__}.process_market_alert_message")
+# enable_debug(f"{__name__}.snipe_handler")
+# enable_debug(f"{__name__}.process_market_alert_message")
 
 
 async def snipe_handler(
@@ -287,8 +288,11 @@ async def process_market_alert_message(
         )
         listing_seen = fields.get("Listing Seen", "N/A")
         amount = fields.get("Amount", "1")
-
+        embed_color = embed.color.value
+        is_exclusive = True if embed_color == 0xEA260B else False
         author_icon_url = embed.author.icon_url if embed.author else None
+        thumbnail_url = embed.thumbnail.url if embed.thumbnail else None
+
         # Rebuild index if empty
         if not _market_alert_index:
             debug_log("Rebuilding _market_alert_index from market_alert_cache")
@@ -449,4 +453,85 @@ async def process_market_alert_message(
                     "error",
                     f"Failed to send market alert: {e}",
                     context=EspeonContext.STRAYMONS,
+                )
+
+            # 💎────────────────────────────────────────────
+            #           🏪 Update Market Value Cache & DB
+            # 💎────────────────────────────────────────────
+            # Update market value cache with new listing data
+            # Extract additional market data
+            poke_dex = int(poke_dex)
+            lowest_market_str = re.sub(
+                r"<a?:\w+:\d+>", "", fields.get("Lowest Market", "0")
+            )
+            lowest_market_match = re.search(r"(\d[\d,]*)", lowest_market_str)
+            lowest_market = (
+                int(lowest_market_match.group(1).replace(",", ""))
+                if lowest_market_match
+                else 0
+            )
+
+            listing_seen = fields.get("Listing Seen", "Unknown")
+
+            # Upsert into market value cache
+            cache_key = poke_name.lower()
+
+            # Get existing data to preserve true lowest price
+            existing_data = market_value_cache.get(cache_key, {})
+            existing_lowest = existing_data.get("true_lowest", float("inf"))
+
+            # Ensure all values are not None for min/max
+            price_candidates = [listed_price, lowest_market, existing_lowest]
+            price_candidates = [p for p in price_candidates if p is not None]
+            if price_candidates:
+                true_lowest = min(price_candidates)
+            else:
+                true_lowest = 0
+
+            # Only update if we have a valid price (not 0)
+            if true_lowest == float("inf") or true_lowest == 0:
+                max_candidates = [listed_price, lowest_market]
+                max_candidates = [p for p in max_candidates if p is not None]
+                if max_candidates and max(max_candidates) > 0:
+                    true_lowest = max(max_candidates)
+                else:
+                    true_lowest = 0
+
+            # Only update DB if any value has changed
+            cache_update = {
+                "pokemon": poke_name,
+                "dex_number": poke_dex,
+                "is_exclusive": is_exclusive,
+                "lowest_market": lowest_market,
+                "current_listing": listed_price,
+                "true_lowest": true_lowest,
+                "listing_seen": listing_seen,
+                "image_link": thumbnail_url,
+            }
+            prev = market_value_cache.get(cache_key, {})
+            needs_update = (
+                prev.get("lowest_market") != lowest_market
+                or prev.get("current_listing") != listed_price
+                or prev.get("true_lowest") != true_lowest
+                or prev.get("listing_seen") != listing_seen
+                or prev.get("dex_number") != poke_dex
+                or prev.get("is_exclusive") != is_exclusive
+                or prev.get("image_link") != thumbnail_url
+            )
+            market_value_cache[cache_key] = cache_update
+            if needs_update:
+                await set_market_value(
+                    bot,
+                    pokemon_name=poke_name,
+                    dex_number=int(poke_dex),
+                    is_exclusive=is_exclusive,
+                    lowest_market=lowest_market,
+                    current_listing=listed_price,
+                    true_lowest=true_lowest,
+                    listing_seen=listing_seen,
+                    image_link=thumbnail_url,
+                )
+                espeon_log(
+                    "debug",
+                    f"Updated market cache & DB for {poke_name}: embed_lowest={lowest_market:,}, current={listed_price:,}, true_lowest={true_lowest:,}, seen={listing_seen}",
                 )

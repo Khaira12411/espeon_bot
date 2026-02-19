@@ -17,7 +17,8 @@ async def fetch_all_tracked_evs(bot):
                 """
                 SELECT user_id, user_name, pokemon, dex_number,
                        hp, atk, spa, def, spd, spe,
-                       hp_goal, atk_goal, spa_goal, def_goal, spd_goal, spe_goal
+                       hp_goal, atk_goal, spa_goal, def_goal, spd_goal, spe_goal,
+                       emoji_id
                 FROM ev_tracker
                 """
             )
@@ -40,6 +41,7 @@ async def add_or_update_ev(
     evs: dict,  # current EVs: {"hp": 0, "atk": 0, ...}
     goals: dict = None,  # goal EVs: {"hp": 252, "atk": 252, ...}
     dex_number: int = None,
+    emoji_id: str = None,
 ):
     """
     Add or update a tracked Pokemon with current and goal EVs.
@@ -53,9 +55,10 @@ async def add_or_update_ev(
                     user_id, user_name, pokemon, dex_number,
                     hp, atk, spa, def, spd, spe,
                     hp_goal, atk_goal, spa_goal, def_goal, spd_goal, spe_goal,
+                    emoji_id,
                     updated_at
                 )
-                VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,CURRENT_TIMESTAMP)
+                VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,CURRENT_TIMESTAMP)
                 ON CONFLICT (user_id)
                 DO UPDATE SET
                     user_name = EXCLUDED.user_name,
@@ -73,6 +76,7 @@ async def add_or_update_ev(
                     def_goal = COALESCE(EXCLUDED.def_goal, ev_tracker.def_goal),
                     spd_goal = COALESCE(EXCLUDED.spd_goal, ev_tracker.spd_goal),
                     spe_goal = COALESCE(EXCLUDED.spe_goal, ev_tracker.spe_goal),
+                    emoji_id = COALESCE(EXCLUDED.emoji_id, ev_tracker.emoji_id),
                     updated_at = CURRENT_TIMESTAMP
                 """,
                 user_id,
@@ -91,6 +95,7 @@ async def add_or_update_ev(
                 goals.get("def"),
                 goals.get("spd"),
                 goals.get("spe"),
+                emoji_id,
             )
         espeon_log(
             tag="db",
@@ -101,6 +106,35 @@ async def add_or_update_ev(
         espeon_log(
             tag="error",
             message=f"Failed to set EVs for {user_id} ({user_name}): {e}",
+            context=EspeonContext.STRAYMONS,
+        )
+
+
+async def update_emoji_id(bot, user_id: int, emoji_id: str):
+    """Update the emoji_id for a user's tracked Pokemon."""
+    try:
+        async with bot.pg_pool.acquire() as conn:
+            await conn.execute(
+                """
+                UPDATE ev_tracker
+                SET emoji_id = $1, updated_at = CURRENT_TIMESTAMP
+                WHERE user_id = $2
+                """,
+                emoji_id,
+                user_id,
+            )
+        espeon_log(
+            tag="db",
+            message=f"Updated emoji_id for user {user_id} to {emoji_id}",
+            context=EspeonContext.STRAYMONS,
+        )
+        # Update cache as well
+        from utils.cache.ev_tracker_cache import update_emoji_id_cache
+        update_emoji_id_cache(user_id, emoji_id)
+    except Exception as e:
+        espeon_log(
+            tag="error",
+            message=f"Failed to update emoji_id for user {user_id}: {e}",
             context=EspeonContext.STRAYMONS,
         )
 
@@ -117,7 +151,8 @@ async def get_tracked_ev(bot, user_id: int):
                 """
                 SELECT user_name, pokemon, dex_number,
                        hp, atk, spa, def, spd, spe,
-                       hp_goal, atk_goal, spa_goal, def_goal, spd_goal, spe_goal
+                       hp_goal, atk_goal, spa_goal, def_goal, spd_goal, spe_goal,
+                       emoji_id
                 FROM ev_tracker
                 WHERE user_id = $1
                 """,
@@ -143,6 +178,7 @@ async def get_tracked_ev(bot, user_id: int):
             "dex_number": row["dex_number"],
             "evs": evs,
             "goals": goals,
+            "emoji_id": row["emoji_id"],
         }
     except Exception as e:
         espeon_log(

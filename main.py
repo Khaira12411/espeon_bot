@@ -366,6 +366,7 @@ async def startup_checklist(bot: commands.Bot):
         ev_tracker_cache,
         market_alert_cache,
         mr_weakness_user_cache,
+        market_value_cache,
     )
 
     # Divider
@@ -384,7 +385,7 @@ async def startup_checklist(bot: commands.Bot):
 
     checklist.append(f"✅ {len(mr_weakness_user_cache)} 🌸 MR Weakness Users")
 
-    # 🐼 Mr. Weakness cache
+    # 🐼 Ev tracker cache
     checklist.append(f"✅ {len(ev_tracker_cache)} 🐼 EV Tracker Users")
 
     # 🫧 AFK cache
@@ -392,6 +393,9 @@ async def startup_checklist(bot: commands.Bot):
 
     # 🦩 World Boss ping cache
     checklist.append(f"✅ {len(WB_PING_CACHE)} 🦩 World Boss Ping Users")
+
+    # 🪻 Market value cache
+    checklist.append(f"✅ {len(market_value_cache)} 🪻 Market Values")
 
     # 💛 Status rotator
     #checklist.append(f"✅ {status_rotator.is_running()} ✨ Status Rotator Running")

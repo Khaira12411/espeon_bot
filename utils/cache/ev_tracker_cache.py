@@ -1,6 +1,7 @@
+from utils.cache.cache_list import ev_tracker_cache
 from utils.group_func.ev_tracker.ev_tracker_db_func import fetch_all_tracked_evs
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from utils.cache.cache_list import ev_tracker_cache
+
 # 🟣────────────────────────────────────────────
 #       💜 EV Tracker Cache System 💜
 # ─────────────────────────────────────────────
@@ -30,6 +31,7 @@ def insert_ev_tracker_cache(row: dict):
         "user_name": row.get("user_name"),
         "pokemon": row["pokemon"],
         "dex_number": row.get("dex_number"),
+        "emoji_id": row.get("emoji_id"),
         "evs": {
             stat: row[stat]
             for stat in ["hp", "atk", "spa", "def", "spd", "spe"]
@@ -70,3 +72,16 @@ def get_ev_tracker(user_id: int) -> dict | None:
 def get_all_ev_trackers() -> dict[int, dict]:
     """Return a shallow copy of the entire EV tracker cache."""
     return ev_tracker_cache.copy()
+
+def update_emoji_id_cache(user_id: int, emoji_id: str):
+    """Update the custom emoji ID for a user's EV tracker entry in cache."""
+    if user_id not in ev_tracker_cache:
+        return
+    ev_tracker_cache[user_id]["emoji_id"] = emoji_id
+
+
+def get_emoji_id_cache(user_id: int) -> str | None:
+    """Get the custom emoji ID for a user's EV tracker entry from cache."""
+    if user_id not in ev_tracker_cache:
+        return None
+    return ev_tracker_cache[user_id].get("emoji_id")
