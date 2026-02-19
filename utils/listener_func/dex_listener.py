@@ -57,20 +57,20 @@ async def dex_listener(bot, message: discord.Message):
     if embed_image_url and image_link_cache != embed_image_url:
         await upsert_image_link(bot, pokemon_name, embed_image_url, new_exclusive)
         debug_log(
-            f"Updated image link for {pokemon_name} to {embed_image_url} based on mh lookup command output."
+            f"Updated image link for {pokemon_name} to {embed_image_url}."
         )
         espeon_log(
             "info",
-            f"Updated image link for {pokemon_name} to {embed_image_url} based on mh lookup command output.",
+            f"Updated image link for {pokemon_name} to {embed_image_url}.",
         )
     old_dex_number = fetch_dex_number_cache(pokemon_name)
     if dex_number and str(old_dex_number) != str(dex_number):
         dex_number = int(dex_number)
         await update_dex_number(bot, pokemon_name, dex_number)
         debug_log(
-            f"Updated dex number for {pokemon_name} to {dex_number} based on mh lookup command output."
+            f"Updated dex number for {pokemon_name} to {dex_number}."
         )
         espeon_log(
             "info",
-            f"Updated dex number for {pokemon_name} to {dex_number} based on mh lookup command output.",
+            f"Updated dex number for {pokemon_name} to {dex_number}.",
         )
