@@ -10,17 +10,18 @@ from utils.database.market_value_db import (
     fetch_dex_number_cache,
     fetch_image_link_cache,
     fetch_pokemon_exclusivity_cache,
+    fetch_rarity_cache,
     update_dex_number,
     update_is_exclusive,
     update_rarity,
     upsert_image_link,
-    fetch_rarity_cache,
 )
 from utils.function.pokemon_func import is_mon_exclusive
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
-# enable_debug(f"{__name__}.dex_listener")
+#enable_debug(f"{__name__}.dex_listener")
+#enable_debug(f"{__name__}.extract_rarity_from_embed")
 emoji_map = {
     "common": "common",
     "uncommon": "uncommon",
@@ -37,6 +38,7 @@ emoji_map = {
     "goldengigantamax": "golden gigantamax",
 }
 
+
 def extract_pokemon_name_and_dex(text):
     match = re.match(r"(.+?)\s*#(\d+)", text)
     if match:
@@ -50,19 +52,44 @@ def extract_pokemon_name_and_dex(text):
 def extract_rarity_from_embed(embed) -> str:
     """
     Extracts the rarity text or emoji name from the 'Rarity' field in a Discord embed object.
-    Returns the rarity as a string (e.g., 'Uncommon').
+    Returns the mapped rarity as a string (e.g., 'shiny gigantamax').
     """
-    # Find the 'Rarity' field in the embed
-    for field in getattr(embed, "fields", []):
-        if field.get("name", "").lower() == "rarity":
-            value = field.get("value", "")
-            # Try to extract emoji name from custom emoji
+    debug_log("Starting rarity extraction from embed.")
+    fields = []
+    # Try to get fields from embed object (discord.py Embed or dict)
+    if hasattr(embed, "fields"):
+        fields = embed.fields
+        debug_log(f"Embed fields attribute found: {fields}")
+    elif isinstance(embed, dict) and "fields" in embed:
+        fields = embed["fields"]
+        debug_log(f"Embed fields key found: {fields}")
+    else:
+        debug_log(f"Embed has no fields attribute or key. Embed: {embed}")
+    for idx, field in enumerate(fields):
+        debug_log(f"Checking field {idx}: {field}")
+        name = (
+            field.get("name")
+            if isinstance(field, dict)
+            else getattr(field, "name", None)
+        )
+        value = (
+            field.get("value")
+            if isinstance(field, dict)
+            else getattr(field, "value", None)
+        )
+        debug_log(f"Field name: {name}, value: {value}")
+        if name and name.lower() == "rarity":
+            debug_log(f"Found 'Rarity' field with value: {value}")
             match = re.search(r"<:([a-zA-Z0-9_]+):[0-9]+>", value)
             if match:
-                emoji_name =  match.group(1).lower()
-                return emoji_map.get(emoji_name, "unknown")
+                emoji_name = match.group(1)
+                debug_log(f"Extracted emoji name: {emoji_name}")
+                mapped_rarity = emoji_map.get(emoji_name.lower(), emoji_name)
+                debug_log(f"Mapped rarity: {mapped_rarity}")
+                return mapped_rarity
+            debug_log(f"Returning plain rarity value: {value.strip()}")
             return value.strip()
-    # If not found, return empty string
+    debug_log("'Rarity' field not found in embed.")
     return ""
 
 
@@ -106,12 +133,12 @@ async def dex_listener(bot, message: discord.Message):
             f"Updated dex number for {pokemon_name} to {dex_number}.",
         )
     old_rarity = fetch_rarity_cache(pokemon_name)
-    if not old_rarity or old_rarity == "unknown":
-        rarity = extract_rarity_from_embed(embed)
-        if rarity and rarity != "unknown":
-            await update_rarity(bot, pokemon_name, rarity)
-            debug_log(f"Updated rarity for {pokemon_name} to {rarity}.")
-            espeon_log(
-                "info",
-                f"Updated rarity for {pokemon_name} to {rarity}.",
-            )
+    rarity = extract_rarity_from_embed(embed)
+
+    if rarity and old_rarity != rarity:
+        await update_rarity(bot, pokemon_name, rarity)
+        debug_log(f"Updated rarity for {pokemon_name} to {rarity}.")
+        espeon_log(
+            "info",
+            f"Updated rarity for {pokemon_name} to {rarity}.",
+        )
