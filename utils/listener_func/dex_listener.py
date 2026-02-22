@@ -21,7 +21,21 @@ from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 # enable_debug(f"{__name__}.dex_listener")
-
+emoji_map = {
+    "common": "common",
+    "uncommon": "uncommon",
+    "rare": "rare",
+    "superrare": "superrare",
+    "legendary": "legendary",
+    "shiny": "shiny",
+    "golden": "golden",
+    "shinymega": "shiny mega",
+    "shinygigantamax": "shiny gigantamax",
+    "mega": "mega",
+    "gigantamax": "gigantamax",
+    "goldenmega": "golden mega",
+    "goldengigantamax": "golden gigantamax",
+}
 
 def extract_pokemon_name_and_dex(text):
     match = re.match(r"(.+?)\s*#(\d+)", text)
@@ -45,7 +59,8 @@ def extract_rarity_from_embed(embed) -> str:
             # Try to extract emoji name from custom emoji
             match = re.search(r"<:([a-zA-Z0-9_]+):[0-9]+>", value)
             if match:
-                return match.group(1)
+                emoji_name =  match.group(1).lower()
+                return emoji_map.get(emoji_name, "unknown")
             return value.strip()
     # If not found, return empty string
     return ""
