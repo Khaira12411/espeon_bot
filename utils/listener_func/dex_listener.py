@@ -14,7 +14,7 @@ from utils.database.market_value_db import (
     update_is_exclusive,
     update_rarity,
     upsert_image_link,
-    get_rarity_cache,
+    fetch_rarity_cache,
 )
 from utils.function.pokemon_func import is_mon_exclusive
 from utils.loggers.debug_log import debug_log, enable_debug
@@ -90,7 +90,7 @@ async def dex_listener(bot, message: discord.Message):
             "info",
             f"Updated dex number for {pokemon_name} to {dex_number}.",
         )
-    old_rarity = get_rarity_cache(pokemon_name)
+    old_rarity = fetch_rarity_cache(pokemon_name)
     if not old_rarity or old_rarity == "unknown":
         rarity = extract_rarity_from_embed(embed)
         if rarity and rarity != "unknown":
