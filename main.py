@@ -53,7 +53,7 @@ intents.message_content = True
 intents.members = True
 
 # 🐾 Create the bot instance
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 # 💌 Tell the logger which bot instance to use
 set_espeon_bot(bot)
