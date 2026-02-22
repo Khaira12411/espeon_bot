@@ -12,7 +12,9 @@ from utils.database.market_value_db import (
     fetch_pokemon_exclusivity_cache,
     update_dex_number,
     update_is_exclusive,
+    update_rarity,
     upsert_image_link,
+    get_rarity_cache,
 )
 from utils.function.pokemon_func import is_mon_exclusive
 from utils.loggers.debug_log import debug_log, enable_debug
@@ -29,6 +31,24 @@ def extract_pokemon_name_and_dex(text):
         return name, dex
     else:
         return text.strip(), None
+
+
+def extract_rarity_from_embed(embed) -> str:
+    """
+    Extracts the rarity text or emoji name from the 'Rarity' field in a Discord embed object.
+    Returns the rarity as a string (e.g., 'Uncommon').
+    """
+    # Find the 'Rarity' field in the embed
+    for field in getattr(embed, "fields", []):
+        if field.get("name", "").lower() == "rarity":
+            value = field.get("value", "")
+            # Try to extract emoji name from custom emoji
+            match = re.search(r"<:([a-zA-Z0-9_]+):[0-9]+>", value)
+            if match:
+                return match.group(1)
+            return value.strip()
+    # If not found, return empty string
+    return ""
 
 
 async def dex_listener(bot, message: discord.Message):
@@ -56,9 +76,7 @@ async def dex_listener(bot, message: discord.Message):
         new_exclusive = existing_exclusive_status
     if embed_image_url and image_link_cache != embed_image_url:
         await upsert_image_link(bot, pokemon_name, embed_image_url, new_exclusive)
-        debug_log(
-            f"Updated image link for {pokemon_name} to {embed_image_url}."
-        )
+        debug_log(f"Updated image link for {pokemon_name} to {embed_image_url}.")
         espeon_log(
             "info",
             f"Updated image link for {pokemon_name} to {embed_image_url}.",
@@ -67,10 +85,18 @@ async def dex_listener(bot, message: discord.Message):
     if dex_number and str(old_dex_number) != str(dex_number):
         dex_number = int(dex_number)
         await update_dex_number(bot, pokemon_name, dex_number)
-        debug_log(
-            f"Updated dex number for {pokemon_name} to {dex_number}."
-        )
+        debug_log(f"Updated dex number for {pokemon_name} to {dex_number}.")
         espeon_log(
             "info",
             f"Updated dex number for {pokemon_name} to {dex_number}.",
         )
+    old_rarity = get_rarity_cache(pokemon_name)
+    if not old_rarity or old_rarity == "unknown":
+        rarity = extract_rarity_from_embed(embed)
+        if rarity and rarity != "unknown":
+            await update_rarity(bot, pokemon_name, rarity)
+            debug_log(f"Updated rarity for {pokemon_name} to {rarity}.")
+            espeon_log(
+                "info",
+                f"Updated rarity for {pokemon_name} to {rarity}.",
+            )

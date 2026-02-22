@@ -20,7 +20,12 @@ from config.straymons_constants import (
     STRAYMONS__ROLES,
     STRAYMONS__TEXT_CHANNELS,
 )
-from utils.cache.cache_list import _market_alert_index, _role_cache, market_alert_cache, market_value_cache
+from utils.cache.cache_list import (
+    _market_alert_index,
+    _role_cache,
+    market_alert_cache,
+    market_value_cache,
+)
 from utils.database.market_value_db import set_market_value
 from utils.function.webhook import send_webhook
 from utils.loggers.debug_log import debug_log, enable_debug
@@ -66,8 +71,7 @@ PRE_MEGA_LIST = [
     "Tyranitar",
     "Sceptile",
     "Blaziken",
-    "Steelix"
-    "Swampert",
+    "Steelix" "Swampert",
     "Gardevoir",
     "Sableye",
     "Mawile",
@@ -98,6 +102,32 @@ processed_market_feed_message_ids = set()
 processed_snipe_ids = set()
 # enable_debug(f"{__name__}.snipe_handler")
 # enable_debug(f"{__name__}.process_market_alert_message")
+
+
+def determine_rarity_from_name_and_author_icon(
+    poke_name: str, author_icon_url: str, embed_color: int
+) -> str:
+    rarity = get_rarity_by_color(embed_color)
+    if rarity == "golden":
+        if "mega " in poke_name.lower():
+            rarity = "golden mega"
+    if rarity == "unknown":
+        if "shiny mega " in poke_name.lower():
+            rarity = "shiny mega"
+        elif (
+            "shiny gigantamax-" in poke_name.lower()
+            or "shiny eternamax-" in poke_name.lower()
+        ):
+            rarity = "shiny gigantamax"
+        elif "shiny" in poke_name.lower():
+            rarity = "shiny"
+        elif "mega" in poke_name.lower():
+            rarity = "mega"
+        elif "gigantamax-" in poke_name.lower() or "eternamax-" in poke_name.lower():
+            rarity = "gigantamax"
+        elif author_icon_url == Legendary_icon_url:
+            rarity = "legendary"
+    return rarity
 
 
 async def snipe_handler(
@@ -460,6 +490,14 @@ async def process_market_alert_message(
             # 💎────────────────────────────────────────────
             # Update market value cache with new listing data
             # Extract additional market data
+            market_value_rarity = determine_rarity_from_name_and_author_icon(
+                poke_name, author_icon_url, embed_color
+            )
+            debug_log(f"Determined market value rarity: {market_value_rarity}")
+            espeon_log(
+                "info",
+                f"Determined market value rarity for {poke_name} #{poke_dex}: {market_value_rarity}",
+            )
             poke_dex = int(poke_dex)
             lowest_market_str = re.sub(
                 r"<a?:\w+:\d+>", "", fields.get("Lowest Market", "0")
@@ -507,6 +545,7 @@ async def process_market_alert_message(
                 "true_lowest": true_lowest,
                 "listing_seen": listing_seen,
                 "image_link": thumbnail_url,
+                "rarity": market_value_rarity,
             }
             prev = market_value_cache.get(cache_key, {})
             needs_update = (
@@ -517,6 +556,7 @@ async def process_market_alert_message(
                 or prev.get("dex_number") != poke_dex
                 or prev.get("is_exclusive") != is_exclusive
                 or prev.get("image_link") != thumbnail_url
+                or prev.get("rarity") != market_value_rarity
             )
             market_value_cache[cache_key] = cache_update
             if needs_update:
@@ -530,6 +570,7 @@ async def process_market_alert_message(
                     true_lowest=true_lowest,
                     listing_seen=listing_seen,
                     image_link=thumbnail_url,
+                    rarity=market_value_rarity,
                 )
                 espeon_log(
                     "market_value",

@@ -9,6 +9,54 @@ import discord
 from utils.cache.cache_list import market_value_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
+async def update_rarity(bot, pokemon_name: str, rarity: str):
+    """
+    Update the rarity for a Pokémon in the market value table.
+    """
+    pokemon_name = pokemon_name.lower()
+    try:
+        async with bot.pg_pool.acquire() as conn:
+            # Only update if row exists
+            row = await conn.fetchrow(
+                "SELECT pokemon_name FROM market_value WHERE pokemon_name = $1",
+                pokemon_name,
+            )
+            if not row:
+                espeon_log(
+                    tag="db",
+                    message=f"No market value row found for {pokemon_name}, skipping rarity update.",
+                )
+                return
+            await conn.execute(
+                "UPDATE market_value SET rarity = $1, last_updated = $2 WHERE pokemon_name = $3",
+                rarity,
+                datetime.utcnow(),
+                pokemon_name,
+            )
+            # Update in cache as well
+            if pokemon_name in market_value_cache:
+                market_value_cache[pokemon_name]["rarity"] = rarity
+
+        espeon_log(
+            tag="db",
+            message=f"Updated rarity for {pokemon_name} to {rarity}",
+        )
+
+    except Exception as e:
+        espeon_log(
+            tag="error",
+            message=f"Failed to update rarity for {pokemon_name}: {e}",
+        )
+        
+def fetch_rarity_cache(pokemon_name: str):
+    """
+    Get rarity for a Pokémon from cache.
+    Returns 'unknown' if not found or no data.
+    """
+    pokemon_data = market_value_cache.get(pokemon_name.lower())
+    if pokemon_data:
+        return pokemon_data.get("rarity", "unknown")
+    return "unknown"
 
 def fetch_dex_number_cache(pokemon_name: str):
     """
@@ -126,6 +174,7 @@ async def set_market_value(
     true_lowest: int = 0,
     listing_seen: str | None = None,
     image_link: str = None,
+    rarity: str = "unknown",
 ):
     """
     Insert or update market value data for a Pokémon.
@@ -136,9 +185,9 @@ async def set_market_value(
                 """
                 INSERT INTO market_value (
                     pokemon_name, dex_number, is_exclusive, lowest_market,
-                    current_listing, true_lowest, listing_seen, image_link, last_updated
+                    current_listing, true_lowest, listing_seen, image_link, last_updated, rarity
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                 ON CONFLICT (pokemon_name) DO UPDATE SET
                     dex_number = $2,
                     is_exclusive = $3,
@@ -147,7 +196,8 @@ async def set_market_value(
                     true_lowest = LEAST($6, market_value.true_lowest),
                     listing_seen = COALESCE($7, market_value.listing_seen),
                     image_link = COALESCE($8, market_value.image_link),
-                    last_updated = $9
+                    last_updated = $9,
+                    rarity = COALESCE($10, market_value.rarity)
                 """,
                 pokemon_name.lower(),
                 dex_number,
@@ -158,6 +208,7 @@ async def set_market_value(
                 listing_seen,
                 image_link,
                 datetime.utcnow(),
+                rarity,
             )
 
         espeon_log(
@@ -716,9 +767,9 @@ async def sync_market_cache_to_db(bot, market_cache: dict):
                     """
                     INSERT INTO market_value (
                         pokemon_name, dex_number, is_exclusive, lowest_market,
-                        current_listing, true_lowest, listing_seen, last_updated
+                        current_listing, true_lowest, listing_seen, last_updated, rarity, image_link
                     )
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                     ON CONFLICT (pokemon_name) DO UPDATE SET
                         dex_number = $2,
                         is_exclusive = $3,
@@ -726,7 +777,9 @@ async def sync_market_cache_to_db(bot, market_cache: dict):
                         current_listing = $5,
                         true_lowest = LEAST($6, market_value.true_lowest),
                         listing_seen = COALESCE($7, market_value.listing_seen),
-                        last_updated = $8
+                        last_updated = $8,
+                        rarity = COALESCE($9, market_value.rarity),
+                        image_link = COALESCE($10, market_value.image_link)
                     """,
                     pokemon_name.lower(),
                     data.get("dex_number", 0),
@@ -736,6 +789,8 @@ async def sync_market_cache_to_db(bot, market_cache: dict):
                     data.get("true_lowest", 0),
                     data.get("listing_seen", "Unknown"),
                     datetime.utcnow(),
+                    data.get("rarity", "unknown"),
+                    data.get("image_link", None),
                 )
                 update_count += 1
 
@@ -789,6 +844,7 @@ async def load_market_cache_from_db(bot) -> dict:
                     "true_lowest": row["true_lowest"],
                     "listing_seen": row["listing_seen"],
                     "image_link": row.get("image_link", None),
+                    "rarity": row.get("rarity", "unknown"),
                 }
 
         """espeon_log(

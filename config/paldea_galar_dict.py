@@ -115,6 +115,10 @@ Legendary_icon_url = (
 shiny_icon_url = (
     "https://cdn.discordapp.com/emojis/834534205651419137.webp?size=96&quality=lossless"
 )
+golden_icon_url = (
+    "https://cdn.discordapp.com/emojis/834534205664002118.webp?size=96&quality=lossless"
+)
+shiny_mega_icon_url = "https://cdn.discordapp.com/emojis/1203802044108898344.webp?size=96&quality=lossless"
 icon_url_map = {
     common_icon_url: "common",
     uncommon_icon_url: "uncommon",
@@ -123,6 +127,16 @@ icon_url_map = {
     Legendary_icon_url: "legendary",
     shiny_icon_url: "shiny",
 }
+
+full_icon_url_map = {
+    common_icon_url: "common",
+    uncommon_icon_url: "uncommon",
+    rare_icon_url: "rare",
+    superrare_icon_url: "superrare",
+    Legendary_icon_url: "legendary",
+    shiny_icon_url: "shiny",
+}
+
 rarity_meta = {
     "common": {
         "color": 0x0855FB,
