@@ -5,10 +5,12 @@
 import discord
 
 from config.emojis import PokeCoin
+from utils.essentials.loader import pretty_defer
 from utils.group_func.market_alert.db_func.market_alert_db_func import (
     toggle_market_alert_notify,
 )
 from utils.group_func.market_alert.parsers import resolve_pokemon_input
+from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import espeon_log
 
 
@@ -26,7 +28,9 @@ async def toggle_market_alert_func(
 
     user = interaction.user
     user_id = user.id
-    await interaction.response.defer(ephemeral=True)
+    loader = await pretty_defer(
+        interaction=interaction, content="Toggling market alert...", ephemeral=False
+    )
 
     try:
         # ── Handle ALL case ──
@@ -39,7 +43,7 @@ async def toggle_market_alert_func(
                 description=f"Toggled **{updated_count} alert(s)** to {'✅ Enabled' if value else '❌ Disabled'}.",
                 color=0xFF99FF,
             )
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await loader.success(content="", embed=embed)
             espeon_log(
                 "sent",
                 f"Toggled {updated_count} alerts for user {user_id} (ALL)",
@@ -49,21 +53,16 @@ async def toggle_market_alert_func(
 
         # ── Resolve Pokemon name & Dex ──
         pokemon_title = pokemon.title()
-        if any(
-            pokemon_title.startswith(f"{prefix}Mega ")
-            for prefix in ["", "Shiny ", "Golden "]
-        ):
-            target_name = pokemon_title
-            try:
-                _, dex_number = resolve_pokemon_input(pokemon)
-            except ValueError:
-                dex_number = None
-        else:
-            try:
-                target_name, dex_number = resolve_pokemon_input(pokemon)
-            except ValueError as e:
-                await interaction.followup.send(f"❌ {e}", ephemeral=True)
-                return
+        target_name, display_name, dex_number, error = resolve_pokemon_input(
+            pokemon_title
+        )
+        debug_log(
+            f"Resolved: target_name={target_name}, display_name={display_name}, dex_number={dex_number}, error={error}"
+        )
+        if error:
+            debug_log(f"Error resolving pokemon: {error}")
+            await loader.error(content=error)
+            return
 
         # ── Update notify column ──
         updated_count = await toggle_market_alert_notify(
@@ -78,18 +77,18 @@ async def toggle_market_alert_func(
         if updated_count == 0:
             embed = discord.Embed(
                 title="💜 No Alert Found",
-                description=f"You don’t have any alert for **{target_name} (Dex #{dex_number})**.",
+                description=f"You don’t have any alert for **{display_name}**.",
                 color=0xFF66CC,
             )
         else:
             embed = discord.Embed(
                 title="💜 Market Alert Toggled",
-                description=f"Toggled your alert for **{target_name} (Dex #{dex_number})** "
+                description=f"Toggled your alert for **{display_name}** "
                 f"to {'✅ Enabled' if value else '❌ Disabled'}.",
                 color=0xFF99FF,
             )
 
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        await loader.success(content="", embed=embed)
         espeon_log(
             "sent",
             f"Toggled alert for user {user_id} -> {target_name} (Dex #{dex_number})",
@@ -104,6 +103,5 @@ async def toggle_market_alert_func(
             exc=e,
             include_trace=True,
         )
-        await interaction.followup.send(
-            f"❌ An unexpected error occurred: {e}", ephemeral=True
-        )
+        await loader.error(content=f"An unexpected error occurred: {e}")
+        return

@@ -14,7 +14,7 @@ from utils.function.webhook import send_webhook
 from utils.group_func.ev_tracker.ev_tracker_db_func import add_or_update_ev
 from utils.group_func.market_alert.parsers import (
     parse_special_mega_input,
-    resolve_pokemon_input,
+    ev_resolve_pokemon_input,
 )
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed
@@ -123,7 +123,7 @@ async def ev_tracker_add_func(
         if pokemon.isdigit():
             if len(pokemon) == 4 and not pokemon.startswith(("1", "7", "9")):
                 raise ValueError("Invalid 4-digit Dex number.")
-            pokemon, dex_number = resolve_pokemon_input(pokemon)
+            pokemon, dex_number = ev_resolve_pokemon_input(pokemon)
             pokemon_title = pokemon.title()
         elif any(
             (
@@ -135,7 +135,7 @@ async def ev_tracker_add_func(
             dex_number = parse_special_mega_input(pokemon)
             pokemon = pokemon_title
         else:
-            pokemon, dex_number = resolve_pokemon_input(pokemon)
+            pokemon, dex_number = ev_resolve_pokemon_input(pokemon)
     except Exception as e:
         espeon_log(
             "critical",

@@ -9,6 +9,8 @@ from utils.database.market_value_db import (
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
+enable_debug(f"{__name__}.get_display_name")
+
 
 def get_dex_number_by_name(name: str) -> int | None:
     """
@@ -87,19 +89,25 @@ def format_price_w_coin(n: int) -> str:
 def get_display_name(pokemon_name: str, dex: bool = False) -> str:
     """Returns the display name of a Pokémon, optionally including the dex number."""
 
+    debug_log(f"get_display_name called with: pokemon_name='{pokemon_name}', dex={dex}")
     rarity = get_rarity(pokemon_name)
+    debug_log(f"Rarity for '{pokemon_name}': {rarity}")
     rarity_emoji = rarity_meta.get(rarity, {}).get("emoji", "") if rarity else ""
-    # Strip prefixes for display name to avoid clutter (e.g., "Shiny", "Mega", etc.)
-    pokemon_name = strip_prefixes(pokemon_name)
-    display_name = f"{rarity_emoji} {pokemon_name}".strip()
+    debug_log(f"Rarity emoji: '{rarity_emoji}'")
+    original_name = pokemon_name
+    stripped_name = strip_prefixes(pokemon_name)
+    debug_log(f"Stripped prefixes: '{original_name}' -> '{stripped_name}'")
+    display_name = f"{rarity_emoji} {stripped_name.title()}".strip()
+    debug_log(f"Initial display_name: '{display_name}'")
 
     if dex:
         dex_number = get_dex_number_by_name(pokemon_name)
+        debug_log(f"Dex number for '{pokemon_name}': {dex_number}")
         if dex_number:
             display_name = f"{display_name} #{dex_number}"
+            debug_log(f"Display name with dex: '{display_name}'")
+    debug_log(f"Final display_name: '{display_name.strip()}'")
     return display_name.strip()
-
-
 
 
 # enable_debug(f"{__name__}.is_mon_exclusive")
@@ -126,16 +134,24 @@ def get_rarity(pokemon: str):
     """Determines the rarity of a given Pokemon based on the name"""
 
     name = pokemon.lower()
-    if "golden" in name:
+    if (
+        "golden mega" in name
+        and not "golden yanmega" in name
+        and not "golden meganium" in name
+    ):
+        return "golden mega"
+    elif "golden" in name:
         return "golden"
-    elif "shiny" in name and "gigantamax" in name:
-        return "sgmax"
+    elif "shiny" in name and (
+        "gigantamax" in name or "gigantamax-" in name or "gmax-" in name
+    ):
+        return "shiny gigantamax"
     elif "shiny" in name and "mega" in name:
-        return "smega"
+        return "shiny mega"
     elif "shiny" in name:
         return "shiny"
-    elif "gigantamax" in name:
-        return "gmax"
+    elif "gigantamax" in name or "gigantamax-" in name or "gmax-" in name:
+        return "gigantamax"
     elif "mega" in name and not "yanmega" in name and not "meganium" in name:
         return "mega"
 

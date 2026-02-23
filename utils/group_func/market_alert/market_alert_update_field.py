@@ -11,7 +11,7 @@ from utils.loggers.espeon_log import espeon_log
 from utils.misc.number_parser import parse_compact_number
 from utils.visuals.embeds.get_log_channel import get_log_channel
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
-
+from utils.loggers.debug_log import debug_log, enable_debug
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #   ✨ Espeon Core Function › Market Alert Update ✨
@@ -79,7 +79,14 @@ async def update_market_alert_func(
 
     try:
         # ── Resolve Pokemon name & Dex ──
-        pokemon_name, dex_number = resolve_pokemon_input(pokemon)
+        pokemon_name, display_name, dex_number, error = resolve_pokemon_input(pokemon)
+        debug_log(
+            f"Resolved: target_name={pokemon_name}, display_name={display_name}, dex_number={dex_number}, error={error}"
+        )
+        if error:
+            debug_log(f"Error resolving pokemon: {error}")
+            await loader.error(content=error)
+            return
 
         # ── Prepare updates dictionary ──
         updates = {}

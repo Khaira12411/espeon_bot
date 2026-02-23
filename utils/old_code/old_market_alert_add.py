@@ -10,29 +10,44 @@ import discord
 
 from config.aesthetic import *
 from config.emojis import PokeCoin
-from utils.database.server_shop import format_item_name
 from utils.essentials.loader import pretty_defer  # <- your new defer wrapper
-from utils.function.pokemon_func import (
-    format_names_for_market_value_lookup,
-    get_dex_number_by_name,
-    get_display_name,
-)
-from utils.function.webhook import send_webhook
 from utils.group_func.market_alert.db_func.market_alert_counter import *
 from utils.group_func.market_alert.db_func.market_alert_db_func import insert_name_alert
 from utils.group_func.market_alert.parsers import (
     parse_special_mega_input,
     resolve_pokemon_input,
 )
-from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import espeon_log
 from utils.misc.number_parser import parse_compact_number
 from utils.misc.string_parser import parse_prefix
 from utils.visuals.embeds.get_log_channel import get_log_channel
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
+from utils.function.webhook import send_webhook
+from utils.database.server_shop import format_item_name
+from utils.function.pokemon_func import (
+    format_names_for_market_value_lookup,
+    get_dex_number_by_name,
+    get_display_name,
+)
 
-enable_debug(f"{__name__}.add_market_alert_func")
-enable_debug(f"{__name__}.resolve_pokemon_input")
+
+def resolve_pokemon_input(pokemon_input: str):
+    """
+    Resolves various Pokemon input formats to a standardized name and dex number.
+    Handles:
+    - Dex numbers (e.g. "25" → "pikachu")
+    - Shiny/Gigantamax/Mega prefixes (e.g. "Shiny Mega Charizard X")
+    - Regular names (e.g. "Pikachu")
+    Returns (normalized_name, dex_number) or raises ValueError if not found.
+    """
+    dex_number = None
+    dex_number = get_dex_number_by_name(pokemon_input.lower())
+    if dex_number:
+        normalized_name = format_names_for_market_value_lookup(pokemon_input.lower())
+        display_name = get_display_name(dex_number)
+        return normalized_name, display_name, dex_number, None
+    else:
+        return None, None, None, f"Pokemon '{pokemon_input}' not found in dex."
 
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -59,38 +74,28 @@ async def add_market_alert_func(
     user = interaction.user
     user_id = user.id
     log_channel = get_log_channel(bot=bot)
-    debug_log(
-        f"add_market_alert_func called by user {user_id} for pokemon '{pokemon}' with max_price '{max_price}' in channel '{channel.id}'"
-    )
 
     # 💜 Start loader
     loader = await pretty_defer(
         interaction, content="Espeon is thinking...", ephemeral=False
     )
-    debug_log("Loader started for market alert add.")
 
     # 💜 Validate price
     parsed_price = parse_compact_number(str(max_price))
-    debug_log(f"Parsed price input '{max_price}' to '{parsed_price}'")
     if not parsed_price:
-        debug_log("Invalid max price format detected.")
         await loader.error(content="Invalid max price format! Use e.g. 1k, 1.5m, 2000")
         return
     max_price = int(parsed_price)
 
     alerts_counter = await get_alerts_row(bot=bot, user_id=user_id)
-    debug_log(f"Alerts counter for user {user_id}: {alerts_counter}")
     if not alerts_counter:
-        debug_log("User has not registered for market alerts.")
         await loader.error(content="Do `/market-alert register` first!")
         return
 
     total_alerts = alerts_counter["total_alerts"]
     alerts_used = alerts_counter["alerts_used"]
 
-    debug_log(f"User {user_id} alerts used: {alerts_used}/{total_alerts}")
     if total_alerts == alerts_used:
-        debug_log("User has used all market alerts.")
         await loader.error(
             content=f"You have used up all of your {total_alerts} market alerts"
         )
@@ -100,17 +105,13 @@ async def add_market_alert_func(
     role_obj = role
     role_id = None
     role_mention = ""
-    debug_log(f"Role input: {role}, mobile_role_input: {mobile_role_input}")
     if mobile_role_input:
         try:
             mobile_id = int(mobile_role_input.strip().strip("<@&>"))
-            debug_log(f"Parsed mobile role ID: {mobile_id}")
             role_obj = interaction.guild.get_role(mobile_id)
             if role_obj is None:
-                debug_log(f"Role ID {mobile_id} not found in guild.")
                 raise ValueError(f"Role ID {mobile_id} not found in guild.")
         except Exception as e:
-            debug_log(f"Exception in mobile role input: {e}")
             await loader.error(
                 content=f"Invalid mobile role input: {e}",
             )
@@ -118,31 +119,40 @@ async def add_market_alert_func(
     if role_obj:
         role_id = role_obj.id
         role_mention = f" <@&{role_id}>"
-        debug_log(f"Resolved role: {role_id}")
 
     pokemon_title = pokemon.title()
 
     try:
-        debug_log(f"Step 1: Resolving Pokemon '{pokemon_title}'")
         # 🔹 Step 1: Resolve Pokemon
         await loader.edit(content="Resolving Pokemon...")
-        target_name, display_name, dex_number, error = resolve_pokemon_input(
-            pokemon_title
-        )
-        debug_log(
-            f"Resolved: target_name={target_name}, display_name={display_name}, dex_number={dex_number}, error={error}"
-        )
-        if error:
-            debug_log(f"Error resolving pokemon: {error}")
-            await loader.error(content=error)
-            return
+        if pokemon.isdigit():
+            if len(pokemon) == 4 and not pokemon.startswith(("1", "7", "9")):
+                raise ValueError("Invalid 4-digit Dex number.")
+            target_name, dex_number = resolve_pokemon_input(pokemon)
+        elif any(
+            (
+                pokemon_title.startswith(f"{prefix}Mega ")
+                or pokemon_title.startswith(f"{prefix}Mega-")
+            )
+            for prefix in ["", "Shiny ", "Golden "]
+        ):
+            dex_number = parse_special_mega_input(pokemon)
+            target_name = pokemon_title
+        else:
+            target_name, dex_number = resolve_pokemon_input(pokemon)
 
-        debug_log("Step 2: Validating max price")
+        # Clean mega- names
+        if "mega-" in target_name.lower():
+            target_name = target_name.replace("Mega-", "Mega ")
+        elif "shiny mega-" in target_name.lower():
+            target_name = target_name.replace("Shiny Mega-", "Shiny Mega ")
+        elif "golden mega-" in target_name.lower():
+            target_name = target_name.replace("Golden Mega-", "Golden Mega ")
+
         # 🔹 Step 2: Validate max price
         await loader.edit(content="Validating max price...")
         max_price_int = int(max_price)
 
-        debug_log("Step 3: Inserting alert into DB")
         # 🔹 Step 3: Insert into DB
         await loader.edit(content="Inserting alert into DB...")
         await insert_name_alert(
@@ -164,18 +174,15 @@ async def add_market_alert_func(
             "notify": notify,
             "user_id": user_id,
         }
-        debug_log(f"Alert entry: {alert_entry}")
         # 🔹 Step 4: Refresh cache
         await loader.edit(content="Adding alert to cache...")
         insert_alert(alert=alert_entry)
 
-        debug_log("Step 5: Increment alerts used")
         # 🔹 Step 5: Increment alerts used
         await loader.edit(content="Finalizing...")
         status = await use_market_alert(bot=bot, user=user)
 
     except Exception as e:
-        debug_log(f"Exception in add_market_alert_func: {e}")
         espeon_log("critical", f"Market alert failed: {e}", source="MarketAlert", exc=e)
         await loader.error(
             content=f"Market alert Add failed: {e}",
@@ -186,9 +193,10 @@ async def add_market_alert_func(
     is_staff = clan_staff in user.roles or interaction.guild.id == STAFF_SERVER_GUILD_ID
     original_name = target_name
     target_name = target_name.title()
+    formatted_name = format_item_name(target_name, dex=dex_number)
     desc_lines = [
         f"- **Member:** {user.mention}",
-        f"- **Pokemon:** {display_name}",
+        f"- **Pokemon:** {formatted_name}",
         f"- **Max Price:** {PokeCoin} {max_price_int:,}",
         f"- **Channel:** {channel.mention}",
     ]
@@ -215,7 +223,7 @@ async def add_market_alert_func(
     if log_channel:
         desc_lines = [
             f"{status['message']}\n" f"- **Member:** {user.mention}",
-            f"- **Pokemon:** {display_name}",
+            f"- **Pokemon:** {formatted_name}",
             f"- **Max Price:** {PokeCoin} {max_price_int:,}",
             f"- **Channel:** {channel.mention}",
         ]

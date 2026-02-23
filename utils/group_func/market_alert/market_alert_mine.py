@@ -100,7 +100,7 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
         for alert in alerts:
             field_name = f"{Espeon_Emoji.purple_plushie} {alert['pokemon'].title()} (Dex #{alert['dex_number']})"
             role_mention = f"<@&{alert['role_id']}>" if alert.get("role_id") else "None"
-            notify_status = "✅ Enabled" if alert.get("notify", True) else "Disabled"
+            notify_status = "✅ Enabled" if alert.get("notify", True) else "❌ Disabled"
             field_value = (
                 f"> - **Max Price:** {PokeCoin} {alert['max_price']:,}\n"
                 f"> - **Channel:** <#{alert['channel_id']}>\n"
@@ -155,4 +155,5 @@ async def mine_market_alerts_func(bot, interaction: discord.Interaction):
             exc=e,
             include_trace=True,
         )
+        await handle.error(f"Failed to fetch market alerts: {e}")
         await handle.error(f"Failed to fetch market alerts: {e}")

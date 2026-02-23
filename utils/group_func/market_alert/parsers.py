@@ -4,15 +4,45 @@
 from config.weakness_chart import weakness_chart
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.weakness_embed import FORM_VARIANTS
+from utils.loggers.debug_log import debug_log, enable_debug
+from utils.function.pokemon_func import (
+    format_names_for_market_value_lookup,
+    get_dex_number_by_name,
+    get_display_name,
+)
 
 FORM_BASE_DEX_OFFSET = 7001
 from config.form_base_names import FORM_BASE_NAMES
 
 
+def resolve_pokemon_input(pokemon_input: str):
+    """
+    Resolves various Pokemon input formats to a standardized name and dex number.
+    Handles:
+    - Dex numbers (e.g. "25" → "pikachu")
+    - Shiny/Gigantamax/Mega prefixes (e.g. "Shiny Mega Charizard X")
+    - Regular names (e.g. "Pikachu")
+    Returns (normalized_name, dex_number) or raises ValueError if not found.
+    """
+    dex_number = None
+    debug_log(f"Resolving input: {pokemon_input}")
+    dex_number = get_dex_number_by_name(pokemon_input.lower())
+    debug_log(f"Dex number lookup for '{pokemon_input}': {dex_number}")
+    if dex_number:
+        normalized_name = format_names_for_market_value_lookup(pokemon_input.lower())
+        debug_log(f"Normalized name: {normalized_name}")
+        display_name = get_display_name(normalized_name, True)
+        debug_log(f"Display name: {display_name}")
+        return normalized_name, display_name, dex_number, None
+    else:
+        debug_log(f"Pokemon '{pokemon_input}' not found in dex.")
+        return None, None, None, f"Pokemon '{pokemon_input}' not found in dex."
+
+
 # ─────────────────────────────────────────────
 # Helper: Resolve Pokemon Name and Dex
 # ─────────────────────────────────────────────
-def resolve_pokemon_input(pokemon_input: str):
+def ev_resolve_pokemon_input(pokemon_input: str):
     """
     Converts any user input (name or dex) into a normalized Pokemon name and Dex number.
     Handles:

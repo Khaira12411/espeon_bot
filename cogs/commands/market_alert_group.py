@@ -116,6 +116,9 @@ class MarketAlerts(commands.Cog):
         name="toggle",
         description="Toggle whether a market alert notifies you (on/off)",
     )
+    @app_commands.autocomplete(
+        pokemon=user_alerts_autocomplete
+    )  # 👈 attach autocomplete
     @app_commands.describe(
         pokemon="Pokemon name, Dex number, or 'all' to toggle all alerts",
         value="true = enable notifications, false = disable notifications",
