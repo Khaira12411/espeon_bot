@@ -22,7 +22,7 @@ async def ev_tracker_view_func(bot: commands.Bot, interaction: discord.Interacti
     tracked_goals = tracked_data.get("goals", {})
 
     # --- CALL THE REUSABLE EMBED FUNCTION ---
-    embed = await build_ev_tracker_embed(
+    embed, is_completed = await build_ev_tracker_embed(
         bot=bot,
         tracked_data=tracked_data,
         evs=tracked_evs,

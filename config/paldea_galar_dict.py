@@ -119,6 +119,7 @@ golden_icon_url = (
     "https://cdn.discordapp.com/emojis/834534205664002118.webp?size=96&quality=lossless"
 )
 shiny_mega_icon_url = "https://cdn.discordapp.com/emojis/1203802044108898344.webp?size=96&quality=lossless"
+
 icon_url_map = {
     common_icon_url: "common",
     uncommon_icon_url: "uncommon",

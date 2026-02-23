@@ -6,8 +6,8 @@ from utils.group_func.ev_tracker.ev_tracker_db_func import add_or_update_ev
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.ev_tracker_embed import build_ev_tracker_embed
-
-#enable_debug(f"{__name__}.handle_pokemeow_battle_message")
+from utils.group_func.ev_tracker.ev_tracker_db_func import delete_tracked_ev
+# enable_debug(f"{__name__}.handle_pokemeow_battle_message")
 trainer_emoji = "<:trainer_brendan:1370001925092806706>"
 
 EV_MAP = {
@@ -154,7 +154,7 @@ async def handle_pokemeow_battle_message(bot, message: discord.Message):
         return
 
     # -------------------- STEP 7: Send summary embed --------------------
-    embed = await build_ev_tracker_embed(
+    embed, is_completed = await build_ev_tracker_embed(
         bot=bot,
         tracked_data=tracked_data,
         evs=updated_evs,
@@ -167,3 +167,18 @@ async def handle_pokemeow_battle_message(bot, message: discord.Message):
     )
 
     await message.channel.send(embed=embed)
+    if is_completed:
+        from utils.cache.ev_tracker_cache import get_ev_tracker, remove_ev_tracker_cache
+
+        espeon_log(
+            tag="ev",
+            message=f"EV tracker completed for {winner_name} ({tracked_data['pokemon']})!",
+            context=EspeonContext.STRAYMONS,
+        )
+        await delete_tracked_ev(bot, user_id)
+        remove_ev_tracker_cache(user_id)
+        espeon_log(
+            tag="ev",
+            message=f"EV tracker data deleted for {winner_name} ({tracked_data['pokemon']}) after completion.",
+            context=EspeonContext.STRAYMONS,
+        )

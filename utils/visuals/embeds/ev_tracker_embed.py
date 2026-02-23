@@ -25,7 +25,7 @@ async def build_ev_tracker_embed(
     Build a flexible EV tracker embed with spacing and line separators.
     The title prefix is now included in the author name instead of the embed title.
     """
-
+    is_completed = False  # Track if all goals are completed
     if goals is None:
         goals = tracked_data.get("goals", {})
 
@@ -108,12 +108,13 @@ async def build_ev_tracker_embed(
 
     if all_completed and goals:
         embed.set_footer(
-            text="🎉 All goals completed! Use /ev-tracker reset to track a new Pokemon."
+            text="🎉 All goals completed! Use /ev-tracker add to track a new Pokemon."
         )
+        is_completed = True
 
     if summary_lines:
         embed.add_field(
             name="🔄 Updated Stats", value="\n".join(summary_lines), inline=False
         )
 
-    return embed
+    return embed, is_completed

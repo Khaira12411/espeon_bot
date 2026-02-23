@@ -37,6 +37,7 @@ ESPEON_TAGS = {
     "snipe": "✨ SNIPE",
     "market_alert": "💌 MARKET ALERT",
     "market_value": "🏷️ MARKET VALUE",
+    "ev": "🪄 EV TRACKER",
 }
 
 

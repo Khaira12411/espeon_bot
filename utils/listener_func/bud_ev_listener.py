@@ -64,6 +64,7 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
         f"Parsed from embed title: user_battle_icon_tag={user_battle_icon_tag}, user_battle_icon_id={user_battle_icon_id}, user_name={user_name}, pokemon_emoji_tag={pokemon_emoji_tag}, pokemon_emoji_id={pokemon_emoji_id}, pokemon_name={pokemon_name}"
     )
     from utils.cache.ev_tracker_cache import get_emoji_id_cache
+
     tracked_pokemon_name = user_ev_data.get("pokemon", "").lower()
 
     if tracked_pokemon_name != pokemon_name.lower():
@@ -74,9 +75,7 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
 
     old_emoji_id = get_emoji_id_cache(user_id)
     if old_emoji_id != pokemon_emoji_tag:
-        debug_log(
-            f"Emoji ID mismatch for user {user_name} (id: {user_id}"
-        )
+        debug_log(f"Emoji ID mismatch for user {user_name} (id: {user_id}")
         debug_log(
             f"Old emoji_id: {old_emoji_id}, New emoji_id from embed: {pokemon_emoji_tag}"
         )
@@ -116,17 +115,41 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
         )
         return
 
-    # -------------------- STEP 4: Extract Pokemon EVs field --------------------
-    ev_field = next((f for f in embed.fields if "Pokémon EVs" in f.name), None)
-    if not ev_field:
-        debug_log("No 'Pokemon EVs' field found in embed. Exiting.")
-        return
 
-    parsed_evs = {
-        m.group(1).lower(): int(m.group(2))
-        for m in re.finditer(r"`([A-Z]+)`\s*(?:\*\*)?\s*(\d+)(?:\*\*)?", ev_field.value)
-    }
+    # -------------------- STEP 4: Extract Pokemon EVs field --------------------
+    # Find the index of the field with 'Pokémon EVs' in the name
+    ev_field_values = []
+    ev_field_index = None
+    for idx, f in enumerate(embed.fields):
+        if "Pokémon EVs" in f.name:
+            ev_field_index = idx
+            break
+
+    if ev_field_index is not None:
+        # Always include the 'Pokémon EVs' field
+        ev_field_values.append(embed.fields[ev_field_index].value)
+        # Include all immediately following fields with empty or whitespace-only names
+        for f in embed.fields[ev_field_index + 1:]:
+            # Handle truly empty, whitespace-only, or zero-width space names
+            if not f.name or f.name.strip() == "" or f.name.strip() == "​":
+                ev_field_values.append(f.value)
+            else:
+                break
+
+    # Join everything into one string before regex
+    ev_text = " ".join(ev_field_values)
+    debug_log(f"Combined EV text: {ev_text!r}")
+
+    # Robust regex: handles optional backticks, bold markers, and odd spacing
+    ev_matches = re.findall(
+        r"`?\s*(ATK|DEF|HP|SPE|SPA|SPD)\s*`?\s*\**\s*(\d+)\s*\**", ev_text
+    )
+    debug_log(f"Regex EV matches: {ev_matches}")
+
+    parsed_evs = {k.lower(): int(v) for k, v in ev_matches}
     debug_log(f"Parsed EVs from embed: {parsed_evs}")
+
+
 
     # -------------------- STEP 5: Compare and update tracked EVs --------------------
 
@@ -134,6 +157,8 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
     tracked_stats = [
         s for s in ["hp", "atk", "spa", "def", "spd", "spe"] if s in tracked_evs
     ]
+    debug_log(f"Tracked EVs: {tracked_evs}")
+    debug_log(f"Tracked stats: {tracked_stats}")
     old_values = {stat: tracked_evs[stat] for stat in tracked_stats}
     summary_lines = []
     updated = False
@@ -169,7 +194,7 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
         return
 
     # -------------------- STEP 6: Send confirmation embed with summary --------------------
-    embed = await build_ev_tracker_embed(
+    embed, is_completed = await build_ev_tracker_embed(
         bot=bot,
         tracked_data=tracked_data,
         evs=tracked_evs,
