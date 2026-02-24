@@ -159,7 +159,7 @@ def get_rarity(pokemon: str):
     elif name in (mon.lower() for mon in legendary_mons):
         return "legendary"
     elif name in (mon.lower() for mon in superrare_mons):
-        return "super rare"
+        return "superrare"
     elif name in (mon.lower() for mon in rare_mons):
         return "rare"
     elif name in (mon.lower() for mon in uncommon_mons):
