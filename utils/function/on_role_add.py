@@ -66,6 +66,7 @@ async def handle_role_add(
         return
 
     if role_id in WEEKLY_ROLES:
+        return
         # Check if user has all weekly roles
         espeon_log(
             tag="info",

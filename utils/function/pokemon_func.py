@@ -82,6 +82,7 @@ def get_embed_color_by_rarity(pokemon_name: str) -> int:
 
 def format_price_w_coin(n: int) -> str:
     """Format PokeCoin price with commas (no K/M shorthand)."""
+    n = int(n)  # Ensure n is an integer
     pokecoin = STRAYMONS__EMOJIS.pokecoin
     return f"{pokecoin} {n:,}"
 

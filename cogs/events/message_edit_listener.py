@@ -60,7 +60,7 @@ class MessageEditListener(commands.Cog):
         # 💜────────────────────────────────────────────
         #           👂 Event Checklist Caught (Debug)
         # 💜────────────────────────────────────────────
-        if embed and embed_color not in LOW_RARITY_COLORS and SHOP_EVENT is True:
+        if embed and embed_color not in LOW_RARITY_COLORS:
             if "You caught" in embed_desc:
                 espeon_log(
                     "info",

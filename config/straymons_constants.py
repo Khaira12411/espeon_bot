@@ -5,7 +5,6 @@
 #       STRAYMONS__TEXT_CHANNELS
 # 💦☁────────────────────────────────────────────💦☁
 class STRAYMONS__TEXT_CHANNELS:
-    test_snipe = 1437742079475318894
     clan_event_log = 1076441765059502233
 
     # 🌊💙🤍───────────── _Ai_Systems ─────────────💙🤍🌊
