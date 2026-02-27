@@ -35,7 +35,7 @@ LOW_RARITY_COLORS = [
     rarity_meta["uncommon"]["color"],
 ]
 
-
+LOW_RARITIES = ["rare", "super rare", "common", "uncommon", "superrare"]
 TEST_BOT_LOG_ID = 1220786187401302036
 REAL_BOT_LOG_ID = 1076441765059502233
 BOT_LOG_ID = TEST_BOT_LOG_ID
@@ -266,8 +266,13 @@ async def event_checklist_caught(
         if pokemon_name.lower() in EVENT_EXCLUSIVE_MON:
             catch_type = "event_exclusive"
             rarity = extract_rarity_from_footer(embed_footer)
+            if rarity.lower in LOW_RARITIES:
+
+                return  # Not a rare catch
             if rarity.lower() == "super rare":
                 rarity = "superrare"
+                return  # Not a rare catch
+
             elif rarity.lower() == "shiny":
                 rarity = "shiny"
                 pokemon_name = pokemon_name.replace("Shiny ", "")  # Clean for display
