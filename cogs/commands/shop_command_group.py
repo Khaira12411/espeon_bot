@@ -27,7 +27,7 @@ class ServerShop(commands.Cog):
     # 🪻────────────────────────────────────────────
     #           ✨ /shop view✨
     # 🪻────────────────────────────────────────────
-    @shop_group.command(name="view", description="View an item or all items in the petal lace shop")
+    @shop_group.command(name="view", description="View an item or all items in the server shop")
     @app_commands.autocomplete(item_name=shop_item_autocomplete)  # 👈 attach autocomplete
     @app_commands.describe(
         item_name="Name of the item to view (leave empty to view all items)",

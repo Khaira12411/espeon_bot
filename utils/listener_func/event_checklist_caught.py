@@ -301,8 +301,12 @@ async def event_checklist_caught(
         elif embed_color == EVENT_EXCLUSIVE_COLOR:
             catch_type = "event_exclusive"
             rarity = extract_rarity_from_footer(embed_footer)
+            if rarity.lower() in LOW_RARITIES:
+                return  # Not a rare catch
             if rarity.lower() == "super rare":
                 rarity = "superrare"
+                return  # Not a rare catch
+            
             espeon_log(
                 "info",
                 f"Identified event exclusive catch: {pokemon_name}, Rarity: {rarity}",

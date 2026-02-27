@@ -9,6 +9,7 @@ SHOP_EVENT = True
 
 SERVER_CURRENCY_EMOJI = Espeon_Emoji.lumire
 SERVER_CURRENCY_NAME = "Lumière Coin"
+EVENT_NAME = "Del Le Frume"
 
 SPECIAL_EVENT_ROLE_ID = STRAYMONS__ROLES.valiants
 
