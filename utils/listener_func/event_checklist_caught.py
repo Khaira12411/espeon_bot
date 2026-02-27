@@ -266,7 +266,7 @@ async def event_checklist_caught(
         if pokemon_name.lower() in EVENT_EXCLUSIVE_MON:
             catch_type = "event_exclusive"
             rarity = extract_rarity_from_footer(embed_footer)
-            if rarity.lower in LOW_RARITIES:
+            if rarity.lower() in LOW_RARITIES:
 
                 return  # Not a rare catch
             if rarity.lower() == "super rare":
