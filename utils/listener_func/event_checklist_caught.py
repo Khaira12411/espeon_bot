@@ -4,11 +4,17 @@ from datetime import datetime
 import discord
 import pytz
 from discord.ext import commands
-from config.petal_lace_settings import POINT_MAP
+
 from config.aesthetic import Espeon_Emoji
 from config.current_setup import CC_GUILD_ID, STRAYMONS_GUILD_ID
 from config.paldea_galar_dict import legendary_mons, rarity_meta
-from config.petal_lace_settings import COLOR, DIVIDER, SERVER_CURRENCY_EMOJI, SHOP_EVENT
+from config.petal_lace_settings import (
+    COLOR,
+    DIVIDER,
+    POINT_MAP,
+    SERVER_CURRENCY_EMOJI,
+    SHOP_EVENT,
+)
 from config.straymons_constants import STRAYMONS__ROLES
 from utils.cache.cache_list import user_balance_cache
 from utils.database.server_currency import (
@@ -17,9 +23,10 @@ from utils.database.server_currency import (
     upsert_user_balance,
 )
 from utils.essentials.pokemon_reply import get_pokemeow_reply_member
+from utils.function.event_func import is_event_active_now_manila
 from utils.function.webhook import send_webhook
 from utils.loggers.espeon_log import espeon_log
-from utils.function.event_func import is_event_active_now_manila
+
 # key = embed_color
 SHINY_COLOR = 16751052
 LEGENDARY_COLOR = 10487800
@@ -148,7 +155,6 @@ def extract_member_username_from_embed(embed: discord.Embed) -> str | None:
         if match:
             return match.group(1).strip()
     return None
-
 
 
 async def event_checklist_caught(
@@ -284,14 +290,25 @@ async def event_checklist_caught(
             )
         elif embed_color == SHINY_COLOR:
             rarity = "shiny"
-            pokemon_name = pokemon_name.replace("Shiny ", "")  # Clean for display
-            if pokemon_name in legendary_mons:
-                catch_type = "shiny_legendary_full_odds"
-            elif embed_footer:
-                if "event" in embed_footer.lower():
+            pokemon_name_clean = pokemon_name.replace("Shiny ", "").strip()
+            catch_type = "event_shiny"  # Default catch type
+
+            if embed_footer:
+                footer_lower = embed_footer.lower()
+                is_event = "event" in footer_lower
+                is_full_odds = "full-odds" in footer_lower
+                is_legendary = pokemon_name_clean.lower() in [
+                    mon.lower() for mon in legendary_mons
+                ]
+
+                if is_event:
                     catch_type = "event_shiny"
-                elif "full-odds" in embed_footer.lower():
+                elif is_full_odds:
                     catch_type = "full_odds_shiny"
+                    if is_legendary:
+                        catch_type = "shiny_legendary_full_odds"
+
+            pokemon_name = pokemon_name_clean
             espeon_log(
                 "info",
                 f"Identified shiny catch: {pokemon_name}, Catch Type: {catch_type}",
@@ -306,7 +323,7 @@ async def event_checklist_caught(
             if rarity.lower() == "super rare":
                 rarity = "superrare"
                 return  # Not a rare catch
-            
+
             espeon_log(
                 "info",
                 f"Identified event exclusive catch: {pokemon_name}, Rarity: {rarity}",
@@ -393,7 +410,6 @@ async def event_checklist_caught(
     context = POINT_MAP.get(catch_type, {}).get("context", "Unknown")
     display_pokemon_name = f"{rarity_emoji} {pokemon_name}"
     source_image_url = embed.image.url if embed.image else None
-
 
     # Add points to user balance
     await add_points_to_user(
