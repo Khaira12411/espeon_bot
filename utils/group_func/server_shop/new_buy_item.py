@@ -31,14 +31,20 @@ from utils.database.server_shop import format_item_name, remove_item, update_sto
 from utils.database.user_inventory import fetch_item_from_inventory
 from utils.essentials.get_dex import get_dex
 from utils.essentials.loader import pretty_defer
+from utils.function.event_func import is_event_active_now_manila
 from utils.function.webhook import send_webhook
 from utils.group_func.box.add_item import log_event
-from utils.function.event_func import (
-    is_event_active_now_manila,
-)
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed, get_pokemon_gif
-testing = False # Set to True to skip certain checks and database updates for testing purposes. Remember to set back to False after testing!
+
+testing = False  # Set to True to skip certain checks and database updates for testing purposes. Remember to set back to False after testing!
+
+percentage_map = {
+    "golden": 0.05,  # 5% chance for golden prize
+    "shiny": 0.10,  # 10% chance for shiny prize
+    "legendary": 0.85,  # 85% chance for regular prize
+}
+
 
 async def open_box_func(
     bot: discord.Client,
@@ -60,8 +66,32 @@ async def open_box_func(
         error_message = f"⚠️ The box '{box_name}' is currently empty. Please contact an admin to add prizes to the box."
         return False, None, None, error_message
 
-    # Get a random prize from the box
-    prize_name = random.choice(list(prizes.keys()))
+    # Organize prizes by rarity: Golden, Shiny (Silver), Legendary
+    golden_prizes = []
+    shiny_prizes = []
+    legendary_prizes = []
+    for prize in prizes:
+        if "golden" in prize.lower():
+            golden_prizes.append(prize)
+        elif "shiny" in prize.lower():
+            shiny_prizes.append(prize)
+        else:
+            legendary_prizes.append(prize)
+    # Determine rarity of prize based on percentage chances
+    rand = random.random()
+    if rand < percentage_map["golden"] and golden_prizes:
+        prize_pool = golden_prizes
+    elif rand < percentage_map["golden"] + percentage_map["shiny"] and shiny_prizes:
+        prize_pool = shiny_prizes
+    else:
+        prize_pool = (
+            legendary_prizes
+            if legendary_prizes
+            else shiny_prizes if shiny_prizes else golden_prizes
+        )
+
+    # Get a random prize from the pool
+    prize_name = random.choice(prize_pool)
     prize_info = prizes[prize_name]
     image_link = prize_info.get("image_link")
 
@@ -173,7 +203,9 @@ async def buy_item_func(
     # Calculate total price
     total = price * amount
     # Check if user has enough balance
-    if user_balance < total and interaction.user.id != KHY_USER_ID: # Allow Khy to buy items without balance check for testing
+    if (
+        user_balance < total and interaction.user.id != KHY_USER_ID
+    ):  # Allow Khy to buy items without balance check for testing
         await loader.error(
             content=(
                 f"You do not have enough {SERVER_CURRENCY_NAME} to buy '{item_name}'.\n"
