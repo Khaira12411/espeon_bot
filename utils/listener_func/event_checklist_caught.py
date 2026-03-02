@@ -67,7 +67,7 @@ EVENT_EXCLUSIVE_MON = [
 # ❀─────────────────────────────────────────❀
 def extract_rarity_from_footer(footer_text: str) -> str:
     # Extract rarity from embed footer
-    rarity_match = re.search(r"Rarity:\s*([A-Za-z]+)", footer_text)
+    rarity_match = re.search(r"Rarity:\s*([A-Za-z ]+)", footer_text)
     if rarity_match:
         rarity = rarity_match.group(1).strip().lower().replace(" ", "")
         espeon_log(
