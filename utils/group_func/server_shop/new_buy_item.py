@@ -38,7 +38,7 @@ from utils.function.event_func import (
 )
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed, get_pokemon_gif
-testing = True # Set to True to skip certain checks and database updates for testing purposes. Remember to set back to False after testing!
+testing = False # Set to True to skip certain checks and database updates for testing purposes. Remember to set back to False after testing!
 
 async def open_box_func(
     bot: discord.Client,

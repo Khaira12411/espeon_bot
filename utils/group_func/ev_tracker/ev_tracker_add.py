@@ -18,7 +18,7 @@ from utils.group_func.market_alert.parsers import (
 )
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed
-
+from utils.database.market_value_db import fetch_emoji_id_cache
 STAFF_LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
 
 MAX_EVS_PER_STAT = 252
@@ -146,6 +146,9 @@ async def ev_tracker_add_func(
         )
         await handle.error(content=f"Could not resolve Pokemon '{pokemon}': {e}")
         return
+    # Fetch emoji ID from cache
+    emoji_id = fetch_emoji_id_cache(pokemon_title)
+    has_emoji = False if emoji_id is None else True
 
     # ✨──────── Step 3 › Save to Database ─────✨
     try:
@@ -157,6 +160,7 @@ async def ev_tracker_add_func(
             evs_to_track,
             goals=goals_to_track,
             dex_number=dex_number,
+            emoji_id=emoji_id,
         )
 
         # 💜 Insert/update cache instead of full reload
@@ -169,6 +173,7 @@ async def ev_tracker_add_func(
                 "pokemon": pokemon_title,
                 "emoji_id": emoji_id,
                 "dex_number": dex_number,
+                "emoji_id": emoji_id,
                 **evs_to_track,
                 **{f"{k}_goal": v for k, v in goals_to_track.items()},
             }
@@ -186,10 +191,10 @@ async def ev_tracker_add_func(
             color=0xFF99FF,
         )
         embed = design_embed(embed=embed, user=user, pokemon_name=pokemon_title)
-
+        content = None if has_emoji else f"Kindly do `;bud info {dex_number}` to let me know your Pokémon's dex emoji for tracking EVs!"
         await handle.success(
             embed=embed,
-            content=f"Kindly do `;bud info {dex_number}` to let me know your Pokémon's dex emoji for tracking EVs!",
+            content=content,
         )
 
         espeon_log(

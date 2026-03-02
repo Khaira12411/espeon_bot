@@ -49,7 +49,7 @@ async def build_ev_tracker_embed(
             goal = goals.get(stat, 252 if goals else "–")
 
             if current >= 252:
-                completed = "✅💖"
+                completed = "✅"
             elif goal != "–" and isinstance(goal, int) and current >= goal:
                 completed = "✅"
             else:
@@ -75,7 +75,7 @@ async def build_ev_tracker_embed(
     pokemon = f"{display_pokemon_name}"
     # Build description with spacing
     description = (
-        f"## {pokemon}\n"
+        f"{pokemon}\n"
         f"__**Total EVs:** ({display_total_current}/{max_total_evs})__\n"
         f"{stats_str}"
     )

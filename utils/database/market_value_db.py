@@ -8,6 +8,8 @@ import discord
 
 from utils.cache.cache_list import market_value_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
+from utils.function.pokemon_func import format_names_for_market_value_lookup
+
 
 async def update_rarity(bot, pokemon_name: str, rarity: str):
     """
@@ -47,7 +49,8 @@ async def update_rarity(bot, pokemon_name: str, rarity: str):
             tag="error",
             message=f"Failed to update rarity for {pokemon_name}: {e}",
         )
-        
+
+
 def fetch_rarity_cache(pokemon_name: str):
     """
     Get rarity for a Pokémon from cache.
@@ -57,6 +60,7 @@ def fetch_rarity_cache(pokemon_name: str):
     if pokemon_data:
         return pokemon_data.get("rarity", "unknown")
     return "unknown"
+
 
 def fetch_dex_number_cache(pokemon_name: str):
     """
@@ -821,6 +825,16 @@ async def check_and_load_market_cache(bot) -> dict:
             )
     return market_value_cache
 
+def fetch_emoji_id_cache(pokemon_name: str):
+    """
+    Get emoji ID for a Pokémon from cache.
+    Returns None if not found or no data.
+    """
+    formatted_name = format_names_for_market_value_lookup(pokemon_name)
+    pokemon_data = market_value_cache.get(formatted_name.lower())
+    if pokemon_data:
+        return pokemon_data.get("emoji_id", None)
+    return None
 
 # --------------------
 #  Load database into cache
@@ -845,6 +859,7 @@ async def load_market_cache_from_db(bot) -> dict:
                     "listing_seen": row["listing_seen"],
                     "image_link": row.get("image_link", None),
                     "rarity": row.get("rarity", "unknown"),
+                    "emoji_id": row.get("emoji_id", None),
                 }
 
         """espeon_log(
@@ -860,4 +875,5 @@ async def load_market_cache_from_db(bot) -> dict:
             tag="error",
             message=f"Failed to load market cache from database: {e}",
         )
+        return {}
         return {}
