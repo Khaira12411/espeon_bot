@@ -8,7 +8,6 @@ import discord
 
 from utils.cache.cache_list import market_value_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from utils.function.pokemon_func import format_names_for_market_value_lookup
 
 
 async def update_rarity(bot, pokemon_name: str, rarity: str):
@@ -830,6 +829,8 @@ def fetch_emoji_id_cache(pokemon_name: str):
     Get emoji ID for a Pokémon from cache.
     Returns None if not found or no data.
     """
+    from utils.function.pokemon_func import format_names_for_market_value_lookup
+
     formatted_name = format_names_for_market_value_lookup(pokemon_name)
     pokemon_data = market_value_cache.get(formatted_name.lower())
     if pokemon_data:
