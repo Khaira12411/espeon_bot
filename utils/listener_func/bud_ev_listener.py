@@ -14,7 +14,7 @@ from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.ev_tracker_embed import build_ev_tracker_embed
 
-# enable_debug(f"{__name__}.handle_pokemeow_embed_sync")
+enable_debug(f"{__name__}.handle_pokemeow_embed_sync")
 
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -90,7 +90,7 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
                     context=EspeonContext.STRAYMONS,
                 )
                 debug_log(f"Failed to update emoji_id for user {user_id} in DB: {e}")
-                
+
     # -------------------- STEP 2: Check if user is in EV tracker cache --------------------
     tracked = next(
         (
