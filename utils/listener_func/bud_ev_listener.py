@@ -78,12 +78,16 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
 
     # Compare emoji tag with cache
     old_emoji_id = get_emoji_id_cache(user_id)
-    if old_emoji_id != pokemon_emoji_tag:
+    if old_emoji_id is not None and old_emoji_id != pokemon_emoji_tag:
         debug_log(f"Emoji ID mismatch for user {user_name} (id: {user_id})")
         debug_log(
             f"Old emoji_id: {old_emoji_id}, New emoji_id from embed: {pokemon_emoji_tag}"
         )
         return
+    else:
+        debug_log(f"Emoji ID matches or not set for user {user_name} (id: {user_id}). Updating if necessary.")
+        await update_emoji_id(user_id, pokemon_emoji_tag)
+        ev_tracker_cache[user_id]["emoji_id"] = pokemon_emoji_tag
 
     # -------------------- STEP 2: Check if user is in EV tracker cache --------------------
     tracked = next(
