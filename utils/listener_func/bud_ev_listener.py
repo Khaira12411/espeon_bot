@@ -104,18 +104,19 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
     # -------------------- STEP 3: Verify both dex_number and pokemon name match --------------------
 
     # Check if pokemon names match (case-insensitive)
-    tracked_pokemon = tracked_data.get("pokemon", "").lower()
-    if tracked_pokemon != pokemon_name.lower():
-        debug_log(
-            f"Pokemon name mismatch: tracked={tracked_pokemon}, embed={pokemon_name.lower()}. Exiting."
-        )
-        # Check if emoji id matches as a fallback (handles cases where user might have changed tracked Pokémon but embed is still old one)
-        tracked_emoji_id = tracked_data.get("emoji_id")
-        if tracked_emoji_id != pokemon_emoji_tag:
+    if pokemon_name:
+        tracked_pokemon = tracked_data.get("pokemon", "").lower()
+        if tracked_pokemon != pokemon_name.lower():
             debug_log(
-                f"Emoji ID mismatch as well: tracked={tracked_emoji_id}, embed={pokemon_emoji_tag}. Exiting."
+                f"Pokemon name mismatch: tracked={tracked_pokemon}, embed={pokemon_name.lower()}. Exiting."
             )
-            return
+            # Check if emoji id matches as a fallback (handles cases where user might have changed tracked Pokémon but embed is still old one)
+            tracked_emoji_id = tracked_data.get("emoji_id")
+            if tracked_emoji_id != pokemon_emoji_tag:
+                debug_log(
+                    f"Emoji ID mismatch as well: tracked={tracked_emoji_id}, embed={pokemon_emoji_tag}. Exiting."
+                )
+                return
 
     # -------------------- STEP 4: Extract Pokemon EVs field --------------------
     # Find the index of the field with 'Pokémon EVs' in the name
