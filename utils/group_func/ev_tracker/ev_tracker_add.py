@@ -177,7 +177,7 @@ async def ev_tracker_add_func(
             color=0xFF99FF,
         )
         embed = design_embed(embed=embed, user=user, pokemon_name=pokemon_title)
-        content = None if has_emoji else f"Kindly do `;bud info {dex_number}` to let me know your Pokémon's dex emoji for tracking EVs!"
+        content = None if has_emoji else f"Kindly do `;dex {dex_number}` to let me know your Pokémon's dex emoji for tracking EVs!"
         await handle.success(
             embed=embed,
             content=content,

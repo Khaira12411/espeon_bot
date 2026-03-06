@@ -9,7 +9,27 @@ import discord
 from utils.cache.cache_list import market_value_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
-
+def update_emoji_id_cache(pokemon_name: str, emoji_id: str):
+    """
+    Update the emoji_id for a Pokémon in the market value cache.
+    """
+    pokemon_name = pokemon_name.lower()
+    if pokemon_name in market_value_cache:
+        market_value_cache[pokemon_name]["emoji_id"] = emoji_id
+        espeon_log(
+            tag="cache",
+            message=f"Updated emoji_id for {pokemon_name} in cache to {emoji_id}",
+        )
+    else:
+        market_value_cache[pokemon_name] = {
+            "pokemon": pokemon_name,
+            "emoji_id": emoji_id,
+        }
+        espeon_log(
+            tag="cache",
+            message=f"Added {pokemon_name} to cache with emoji_id {emoji_id}",
+        )
+        
 async def update_rarity(bot, pokemon_name: str, rarity: str):
     """
     Update the rarity for a Pokémon in the market value table.

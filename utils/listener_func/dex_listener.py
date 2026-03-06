@@ -7,21 +7,15 @@ from typing import Optional, Tuple
 import discord
 
 from utils.database.market_value_db import (
-    fetch_dex_number_cache,
-    fetch_image_link_cache,
-    fetch_pokemon_exclusivity_cache,
-    fetch_rarity_cache,
-    update_dex_number,
-    update_is_exclusive,
-    update_rarity,
-    upsert_image_link,
+    fetch_emoji_id_cache,
+    update_emoji_id_cache,
 )
 from utils.function.pokemon_func import is_mon_exclusive
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 
-#enable_debug(f"{__name__}.dex_listener")
-#enable_debug(f"{__name__}.extract_rarity_from_embed")
+# enable_debug(f"{__name__}.dex_listener")
+# enable_debug(f"{__name__}.extract_rarity_from_embed")
 emoji_map = {
     "common": "common",
     "uncommon": "uncommon",
@@ -37,6 +31,31 @@ emoji_map = {
     "goldenmega": "golden mega",
     "goldengigantamax": "golden gigantamax",
 }
+
+
+def extract_emoji_id_from_evolution_line(description: str) -> str | None:
+    """
+    Extracts the first emoji tag before any bolded Pokémon name in the evolution line from a description string.
+    Returns the emoji tag as a string, or None if not found.
+    """
+    debug_log(f"Extracting emoji tag from description: {description!r}")
+    # Find the evolution line section
+    evo_line_match = re.search(
+        r":dna: \*\*Evolution line\*\*\s*\n([^\n]+)", description
+    )
+    if evo_line_match:
+        evo_line = evo_line_match.group(1)
+        debug_log(f"Evolution line found: {evo_line!r}")
+        # Now extract the emoji tag before the bolded name
+        emoji_match = re.search(r"(<:[^:]+:\d+>) \*\*.+?\*\*", evo_line)
+        if emoji_match:
+            emoji_tag = emoji_match.group(1)
+            debug_log(f"Found emoji tag: {emoji_tag}")
+            return emoji_tag
+        debug_log("No emoji tag found in evolution line.")
+    else:
+        debug_log("No evolution line found in description.")
+    return None
 
 
 def extract_pokemon_name_and_dex(text):
@@ -107,38 +126,16 @@ async def dex_listener(bot, message: discord.Message):
             f"Could not extract pokemon name from embed title: '{embed_author_name}'"
         )
         return
-    embed_image_url = embed.image.url if embed.image else None
-    image_link_cache = fetch_image_link_cache(pokemon_name)
-    existing_exclusive_status = fetch_pokemon_exclusivity_cache(pokemon_name)
-    is_exclusive = is_mon_exclusive(pokemon_name)
-    if existing_exclusive_status != is_exclusive and is_exclusive == False:
-        new_exclusive = is_exclusive
-        await update_is_exclusive(bot, pokemon_name, new_exclusive)
-    else:
-        new_exclusive = existing_exclusive_status
-    if embed_image_url and image_link_cache != embed_image_url:
-        await upsert_image_link(bot, pokemon_name, embed_image_url, new_exclusive)
-        debug_log(f"Updated image link for {pokemon_name} to {embed_image_url}.")
-        espeon_log(
-            "info",
-            f"Updated image link for {pokemon_name} to {embed_image_url}.",
-        )
-    old_dex_number = fetch_dex_number_cache(pokemon_name)
-    if dex_number and str(old_dex_number) != str(dex_number):
-        dex_number = int(dex_number)
-        await update_dex_number(bot, pokemon_name, dex_number)
-        debug_log(f"Updated dex number for {pokemon_name} to {dex_number}.")
-        espeon_log(
-            "info",
-            f"Updated dex number for {pokemon_name} to {dex_number}.",
-        )
-    old_rarity = fetch_rarity_cache(pokemon_name)
-    rarity = extract_rarity_from_embed(embed)
-
-    if rarity and old_rarity != rarity:
-        await update_rarity(bot, pokemon_name, rarity)
-        debug_log(f"Updated rarity for {pokemon_name} to {rarity}.")
-        espeon_log(
-            "info",
-            f"Updated rarity for {pokemon_name} to {rarity}.",
-        )
+    old_emoji_id = fetch_emoji_id_cache(pokemon_name)
+    if not old_emoji_id:
+        emoji_id = extract_emoji_id_from_evolution_line(embed.description or "")
+        if emoji_id and old_emoji_id != emoji_id:
+            try:
+                update_emoji_id_cache(pokemon_name, emoji_id)
+                debug_log(f"Updated emoji ID for {pokemon_name} to {emoji_id}.")
+            except Exception as e:
+                espeon_log(
+                    "warn",
+                    f"⚠️ Failed to update emoji ID for {pokemon_name} to {emoji_id}: {e}",
+                    exc=e,
+                )
