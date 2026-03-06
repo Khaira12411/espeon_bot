@@ -44,10 +44,6 @@ def get_dex_number_by_name(name: str) -> int | None:
     Returns None if not found.
     """
 
-    dex_number = get_dex_from_weakness_chart(name)
-    if dex_number is not None:
-        return dex_number
-    
     for num, poke_name in dex.items():
         if poke_name == name:
             return num
@@ -76,6 +72,11 @@ def get_dex_number_by_name(name: str) -> int | None:
             if formatted_name in mons_dict:
                 return mons_dict[formatted_name].get("dex")
         return get_dex_number_by_name(formatted_name)
+    
+    dex_number = get_dex_from_weakness_chart(name)
+    if dex_number is not None:
+        return dex_number
+
     return None
 
 
