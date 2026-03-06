@@ -6,6 +6,7 @@ from utils.loggers.espeon_log import EspeonContext, espeon_log
 # from utils.visuals.gif import insert_pokemon_gif_embed
 from utils.visuals.embeds.get_pokemon_gif import get_pokemon_gif
 from utils.database.server_shop import format_item_name
+from utils.function.pokemon_func import get_display_name
 
 async def build_ev_tracker_embed(
     bot: commands.Bot,
@@ -71,7 +72,7 @@ async def build_ev_tracker_embed(
 
     # Add separator between lines
     stats_str = f"\n\n".join(stats_lines)
-    display_pokemon_name = format_item_name(tracked_data["pokemon"])
+    display_pokemon_name = get_display_name(tracked_data["pokemon"], dex=True)
     pokemon = f"{display_pokemon_name}"
     # Build description with spacing
     description = (

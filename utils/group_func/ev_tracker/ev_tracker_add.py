@@ -16,6 +16,7 @@ from utils.group_func.market_alert.parsers import (
     parse_special_mega_input,
     resolve_pokemon_input,
 )
+from utils.function.pokemon_func import get_display_name
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed
@@ -175,8 +176,9 @@ async def ev_tracker_add_func(
         )
 
         # ✨──────── Step 4 › Build Confirmation Embed ─────✨
+        display_formatted_name = get_display_name(pokemon_title, dex=dex_number)
         user_desc_lines = [
-            f"- **Pokemon:** {pokemon_title} #{dex_number}\n{Espeon_Emoji.purple_pie} **EVs:**"
+            f"- **Pokemon:** {display_formatted_name}\n{Espeon_Emoji.purple_pie} **EVs:**"
         ]
         user_desc_lines.extend(build_ev_lines(evs_to_track, goals_to_track))
 
@@ -185,6 +187,7 @@ async def ev_tracker_add_func(
             description="\n".join(user_desc_lines),
             color=0xFF99FF,
         )
+
         embed = design_embed(embed=embed, user=user, pokemon_name=pokemon_title)
         content = None if has_emoji else f"Kindly do `;bud info {dex_number}` to let me know your Pokémon's dex emoji for tracking EVs!"
         await handle.success(
@@ -203,7 +206,7 @@ async def ev_tracker_add_func(
         staff_channel = bot.get_channel(STAFF_LOG_CHANNEL_ID)
         if staff_channel:
             staff_desc_lines = [
-                f"- **Member:** {user.mention}\n- **Pokemon:** {formatted_name}\n{Espeon_Emoji.purple_pie} **EVs:**"
+                f"- **Member:** {user.mention}\n- **Pokemon:** {display_formatted_name}\n{Espeon_Emoji.purple_pie} **EVs:**"
             ]
             staff_desc_lines.extend(build_ev_lines(evs_to_track, goals_to_track))
 
