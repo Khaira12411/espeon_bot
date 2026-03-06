@@ -121,6 +121,11 @@ async def ev_tracker_add_func(
     # ✨──────── Step 2 › Resolve Pokemon ─────✨
     pokemon_title = pokemon.title()
     # 💜 Determine target_name and dex_number
+    espeon_log(
+        tag="debug",
+        message=f"Resolving Pokemon input: {pokemon_title}",
+        context=EspeonContext.STRAYMONS,
+    )
     target_name, display_name, dex_number, error = resolve_pokemon_input(
         pokemon_title
     )

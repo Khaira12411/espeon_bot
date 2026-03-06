@@ -9,6 +9,8 @@ import discord
 from utils.database.market_value_db import (
     fetch_emoji_id_cache,
     update_emoji_id_cache,
+    fetch_dex_number_cache,
+    update_dex_number_cache
 )
 from utils.function.pokemon_func import is_mon_exclusive
 from utils.loggers.debug_log import debug_log, enable_debug
@@ -139,3 +141,14 @@ async def dex_listener(bot, message: discord.Message):
                     f"⚠️ Failed to update emoji ID for {pokemon_name} to {emoji_id}: {e}",
                     exc=e,
                 )
+
+    old_dex_number = fetch_dex_number_cache(pokemon_name)
+    if dex_number and str(old_dex_number) != str(dex_number):
+        dex_number = int(dex_number)
+        await update_dex_number_cache(pokemon_name, dex_number)
+        espeon_log(
+            "info",
+            f"Updated dex number for {pokemon_name} to {dex_number}.",
+            context=EspeonContext.STRAYMONS,
+        )
+        debug_log(f"Updated dex number for {pokemon_name} to {dex_number}.")

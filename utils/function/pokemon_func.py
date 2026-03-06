@@ -8,28 +8,8 @@ from utils.database.market_value_db import (
 )
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
+from config.weakness_chart import weakness_chart
 enable_debug(f"{__name__}.get_display_name")
-
-
-def get_dex_number_by_name(name: str) -> int | None:
-    """
-    Returns the dex number for a given Pokémon name.
-    Example: get_dex_number_by_name("flutter-mane") -> 987
-    Returns None if not found.
-    """
-
-    for num, poke_name in dex.items():
-        if poke_name == name:
-            return num
-
-    # Fallback: try formatted name
-    formatted_name = format_names_for_market_value_lookup(name)
-    dex_number = fetch_dex_number_cache(formatted_name)
-    if dex_number is not None:
-        return dex_number
-
-    return None
 
 
 IN_GAME_MONS_LIST = (
@@ -48,6 +28,55 @@ IN_GAME_MONS_LIST = (
 )
 
 exclusive_mons_list = list(exclusive_mons.keys())
+
+
+def get_dex_from_weakness_chart(pokemon_name):
+    entry = weakness_chart.get(pokemon_name.lower())
+    if entry and "dex" in entry:
+        return int(entry["dex"])
+    return None
+
+
+def get_dex_number_by_name(name: str) -> int | None:
+    """
+    Returns the dex number for a given Pokémon name.
+    Example: get_dex_number_by_name("flutter-mane") -> 987
+    Returns None if not found.
+    """
+
+    dex_number = get_dex_from_weakness_chart(name)
+    if dex_number is not None:
+        return dex_number
+    
+    for num, poke_name in dex.items():
+        if poke_name == name:
+            return num
+
+    # Fallback: try formatted name
+    formatted_name = format_names_for_market_value_lookup(name)
+    dex_number = fetch_dex_number_cache(formatted_name)
+    if dex_number is not None:
+        return dex_number
+    if formatted_name in IN_GAME_MONS_LIST:
+        # Try to get dex from all rarity dicts
+        for mons_dict in [
+            common_mons,
+            uncommon_mons,
+            rare_mons,
+            superrare_mons,
+            legendary_mons,
+            mega_mons,
+            gigantamax_mons,
+            shiny_mons,
+            shiny_mega_mons,
+            shiny_gigantamax_mons,
+            golden_mons,
+            exclusive_mons,
+        ]:
+            if formatted_name in mons_dict:
+                return mons_dict[formatted_name].get("dex")
+        return get_dex_number_by_name(formatted_name)
+    return None
 
 
 def strip_prefixes(pokemon_name: str):

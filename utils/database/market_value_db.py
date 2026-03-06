@@ -29,7 +29,26 @@ def update_emoji_id_cache(pokemon_name: str, emoji_id: str):
             tag="cache",
             message=f"Added {pokemon_name} to cache with emoji_id {emoji_id}",
         )
-        
+def update_dex_number_cache(pokemon_name: str, dex_number: int):
+    """
+    Update the dex_number for a Pokémon in the market value cache.
+    """
+    pokemon_name = pokemon_name.lower()
+    if pokemon_name in market_value_cache:
+        market_value_cache[pokemon_name]["dex_number"] = dex_number
+        espeon_log(
+            tag="cache",
+            message=f"Updated dex_number for {pokemon_name} in cache to {dex_number}",
+        )
+    else:
+        market_value_cache[pokemon_name] = {
+            "pokemon": pokemon_name,
+            "dex_number": dex_number,
+        }
+        espeon_log(
+            tag="cache",
+            message=f"Added {pokemon_name} to cache with dex_number {dex_number}",
+        )
 async def update_rarity(bot, pokemon_name: str, rarity: str):
     """
     Update the rarity for a Pokémon in the market value table.
