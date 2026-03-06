@@ -8,7 +8,25 @@ import discord
 
 from utils.cache.cache_list import market_value_cache
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
+async def fetch_emoji_id_db(bot, pokemon_name: str):
+    """
+    Get emoji_id for a Pokémon from database.
+    Returns None if not found or no data.
+    """
+    try:
+        async with bot.pg_pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT emoji_id FROM market_value WHERE pokemon_name = $1",
+                pokemon_name.lower(),
+            )
+            return row["emoji_id"] if row and row["emoji_id"] else None
+    except Exception as e:
+        espeon_log(
+            tag="error",
+            message=f"Failed to fetch emoji_id for {pokemon_name} from database: {e}",
+        )
+        return None
+    
 def update_emoji_id_cache(pokemon_name: str, emoji_id: str):
     """
     Update the emoji_id for a Pokémon in the market value cache.

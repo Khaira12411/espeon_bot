@@ -19,7 +19,7 @@ from utils.group_func.market_alert.parsers import (
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.visual_helpers import design_embed
-from utils.database.market_value_db import fetch_emoji_id_cache
+from utils.database.market_value_db import fetch_emoji_id_cache, fetch_emoji_id_db
 STAFF_LOG_CHANNEL_ID = STRAYMONS__TEXT_CHANNELS.server_logs
 
 MAX_EVS_PER_STAT = 252
@@ -139,6 +139,10 @@ async def ev_tracker_add_func(
 
     # Fetch emoji ID from cache
     emoji_id = fetch_emoji_id_cache(pokemon_title)
+    if not emoji_id:
+        # Fetch from DB as fallback
+        emoji_id = fetch_emoji_id_db(pokemon_title)
+
     has_emoji = False if emoji_id is None else True
 
     # ✨──────── Step 3 › Save to Database ─────✨
