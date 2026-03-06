@@ -141,7 +141,7 @@ async def ev_tracker_add_func(
     emoji_id = fetch_emoji_id_cache(pokemon_title)
     if not emoji_id:
         # Fetch from DB as fallback
-        emoji_id = fetch_emoji_id_db(pokemon_title)
+        emoji_id = await fetch_emoji_id_db(bot, pokemon_title)
 
     has_emoji = False if emoji_id is None else True
 
