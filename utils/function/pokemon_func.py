@@ -44,15 +44,16 @@ def get_dex_number_by_name(name: str) -> int | None:
     Returns None if not found.
     """
 
-    for num, poke_name in dex.items():
-        if poke_name == name:
-            return num
-
-    # Fallback: try formatted name
+    # Try to get dex number from cache first
     formatted_name = format_names_for_market_value_lookup(name)
     dex_number = fetch_dex_number_cache(formatted_name)
     if dex_number is not None:
         return dex_number
+
+    for num, poke_name in dex.items():
+        if poke_name == name:
+            return num
+
     if formatted_name in IN_GAME_MONS_LIST:
         # Try to get dex from all rarity dicts
         for mons_dict in [
@@ -72,7 +73,7 @@ def get_dex_number_by_name(name: str) -> int | None:
             if formatted_name in mons_dict:
                 return mons_dict[formatted_name].get("dex")
         return get_dex_number_by_name(formatted_name)
-    
+
     dex_number = get_dex_from_weakness_chart(name)
     if dex_number is not None:
         return dex_number
