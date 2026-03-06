@@ -14,7 +14,7 @@ from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.ev_tracker_embed import build_ev_tracker_embed
 
-#enable_debug(f"{__name__}.handle_pokemeow_embed_sync")
+# enable_debug(f"{__name__}.handle_pokemeow_embed_sync")
 
 
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -48,7 +48,10 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
         return
 
     # -------------------- STEP 1: Extract username, dex emoji, and pokemon name --------------------
-    match = re.match(r"(<:\w+:(\d+)>) (\S+)'s (<:\d+:(\d+)>) (.+)", title)
+    # Updated regex: only match the emoji immediately after the username as the Pokémon emoji
+    match = re.match(
+        r"(<:\w+:(\d+)>) (\S+)'s (<:\w+:(\d+)>)(?: [^\w<]*)? ([\w\-'.]+)", title
+    )
     if not match:
         debug_log(f"Title did not match expected pattern: {title!r}. Exiting.")
         return
@@ -115,7 +118,6 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
         )
         return
 
-
     # -------------------- STEP 4: Extract Pokemon EVs field --------------------
     # Find the index of the field with 'Pokémon EVs' in the name
     ev_field_values = []
@@ -129,7 +131,7 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
         # Always include the 'Pokémon EVs' field
         ev_field_values.append(embed.fields[ev_field_index].value)
         # Include all immediately following fields with empty or whitespace-only names
-        for f in embed.fields[ev_field_index + 1:]:
+        for f in embed.fields[ev_field_index + 1 :]:
             # Handle truly empty, whitespace-only, or zero-width space names
             if not f.name or f.name.strip() == "" or f.name.strip() == "​":
                 ev_field_values.append(f.value)
@@ -148,8 +150,6 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
 
     parsed_evs = {k.lower(): int(v) for k, v in ev_matches}
     debug_log(f"Parsed EVs from embed: {parsed_evs}")
-
-
 
     # -------------------- STEP 5: Compare and update tracked EVs --------------------
 
