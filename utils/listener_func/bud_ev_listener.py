@@ -70,28 +70,27 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
 
     tracked_pokemon_name = user_ev_data.get("pokemon", "").lower()
 
-    if tracked_pokemon_name != pokemon_name.lower():
+    if tracked_pokemon_name == pokemon_name.lower():
         debug_log(
             f"Pokemon name mismatch: tracked={tracked_pokemon_name}, embed={pokemon_name.lower()}. Exiting."
         )
-        return
-
-    old_emoji_id = get_emoji_id_cache(user_id)
-    if old_emoji_id != pokemon_emoji_tag:
-        debug_log(f"Emoji ID mismatch for user {user_name} (id: {user_id}")
-        debug_log(
-            f"Old emoji_id: {old_emoji_id}, New emoji_id from embed: {pokemon_emoji_tag}"
-        )
-        try:
-            await update_emoji_id(bot, user_id, pokemon_emoji_tag)
-            await message.add_reaction(Espeon_Emoji.purple_check)
-        except Exception as e:
-            espeon_log(
-                tag="error",
-                message=f"Failed to update emoji_id for user {user_id} in DB: {e}",
-                context=EspeonContext.STRAYMONS,
+        old_emoji_id = get_emoji_id_cache(user_id)
+        if old_emoji_id != pokemon_emoji_tag:
+            debug_log(f"Emoji ID mismatch for user {user_name} (id: {user_id}")
+            debug_log(
+                f"Old emoji_id: {old_emoji_id}, New emoji_id from embed: {pokemon_emoji_tag}"
             )
-            debug_log(f"Failed to update emoji_id for user {user_id} in DB: {e}")
+            try:
+                await update_emoji_id(bot, user_id, pokemon_emoji_tag)
+                await message.add_reaction(Espeon_Emoji.purple_check)
+            except Exception as e:
+                espeon_log(
+                    tag="error",
+                    message=f"Failed to update emoji_id for user {user_id} in DB: {e}",
+                    context=EspeonContext.STRAYMONS,
+                )
+                debug_log(f"Failed to update emoji_id for user {user_id} in DB: {e}")
+                
     # -------------------- STEP 2: Check if user is in EV tracker cache --------------------
     tracked = next(
         (
@@ -116,7 +115,13 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
         debug_log(
             f"Pokemon name mismatch: tracked={tracked_pokemon}, embed={pokemon_name.lower()}. Exiting."
         )
-        return
+        # Check if emoji id matches as a fallback (handles cases where user might have changed tracked Pokémon but embed is still old one)
+        tracked_emoji_id = tracked_data.get("emoji_id")
+        if tracked_emoji_id != pokemon_emoji_tag:
+            debug_log(
+                f"Emoji ID mismatch as well: tracked={tracked_emoji_id}, embed={pokemon_emoji_tag}. Exiting."
+            )
+            return
 
     # -------------------- STEP 4: Extract Pokemon EVs field --------------------
     # Find the index of the field with 'Pokémon EVs' in the name
