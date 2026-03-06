@@ -47,49 +47,43 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
         debug_log(f"User id {user_id} not found in ev_tracker_cache. Exiting.")
         return
 
-    # -------------------- STEP 1: Extract username, dex emoji, and pokemon name --------------------
-    # Updated regex: only match the emoji immediately after the username as the Pokémon emoji
-    match = re.match(
-        r"(<:\w+:(\d+)>) (\S+)'s (<:\w+:(\d+)>)(?: [^\w<]*)? ([\w\-'.]+)", title
-    )
+    # -------------------- STEP 1: Extract username, first Pokémon emoji tag, and pokemon name --------------------
+    # Regex: get the first emoji after username's
+    match = re.match(r"(<:\w+:(\d+)>) (\S+)'s ((?:<:\w+:(\d+)> ?)+)", title)
     if not match:
         debug_log(f"Title did not match expected pattern: {title!r}. Exiting.")
         return
-    (
-        user_battle_icon_tag,
-        user_battle_icon_id,
-        user_name,
-        pokemon_emoji_tag,
-        pokemon_emoji_id,
-        pokemon_name,
-    ) = match.groups()
-    debug_log(
-        f"Parsed from embed title: user_battle_icon_tag={user_battle_icon_tag}, user_battle_icon_id={user_battle_icon_id}, user_name={user_name}, pokemon_emoji_tag={pokemon_emoji_tag}, pokemon_emoji_id={pokemon_emoji_id}, pokemon_name={pokemon_name}"
+    user_battle_icon_tag, user_battle_icon_id, user_name, emoji_block, *_ = (
+        match.groups()
     )
+    # Extract the first emoji tag after username's
+    pokemon_emoji_tag_match = re.match(r"(<:\w+:(\d+)>)(?: |$)", emoji_block)
+    if not pokemon_emoji_tag_match:
+        debug_log(
+            f"Could not extract Pokémon emoji tag from: {emoji_block!r}. Exiting."
+        )
+        return
+    pokemon_emoji_tag = pokemon_emoji_tag_match.group(1)
+    debug_log(f"Extracted user_name={user_name}, pokemon_emoji_tag={pokemon_emoji_tag}")
+    # Use the old regex to extract the pokemon_name as well
+    old_regex = r"(<:\w+:(\d+)>) (\S+)'s (<:\w+:(\d+)>)(?: [^\w<]*)? ([\w\-'.]+)"
+    old_match = re.match(old_regex, title)
+    if old_match:
+        pokemon_name = old_match.group(6)
+        debug_log(f"Extracted pokemon_name={pokemon_name} using old regex")
+    else:
+        pokemon_name = None
+        debug_log(f"Could not extract pokemon_name using old regex from: {title!r}")
     from utils.cache.ev_tracker_cache import get_emoji_id_cache
 
-    tracked_pokemon_name = user_ev_data.get("pokemon", "").lower()
-
-    if tracked_pokemon_name == pokemon_name.lower():
+    # Compare emoji tag with cache
+    old_emoji_id = get_emoji_id_cache(user_id)
+    if old_emoji_id != pokemon_emoji_tag:
+        debug_log(f"Emoji ID mismatch for user {user_name} (id: {user_id})")
         debug_log(
-            f"Pokemon name mismatch: tracked={tracked_pokemon_name}, embed={pokemon_name.lower()}. Exiting."
+            f"Old emoji_id: {old_emoji_id}, New emoji_id from embed: {pokemon_emoji_tag}"
         )
-        old_emoji_id = get_emoji_id_cache(user_id)
-        if old_emoji_id != pokemon_emoji_tag:
-            debug_log(f"Emoji ID mismatch for user {user_name} (id: {user_id}")
-            debug_log(
-                f"Old emoji_id: {old_emoji_id}, New emoji_id from embed: {pokemon_emoji_tag}"
-            )
-            try:
-                await update_emoji_id(bot, user_id, pokemon_emoji_tag)
-                await message.add_reaction(Espeon_Emoji.purple_check)
-            except Exception as e:
-                espeon_log(
-                    tag="error",
-                    message=f"Failed to update emoji_id for user {user_id} in DB: {e}",
-                    context=EspeonContext.STRAYMONS,
-                )
-                debug_log(f"Failed to update emoji_id for user {user_id} in DB: {e}")
+        return
 
     # -------------------- STEP 2: Check if user is in EV tracker cache --------------------
     tracked = next(
