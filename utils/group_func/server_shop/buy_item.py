@@ -11,7 +11,7 @@ from config.petal_lace_settings import (
     SERVER_CURRENCY_EMOJI,
     SERVER_CURRENCY_NAME,
 )
-from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
+from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS, KHY_USER_ID
 from utils.cache.cache_list import server_shop_cache
 from utils.database.server_currency import (
     bought_box,
@@ -35,16 +35,18 @@ async def buy_item_func(
     Buy an item from the server shop.
     """
 
-    # Check if event is active
-    success, error_msg = is_event_active_now_manila()
-    if not success:
-        await interaction.response.send_message(content=error_msg, ephemeral=True)
-        espeon_log(
-            "info",
-            f"User {interaction.user} attempted to buy an item but the event is not active. Reason: {error_msg}",
-            source="Buy Item Command",
-        )
-        return
+    # Check if event is active or khy is viewing for testing
+    success, error_msg, context = is_event_active_now_manila()
+    if interaction.user.id != KHY_USER_ID:
+        # If event is not active and shop is closed or not open, show error message
+        if context == "shop_closed" or context == "shop_not_open":
+            await interaction.response.send_message(content=error_msg, ephemeral=True)
+            espeon_log(
+                "info",
+                f"User {interaction.user} attempted to view balance but the shop is not open. Reason: {error_msg}",
+                source="View Balance Command",
+            )
+            return
 
     # Defer
     loader = await pretty_defer(

@@ -63,27 +63,55 @@ async def setup_scheduler(bot):
             source="Scheduler Setup",
         )
 
-    # 🌸 Reset battle roles everyday at 12:00 AM Est
-    """try:
+    # 🌸 Box Event End in March 27, 1pm Asia/Manila Time
+    try:
         job = scheduler_manager.add_cron_job(
-            func=reset_battle_roles,
-            name="daily_battle_role_reset",
-            hour=0,
+            func=scheduled_petal_lace_event_end,
+            name="petal_lace_event_end_announcement",
+            hour=12,
             minute=0,
+            month=3,
+            day_of_month=27,
             args=[bot],
-            timezone=NYC,  # Use NYC timezone to auto-handle EST/EDT
+            year=2026,  # Only runs in 2026
+            timezone=MANILA,
         )
         espeon_log(
             "schedule_success",
-            f"Scheduled daily battle role reset: {job.trigger}",
+            f"Scheduled Petal Lace event end announcement: {job.trigger}",
         )
 
     except Exception as e:
         espeon_log(
             "error",
-            f"Failed to schedule daily battle role reset: {e}",
+            f"Failed to schedule Petal Lace event end announcement: {e}",
             source="Scheduler Setup",
-        )"""
+        )
+
+    # 🌸 Shop Clear in March 30, 12pm Asia/Manila Time
+    try:
+        job = scheduler_manager.add_cron_job(
+            func=scheduled_petal_lace_shop_clear,
+            name="petal_lace_shop_clear",
+            hour=12,
+            minute=0,
+            month=3,
+            day_of_month=30,
+            args=[bot],
+            year=2026,  # Only runs in 2026
+            timezone=MANILA,
+        )
+        espeon_log(
+            "schedule_success",
+            f"Scheduled Petal Lace shop clear: {job.trigger}",
+        )
+
+    except Exception as e:
+        espeon_log(
+            "error",
+            f"Failed to schedule Petal Lace shop clear: {e}",
+            source="Scheduler Setup",
+        )
 
     # Start the scheduler
     scheduler_manager.start()

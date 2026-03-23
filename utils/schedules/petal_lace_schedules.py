@@ -86,13 +86,13 @@ async def scheduled_petal_lace_event_end(bot: discord.Client):
         STRAYMONS__ROLES.charming_hershey_espresso
     )
     straymons_role = guild.get_role(STRAYMONS__ROLES.straymon)
-    content = f"{straymons_role.mention} The Petal Lace Shop Event has ended! {Espeon_Emoji.pink_flower_two}"
+    content = f"{straymons_role.mention} The Box Event has ended! {Espeon_Emoji.pink_flower_two}"
     title = "🌸 Message from Skaia"
-    desc = f"""The event has finally ended! Thank you so much for participating in my last event for the year. It has been a great year for me since I joined Straymons back in January this year and took up the role of making events for everyone. I hope the events that were made are all to your liking!
+    desc = f"""That concludes the end of the event! I hope everyone had much fun as I did (I wasn't on much). There might be a rerun of Bingo Event around June again but fingers crossed I hope I'll be free and with enough mental energy to conduct it (I definitely won't).
 
-You cannot gain anymore {SERVER_CURRENCY_NAME} {SERVER_CURRENCY_EMOJI} and you have exactly one week to use it all up until they will disappear on <t:1767502800:f>. I will not be here a lot than usual and I've made my mind to stay and not leave the server or the clan. I will still conduct weekly hunts for you **and** if my life permits me, I can still do events like these every 3 months (March, June, September, December).
+Khy will reveal what entails inside each of the former event boxes were and to those prizes not claimed, will then be moved to June's prize pool along with Colloseum prizes (Poor Shiny Lucario). Thank you again for playing and hope to see you next time!
 
-Hopefully when I'm able to, I can come down here to say hello and catch up with everyone. But for now, thank you so much for being with me and I can never ask for better clan members than everyone here so thank you thank you thank you! {Espeon_Emoji.hana_hug}"""
+-# You have until the weekend to clear your coins, once the new week starts (Monday) it will be gone from your inventory."""
     embed = discord.Embed(
         title=title,
         description=desc,
@@ -124,7 +124,7 @@ async def scheduled_petal_lace_shop_clear(
         STRAYMONS__ROLES.charming_hershey_espresso
     )
     straymons_role = guild.get_role(STRAYMONS__ROLES.straymon)
-    content = f"{straymons_role.mention} The Petal Lace Shop is now closed! {Espeon_Emoji.pink_flower_two}"
+    content = f"{straymons_role.mention} The Shop is now closed! {Espeon_Emoji.pink_flower_two}"
     desc = f"The shop along with any unused {SERVER_CURRENCY_NAME} {SERVER_CURRENCY_EMOJI} have been removed. Thank you so much for your patron!"
     embed = discord.Embed(
         description=desc,
@@ -161,7 +161,7 @@ async def reset_battle_roles(bot: discord.Client):
         )
         return
     # Check if event is active before removing roles
-    is_active, _ = is_event_active_now_manila()
+    is_active, _, context = is_event_active_now_manila()
     if not is_active:
         espeon_log(
             "info",

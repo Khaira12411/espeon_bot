@@ -141,15 +141,17 @@ async def shop_view_func(
     View all items in the server shop.
     """
     # Check if event is active or khy is viewing for testing
-    success, error_msg = is_event_active_now_manila()
-    if not success and interaction.user.id != KHY_USER_ID:
-        await interaction.response.send_message(content=error_msg, ephemeral=True)
-        espeon_log(
-            "info",
-            f"User {interaction.user} attempted to view the shop but the event is not active. Reason: {error_msg}",
-            source="Shop View Command",
-        )
-        return
+    success, error_msg, context = is_event_active_now_manila()
+    if interaction.user.id != KHY_USER_ID:
+        # If event is not active and shop is closed or not open, show error message
+        if context == "shop_closed" or context == "shop_not_open":
+            await interaction.response.send_message(content=error_msg, ephemeral=True)
+            espeon_log(
+                "info",
+                f"User {interaction.user} attempted to view balance but the shop is not open. Reason: {error_msg}",
+                source="View Shop Command",
+            )
+            return
 
     if item_name:
         from utils.cache.server_shop_cache import fetch_shop_item_id_by_name

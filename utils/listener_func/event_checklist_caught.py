@@ -172,7 +172,7 @@ async def event_checklist_caught(
     rarity = None
     guild = after_message.guild
 
-    success, error_msg = is_event_active_now_manila()
+    success, error_msg, context = is_event_active_now_manila()
     if not success:
         espeon_log(
             "info",

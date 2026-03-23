@@ -2,7 +2,7 @@
 # import pytz
 
 from datetime import datetime
-
+from datetime import timedelta
 import pytz
 
 from config.petal_lace_settings import (
@@ -20,14 +20,17 @@ def is_event_active_now_manila():
     tz = pytz.timezone("Asia/Manila")
     now = datetime.now(tz)
     year = now.year
-    start = tz.localize(datetime(year, 2, 27, 13, 0, 0))
-    end = tz.localize(datetime(year, 3, 27, 13, 0, 0))
+    start = tz.localize(datetime(year, 2, 27, 12, 0, 0))
+    end = tz.localize(datetime(year, 3, 27, 12, 0, 0))
+    shop_close = tz.localize(datetime(year, 3, 30, 12, 0, 0))
     if now < start:
-        return False, "Petal Lace shop is not yet open."
+        return False, "Petal Lace shop is not yet open." , "shop_not_open"
     elif now > end:
-        return False, "Petal Lace shop is closed."
+        return False, "Petal Lace shop is closed." , "event_ended"
+    elif now > shop_close:
+        return False, "Petal Lace shop is closed and the event has ended.", "shop_closed"
     else:
-        return True, None # Shop is open
+        return True, None, "event_ongoing" # Shop is open
 
 
 # Utility: Generate event points description from POINT_MAP

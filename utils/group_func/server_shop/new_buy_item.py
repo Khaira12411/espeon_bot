@@ -134,15 +134,17 @@ async def buy_item_func(
     Buy an item from the server shop.
     """
     # Check if event is active or khy is buying for testing
-    success, error_msg = is_event_active_now_manila()
-    if not success and interaction.user.id != KHY_USER_ID:
-        await interaction.response.send_message(content=error_msg, ephemeral=True)
-        espeon_log(
-            "info",
-            f"User {interaction.user} attempted to buy an item but the event is not active. Reason: {error_msg}",
-            source="Buy Item Command",
-        )
-        return
+    success, error_msg, context = is_event_active_now_manila()
+    if interaction.user.id != KHY_USER_ID:
+        # If event is not active and shop is closed or not open, show error message
+        if context == "shop_closed" or context == "shop_not_open":
+            await interaction.response.send_message(content=error_msg, ephemeral=True)
+            espeon_log(
+                "info",
+                f"User {interaction.user} attempted to view balance but the shop is not open. Reason: {error_msg}",
+                source="Buy Item Command",
+            )
+            return
 
     # Defer
     loader = await pretty_defer(
