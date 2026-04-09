@@ -47,33 +47,42 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
         debug_log(f"User id {user_id} not found in ev_tracker_cache. Exiting.")
         return
 
-    # -------------------- STEP 1: Extract username, first Pokémon emoji tag, and pokemon name --------------------
-    # Regex: get the first emoji after username's
-    match = re.match(r"(<:\w+:(\d+)>) (\S+)'s ((?:<:\w+:(\d+)> ?)+)", title)
+    # -------------------- STEP 1: Extract username, Pokémon emoji tag, and pokemon name --------------------
+    # Capture title shape: <user_icon> username's <emoji block> pokemon name
+    match = re.match(
+        r"(<:[^:>]+:(\d+)>)\s+(\S+)'s\s+((?:<:[^:>]+:\d+>\s*)+)(.+)$", title
+    )
     if not match:
         debug_log(f"Title did not match expected pattern: {title!r}. Exiting.")
         return
-    user_battle_icon_tag, user_battle_icon_id, user_name, emoji_block, *_ = (
+    user_battle_icon_tag, user_battle_icon_id, user_name, emoji_block, pokemon_name = (
         match.groups()
     )
-    # Extract the first emoji tag after username's
-    pokemon_emoji_tag_match = re.match(r"(<:\w+:(\d+)>)(?: |$)", emoji_block)
-    if not pokemon_emoji_tag_match:
+
+    emoji_tags = re.findall(r"<:[^:>]+:\d+>", emoji_block)
+    if not emoji_tags:
         debug_log(
             f"Could not extract Pokémon emoji tag from: {emoji_block!r}. Exiting."
         )
         return
-    pokemon_emoji_tag = pokemon_emoji_tag_match.group(1)
-    debug_log(f"Extracted user_name={user_name}, pokemon_emoji_tag={pokemon_emoji_tag}")
-    # Use the old regex to extract the pokemon_name as well
-    old_regex = r"(<:\w+:(\d+)>) (\S+)'s (<:\w+:(\d+)>)(?: [^\w<]*)? ([\w\-'.]+)"
-    old_match = re.match(old_regex, title)
-    if old_match:
-        pokemon_name = old_match.group(6)
-        debug_log(f"Extracted pokemon_name={pokemon_name} using old regex")
+
+    # NOTE (embed title parsing rule):
+    # 1) If a pokeball emoji exists in the emoji block, use the emoji immediately after it.
+    # 2) Otherwise, use the last emoji before the Pokemon name.
+    # This avoids selecting the ball icon itself as the tracked Pokemon emoji.
+    pokeball_idx = next(
+        (i for i, tag in enumerate(emoji_tags) if re.match(r"<:pokeball:\d+>", tag)),
+        None,
+    )
+    if pokeball_idx is not None and pokeball_idx + 1 < len(emoji_tags):
+        pokemon_emoji_tag = emoji_tags[pokeball_idx + 1]
     else:
-        pokemon_name = None
-        debug_log(f"Could not extract pokemon_name using old regex from: {title!r}")
+        pokemon_emoji_tag = emoji_tags[-1]
+
+    pokemon_name = pokemon_name.strip() or None
+    debug_log(
+        f"Extracted user_name={user_name}, pokemon_emoji_tag={pokemon_emoji_tag}, pokemon_name={pokemon_name}"
+    )
     from utils.cache.ev_tracker_cache import get_emoji_id_cache
 
     # Compare emoji tag with cache
@@ -85,7 +94,9 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
         )
         return
     else:
-        debug_log(f"Emoji ID matches or not set for user {user_name} (id: {user_id}). Updating if necessary.")
+        debug_log(
+            f"Emoji ID matches or not set for user {user_name} (id: {user_id}). Updating if necessary."
+        )
         await update_emoji_id(bot, user_id, pokemon_emoji_tag)
         ev_tracker_cache[user_id]["emoji_id"] = pokemon_emoji_tag
 

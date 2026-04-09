@@ -72,7 +72,7 @@ PRE_MEGA_LIST = [
     "Sceptile",
     "Blaziken",
     "Steelix",
-     "Swampert",
+    "Swampert",
     "Gardevoir",
     "Sableye",
     "Mawile",
