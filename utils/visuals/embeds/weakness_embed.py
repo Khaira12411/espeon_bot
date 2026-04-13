@@ -5,7 +5,7 @@ from config.emojis import TYPE_EMOJI
 from config.form_base_names import FORM_BASE_NAMES
 from config.weakness_chart import weakness_chart
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from utils.function.stats_and_abilities_functions import format_pokemon_abilities
+from utils.function.stats_and_abilities_functions import format_pokemon_abilities, get_immunities_based_on_abilities
 # -------------------- Constants --------------------
 type_emojis = {
     "grass": TYPE_EMOJI.grass,
@@ -359,5 +359,8 @@ def build_user_weakness_embed_w_o_cache(
     footer_text = format_pokemon_abilities(variant_name)
     if footer_text:
         embed.set_footer(text=footer_text)
-
+    notes = get_immunities_based_on_abilities(variant_name)
+    if notes and notes[2]:  # Check if note string is present
+        embed.add_field(name="Notes:", value=notes[2], inline=False)
+        
     return embed

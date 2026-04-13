@@ -1,5 +1,6 @@
 from config.new_abilities import abilities as abilities_dict
 from config.new_pokemons import pokemons
+from utils.visuals.embeds.weakness_embed import type_emojis
 
 immunity_abilities = {
     "dry-skin": ["fire"],
@@ -85,10 +86,13 @@ def get_immunities_based_on_abilities(pokemon_name):
         note_lines = []
         for ability, desc in ability_effects.items():
             types = immunity_abilities[ability]
+            formatted_types = [
+                f"{type_emojis.get(t, '')} {t.title()}".strip() for t in types
+            ]
             type_str = (
-                " and ".join([t.title() for t in types])
-                if len(types) > 1
-                else types[0].title()
+                " and ".join(formatted_types)
+                if len(formatted_types) > 1
+                else formatted_types[0]
             )
             ability_name = ability.replace("-", " ").title()
             ability_label = f"**__{ability_name} Ability__**"
@@ -98,11 +102,11 @@ def get_immunities_based_on_abilities(pokemon_name):
                 if multiple:
                     if ability in hidden:
                         note_lines.append(
-                            f"> - If {ability_label} (Hidden Ability) is its active ability then {pokemon_name.title()} takes only half damage from {type_str} moves."
+                            f"> - If {ability_label} (Hidden Ability) is active, {pokemon_name.title()} takes only half damage from {type_str} moves."
                         )
                     else:
                         note_lines.append(
-                            f"> - If {ability_label} is its active ability then {pokemon_name.title()} takes only half damage from {type_str} moves."
+                            f"> - If {ability_label} is active, {pokemon_name.title()} takes only half damage from {type_str} moves."
                         )
                 else:
                     note_lines.append(
@@ -114,15 +118,15 @@ def get_immunities_based_on_abilities(pokemon_name):
                 if multiple:
                     if ability in hidden:
                         note_lines.append(
-                            f"> - If {ability_label} (Hidden Ability) is its active ability then only super effective moves can hit {pokemon_name.title()}."
+                            f"> - If {ability_label} (Hidden Ability) is active, only super effective moves can hit {pokemon_name.title()}."
                         )
                     else:
                         note_lines.append(
-                            f"> - If {ability_label} is its active ability then only super effective moves can hit {pokemon_name.title()}."
+                            f"> - If {ability_label} is active, only super effective moves can hit {pokemon_name.title()}."
                         )
                 else:
                     note_lines.append(
-                        f"> - Only super effective moves can hit {pokemon_name.title()} because of its Wonder Guard Ability."
+                        f"> - Only super effective moves can hit {pokemon_name.title()}, thanks to Wonder Guard."
                     )
 
             else:
@@ -131,29 +135,29 @@ def get_immunities_based_on_abilities(pokemon_name):
                     if ability in hidden:
                         if desc:
                             note_lines.append(
-                                f"> - If {ability_label} (Hidden Ability) is its active ability then {pokemon_name.title()} is immune to {type_str} and {desc}"
+                                f"> - If {ability_label} (Hidden Ability) is active, {pokemon_name.title()} is immune to {type_str}, and {desc}"
                             )
                         else:
                             note_lines.append(
-                                f"> - If {ability_label} (Hidden Ability) is its active ability then {pokemon_name.title()} is immune to {type_str}."
+                                f"> - If {ability_label} (Hidden Ability) is active, {pokemon_name.title()} is immune to {type_str}."
                             )
                     else:
                         if desc:
                             note_lines.append(
-                                f"> - If {ability_label} is its active ability then {pokemon_name.title()} is immune to {type_str} and {desc}"
+                                f"> - If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}, and {desc}"
                             )
                         else:
                             note_lines.append(
-                                f"> - If {ability_label} is its active ability then {pokemon_name.title()} is immune to {type_str}."
+                                f"> - If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}."
                             )
                 else:
                     if desc:
                         note_lines.append(
-                            f"> - If {ability_label} is its active ability then {pokemon_name.title()} is immune to {type_str} and {desc}"
+                            f"> - If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}, and {desc}"
                         )
                     else:
                         note_lines.append(
-                            f"> - If {ability_label} is its active ability then {pokemon_name.title()} is immune to {type_str}."
+                            f"> - If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}."
                         )
         note = "\n".join(note_lines)
 
@@ -215,7 +219,7 @@ def format_pokemon_abilities(name) -> str | None:
 
     Examples:
       Single  -> 'Ability: Levitate'
-      Multiple -> 'Abilities: Levitate/Chlorophyll'
+            Multiple -> 'Abilities: Levitate | Chlorophyll'
     """
     abilities = get_pokemon_abilities(name)
     if not abilities:
@@ -229,7 +233,7 @@ def format_pokemon_abilities(name) -> str | None:
 
     if len(formatted) == 1:
         return f"Ability: {formatted[0]}"
-    return f"Abilities: {'/'.join(formatted)}"
+    return f"Abilities: {' | '.join(formatted)}"
 
 
 def get_pokemons_with_ability(ability_name):
