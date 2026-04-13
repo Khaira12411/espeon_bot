@@ -17,7 +17,7 @@ from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.weakness_embed import build_user_weakness_embed_w_o_cache
 
-#enable_debug(f"{__name__}.weakness_chart")
+# enable_debug(f"{__name__}.weakness_chart")
 
 
 def extract_name_before_vs(title: str) -> tuple[str | None, str | None]:
@@ -172,22 +172,27 @@ async def weakness_chart(bot: discord.Client, message: discord.Message):
             f"User '{user_name}' is in not_weakness_chart_user_names cache, skipping weakness chart in {message.channel.name}"
         )
         return
-    trigger_phrase = f"**{enemy_name}** sent out"
-    if not trigger_phrase in embed.description:
-        debug_log(
-            f"Trigger phrase '{trigger_phrase}' not found in embed description for message in {message.channel.name}, skipping weakness chart"
-        )
-        return
-    
-    from utils.cache.cache_list import mr_weakness_user_cache
-    from utils.cache.mr_weakness_cache import load_mr_weakness_user_cache
-
-    different_name = False
     if not user_name or not enemy_name:
         debug_log(
             f"Could not extract user or enemy name from title '{embed.title}' in {message.channel.name}"
         )
         return
+
+    description = (embed.description or "").lower()
+    trigger_phrases = [
+        f"**{enemy_name}** sent out",
+        f"**{enemy_name}** pivoted with",
+    ]
+    if not any(phrase.lower() in description for phrase in trigger_phrases):
+        debug_log(
+            f"None of the trigger phrases {trigger_phrases} found in embed description for message in {message.channel.name}, skipping weakness chart"
+        )
+        return
+
+    from utils.cache.cache_list import mr_weakness_user_cache
+    from utils.cache.mr_weakness_cache import load_mr_weakness_user_cache
+
+    different_name = False
     if not mr_weakness_user_cache:  # If cache is empty, load from DB
         await load_mr_weakness_user_cache(bot)
         debug_log(
