@@ -172,6 +172,13 @@ async def weakness_chart(bot: discord.Client, message: discord.Message):
             f"User '{user_name}' is in not_weakness_chart_user_names cache, skipping weakness chart in {message.channel.name}"
         )
         return
+    trigger_phrase = f"**{enemy_name}** sent out"
+    if not trigger_phrase in embed.description:
+        debug_log(
+            f"Trigger phrase '{trigger_phrase}' not found in embed description for message in {message.channel.name}, skipping weakness chart"
+        )
+        return
+    
     from utils.cache.cache_list import mr_weakness_user_cache
     from utils.cache.mr_weakness_cache import load_mr_weakness_user_cache
 
