@@ -202,6 +202,22 @@ webhook_url_cache: dict[int, dict] = {}
 #   },
 #   ...
 
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━
+#       🌸 Weakness Data Cache 🌸
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━
+weakness_data_cache: dict[str, dict] = {}
+# Structure:
+# {
+#   pokemon_name: {
+# "title": str,
+# "description": str,
+# "note": str,
+# "footer": str,
+# "color": int,
+#   },
+
+
+
 market_value_cache: dict[str, dict] = {}
 
 processed_weakness_messages: set[int] = set()

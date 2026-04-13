@@ -4,8 +4,12 @@ import discord
 from config.emojis import TYPE_EMOJI
 from config.form_base_names import FORM_BASE_NAMES
 from config.weakness_chart import weakness_chart
+from utils.function.stats_and_abilities_functions import (
+    format_pokemon_abilities,
+    get_immunities_based_on_abilities,
+)
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from utils.function.stats_and_abilities_functions import format_pokemon_abilities, get_immunities_based_on_abilities
+
 # -------------------- Constants --------------------
 type_emojis = {
     "grass": TYPE_EMOJI.grass,
@@ -277,6 +281,7 @@ def build_user_weakness_embed(
     user_id: int,
     user_cache: dict[int, str],  # <-- pass the cache here
 ) -> discord.Embed | None:
+
     variant_name, shiny_golden_tag, base_dex = get_pokemon_from_input(pokemon_input)
     if not variant_name:
         return None
@@ -320,47 +325,83 @@ def build_user_weakness_embed_w_o_cache(
     pokemon_input: str,
     raw_display_type: str,
 ) -> discord.Embed | None:
-    variant_name, shiny_golden_tag, base_dex = get_pokemon_from_input(pokemon_input)
-    if not variant_name:
-        return None
+    from utils.cache.mr_weakness_cache import (
+        get_weakness_data,
+        upsert_weakness_data_cache,
+    )
 
-    weaknesses = weakness_chart.get(variant_name)
-    if not weaknesses:
-        espeon_log(
-            "warn",
-            f"No weaknesses found for {variant_name}",
-            context=EspeonContext.ESPEON,
+    # Check cache first
+    cached_data = get_weakness_data(pokemon_input)
+    if cached_data:
+        cache_title = cached_data.get("title")
+        cached_description = cached_data.get("description")
+        cache_footer = cached_data.get("footer")
+        cache_color = cached_data.get("color", 0x74CEC0)
+        cache_note = (cached_data.get("note") or "").strip()
+        embed = discord.Embed(
+            title=cache_title,
+            description=cached_description,
+            color=cache_color,
         )
-        return None
+        if cache_footer:
+            embed.set_footer(text=cache_footer)
+        if cache_note:
+            embed.add_field(name="Notes:", value=cache_note, inline=False)
+        return embed
+    else:
 
-    types = weaknesses.get("types", [])
-    type_emojis_str = "".join(type_emojis.get(t, "") for t in types)
+        variant_name, shiny_golden_tag, base_dex = get_pokemon_from_input(pokemon_input)
+        if not variant_name:
+            return None
 
-    title_name = f"{variant_name.title()}"
-    if shiny_golden_tag:
-        title_name = f"{shiny_golden_tag} {title_name}"
-    embed_title = f"{title_name} {type_emojis_str}"
+        weaknesses = weakness_chart.get(variant_name)
+        if not weaknesses:
+            espeon_log(
+                "warn",
+                f"No weaknesses found for {variant_name}",
+                context=EspeonContext.ESPEON,
+            )
+            return None
 
-    embed_color = TYPE_COLOR.get(types[0], 0x74CEC0) if types else 0x74CEC0
+        types = weaknesses.get("types", [])
+        type_emojis_str = "".join(type_emojis.get(t, "") for t in types)
 
-    # 🔹 Fetch from passed cache with safe fallback
-    raw_display_type = raw_display_type.lower()
-    display_type = (
-        raw_display_type if raw_display_type in ("truncated", "full") else "full"
-    )
+        title_name = f"{variant_name.title()}"
+        if shiny_golden_tag:
+            title_name = f"{shiny_golden_tag} {title_name}"
+        embed_title = f"{title_name} {type_emojis_str}"
 
-    description = format_weakness_description(weaknesses, mode=display_type)
+        embed_color = TYPE_COLOR.get(types[0], 0x74CEC0) if types else 0x74CEC0
 
-    embed = discord.Embed(
-        title=embed_title,
-        description=description,
-        color=embed_color,
-    )
-    footer_text = format_pokemon_abilities(variant_name)
-    if footer_text:
-        embed.set_footer(text=footer_text)
-    notes = get_immunities_based_on_abilities(variant_name)
-    if notes and notes[2]:  # Check if note string is present
-        embed.add_field(name="Notes:", value=notes[2], inline=False)
-        
-    return embed
+        # 🔹 Fetch from passed cache with safe fallback
+        raw_display_type = raw_display_type.lower()
+        display_type = (
+            raw_display_type if raw_display_type in ("truncated", "full") else "full"
+        )
+
+        description = format_weakness_description(weaknesses, mode=display_type)
+
+        embed = discord.Embed(
+            title=embed_title,
+            description=description,
+            color=embed_color,
+        )
+        footer_text = format_pokemon_abilities(variant_name)
+        if footer_text:
+            embed.set_footer(text=footer_text)
+        notes = get_immunities_based_on_abilities(variant_name)
+        note_text = ""
+        if notes and len(notes) > 2 and notes[2]:
+            note_text = str(notes[2]).strip()
+        if note_text:
+            embed.add_field(name="Notes:", value=note_text, inline=False)
+        # Cache the result for future use
+        upsert_weakness_data_cache(
+            pokemon_name=pokemon_input,
+            title=embed_title,
+            description=description,
+            footer=footer_text,
+            note=note_text,
+            color=embed_color,
+        )
+        return embed

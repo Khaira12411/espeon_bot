@@ -1,8 +1,6 @@
-from utils.loggers.espeon_log import espeon_log, EspeonContext
-from utils.group_func.mr_weakness.mr_weakness_db_func import (
-    fetch_all_mr_user_settings,
-)
-from utils.cache.cache_list import mr_weakness_user_cache
+from utils.cache.cache_list import mr_weakness_user_cache, weakness_data_cache
+from utils.group_func.mr_weakness.mr_weakness_db_func import fetch_all_mr_user_settings
+from utils.loggers.espeon_log import EspeonContext, espeon_log
 
 # 🟣────────────────────────────────────────────
 #       💜 MR Weakness User Cache Loader 💜
@@ -89,6 +87,8 @@ def update_mr_user(
             message=f"Updated user {user_id} from {old_entry} to {mr_weakness_user_cache[user_id]}",
             context=EspeonContext.STRAYMONS,
         )
+
+
 def get_display_type_via_user_name(user_name: str) -> str | None:
     """Get a user's display_type from the cache using their user_name, or None if not found."""
     for user_id, data in mr_weakness_user_cache.items():
@@ -96,7 +96,39 @@ def get_display_type_via_user_name(user_name: str) -> str | None:
             return data["display_type"]
     return None
 
+
 def get_display_type_via_user_id(user_id: int) -> str | None:
     """Get a user's display_type from the cache using their user_id, or None if not found."""
     user_data = mr_weakness_user_cache.get(user_id)
     return user_data["display_type"] if user_data else None
+
+
+def _normalize_pokemon_cache_key(pokemon_name: str) -> str:
+    """Return a canonical key so cache lookups are case/space-insensitive."""
+    return pokemon_name.strip().lower()
+
+
+def upsert_weakness_data_cache(
+    pokemon_name: str, title: str, description: str, note: str, footer: str, color
+):
+    """Insert or update weakness data for a Pokemon in the cache."""
+    cache_key = _normalize_pokemon_cache_key(pokemon_name)
+    weakness_data_cache[cache_key] = {
+        "title": title,
+        "description": description,
+        "note": note,
+        "footer": footer,
+        "color": color,
+    }
+    espeon_log(
+        tag="",
+        label="🌸 WEAKNESS DATA CACHE",
+        message=f"Upserted weakness data for '{pokemon_name}' into cache (cache now {len(weakness_data_cache)} entries)",
+        context=EspeonContext.ESPEON,
+    )
+
+
+def get_weakness_data(pokemon_name: str) -> dict[str, str] | None:
+    """Get weakness data for a Pokemon from the cache, or None if not found."""
+    cache_key = _normalize_pokemon_cache_key(pokemon_name)
+    return weakness_data_cache.get(cache_key)
