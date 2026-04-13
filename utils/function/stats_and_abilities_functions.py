@@ -1,6 +1,6 @@
 from config.new_abilities import abilities as abilities_dict
 from config.new_pokemons import pokemons
-from utils.visuals.embeds.weakness_embed import type_emojis
+
 
 immunity_abilities = {
     "dry-skin": ["fire"],
@@ -57,6 +57,8 @@ def get_immunities_based_on_abilities(pokemon_name):
       - Thick Fat halves damage instead of granting immunity.
       - Wonder Guard: only super effective moves can hit.
     """
+    from utils.visuals.embeds.weakness_embed import type_emojis
+
     immunities = set()
     ability_effects = {}
     notes = []
