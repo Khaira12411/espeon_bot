@@ -20,8 +20,6 @@ from utils.essentials.role_checks import *
 from utils.loggers.espeon_log import EspeonContext  # Using Espeon logs
 from utils.loggers.espeon_log import espeon_log, set_espeon_bot
 from utils.loggers.rate_limit_logger import setup_rate_limit_logging
-from utils.listener_func.event_checklist_caught import processed_rare_catches
-from utils.listener_func.market_alert import processed_market_feed_message_ids, processed_snipe_ids
 from utils.schedules.scheduler import setup_scheduler
 
 # ——————————————————————————————————————————————————————————————
@@ -222,9 +220,9 @@ async def refresh_all_caches():
         refresh_all_caches.already_ran = True
         return  # 🚫 Skip the first run
     await load_all_caches(bot)
-    processed_rare_catches.clear()  # Clear processed catches every hour
-    processed_market_feed_message_ids.clear()  # Clear processed market feed messages every hour
-    processed_snipe_ids.clear()  # Clear processed snipe IDs every hour
+    from utils.cache.cache_list import clear_processed_message_ids
+    clear_processed_message_ids()
+    
 
 
 # ====================

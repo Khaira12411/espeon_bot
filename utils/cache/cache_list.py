@@ -45,10 +45,13 @@ _role_cache: dict[tuple[int, int], discord.Role] = {}
 # 💫━━━━━━━━━━━━━━━━━━━━━━━━━
 #   🌸 Mr. Weakness User Cache 🌸
 # 💫━━━━━━━━━━━━━━━━━━━━━━━━━
-mr_weakness_user_cache = {}  # user_id -> display_type
+mr_weakness_user_cache: dict[int, dict[str, str]] = {}
 # Structure
 # {
-#   user_id: str (display_type)
+#   user_id: {
+#       "user_name": str,
+#       "display_type": str
+#   }
 # }
 
 
@@ -200,3 +203,19 @@ webhook_url_cache: dict[int, dict] = {}
 #   ...
 
 market_value_cache: dict[str, dict] = {}
+
+processed_weakness_messages: set[int] = set()
+processed_rare_catches = set()
+processed_market_feed_message_ids = set()
+processed_snipe_ids = set()
+not_weakness_chart_user_names = set()
+
+def clear_processed_message_ids():
+    PROCESSED_MSG_LIST = [
+        processed_weakness_messages,
+        processed_rare_catches,
+        processed_market_feed_message_ids,
+        processed_snipe_ids,
+    ]
+    for msg_set in PROCESSED_MSG_LIST:
+        msg_set.clear()

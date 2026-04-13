@@ -25,7 +25,7 @@ from utils.listener_func.mr_weakness import mr_weakness_chart
 from utils.listener_func.wb_sub import ping_wb_subscribers
 from utils.loggers.espeon_log import espeon_log
 from utils.quick_codes.petal_lace_event_post import post_news_func
-
+from utils.listener_func.battle_weakness import weakness_chart
 MARKETFEED_CHANNELS = {
     STRAYMONS__TEXT_CHANNELS.ic_u_r_s_market_feed,
     STRAYMONS__TEXT_CHANNELS.iiishiny_market_feed,
@@ -200,6 +200,19 @@ class MessageCreateListener(commands.Cog):
                             "error",
                             f"Mr. Weakness processing failed for message {message.id} in {message.channel.name}: {mw_e}",
                             source="mr_weakness_chart",
+                        )
+            # ✨───────────────────────────────────────────────✨
+            # 🪻 Battle Weakness Chart
+            # ✨───────────────────────────────────────────────✨
+            if message.embeds and message.embeds[0]:
+                if ":crossed_swords" in first_embed_title and "sent out" in first_embed_description:
+                    try:
+                        await weakness_chart(bot=self.bot, message=message)
+                    except Exception as bw_e:
+                        espeon_log(
+                            "error",
+                            f"Battle weakness processing failed for message {message.id} in {message.channel.name}: {bw_e}",
+                            source="weakness_chart",
                         )
             # ✨───────────────────────────────────────────────✨
             # 🪻 EV TRAINING

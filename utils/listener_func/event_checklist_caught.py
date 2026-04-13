@@ -16,7 +16,7 @@ from config.petal_lace_settings import (
     SHOP_EVENT,
 )
 from config.straymons_constants import STRAYMONS__ROLES
-from utils.cache.cache_list import user_balance_cache
+from utils.cache.cache_list import user_balance_cache, processed_rare_catches
 from utils.database.server_currency import (
     get_user_balance,
     update_user_balance,
@@ -32,7 +32,7 @@ SHINY_COLOR = 16751052
 LEGENDARY_COLOR = 10487800
 EVENT_EXCLUSIVE_COLOR = 15345163
 FISHING_COLOR = 8900346
-processed_rare_catches = set()
+
 VALID_COLOR = [SHINY_COLOR, EVENT_EXCLUSIVE_COLOR]
 
 LOW_RARITY_COLORS = [

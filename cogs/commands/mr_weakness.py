@@ -22,8 +22,8 @@ class MrWeaknessCog(commands.Cog):
     #            /mr-weakness-toggle
     # 🛠️────────────────────────────────────────────
     @app_commands.command(
-        name="mr-weakness-toggle",
-        description="Choose how Meowrogue Weakness displays Pokemon weaknesses: Off, Truncated, or Full.",
+        name="toggle-weakness-chart",
+        description="Choose how Battle Weakness Chart displays Pokemon weaknesses: Off, Truncated, or Full.",
     )
     @app_commands.choices(
         settings=[
@@ -37,12 +37,13 @@ class MrWeaknessCog(commands.Cog):
         self, interaction: discord.Interaction, settings: app_commands.Choice[str]
     ):
         user_id = interaction.user.id
+        user_name = interaction.user.name
         choice = settings.value
 
         # 🚫 Handle "Off"
         if choice == "off":
             remove_mr_user(user_id)  # update cache
-            await upsert_mr_user_setting(self.bot, user_id, "off")  # update DB
+            await upsert_mr_user_setting(self.bot, user_id, user_name, "off")  # update DB
 
             await interaction.response.send_message(
                 "🚫 **Mr. Weakness disabled.**\nYou will no longer see weakness alerts.",
@@ -56,8 +57,8 @@ class MrWeaknessCog(commands.Cog):
             return
 
         # ✂️ / 📜 Handle "Truncated" or "Full"
-        insert_mr_user(user_id, choice)  # insert or update cache
-        await upsert_mr_user_setting(self.bot, user_id, choice)  # update DB
+        user_name = interaction.user.name
+        await upsert_mr_user_setting(bot=self.bot, user_id=user_id, user_name=user_name, display_type=choice)  # update DB
 
         msg = (
             "✂️ **Truncated mode enabled.**\nOnly **major weaknesses (4× and 2×)** will be displayed."
@@ -78,8 +79,8 @@ class MrWeaknessCog(commands.Cog):
     #            /mr-weakness-view
     # 🕵️────────────────────────────────────────────
     @app_commands.command(
-        name="mr-weakness-view",
-        description="View your current Meowrogue Weakness display setting.",
+        name="weakness-chart-view",
+        description="View your current Battle Weakness display setting.",
     )
     @espeon_roles_only()
     async def mr_weakness_view(self, interaction: discord.Interaction):
@@ -87,7 +88,7 @@ class MrWeaknessCog(commands.Cog):
         current = get_mr_user(user_id) or "off"  # only read from cache
 
         if current == "off":
-            msg = "🚫 **Mr. Weakness is currently disabled.**"
+            msg = "🚫 **Weakness Chart is currently disabled.**"
         elif current == "truncated":
             msg = "✂️ **Truncated mode is active.**\nOnly **major weaknesses (4× and 2×)** are shown."
         else:  # full
@@ -96,7 +97,7 @@ class MrWeaknessCog(commands.Cog):
         await interaction.response.send_message(msg, ephemeral=True)
         espeon_log(
             "ready",
-            f"User {user_id} viewed their Mr. Weakness setting: {current}",
+            f"User {user_id} viewed their Battle Weakness setting: {current}",
             context=EspeonContext.STRAYMONS,
         )
 

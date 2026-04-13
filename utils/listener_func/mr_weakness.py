@@ -32,7 +32,7 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
     target_user = await get_pokemeow_reply_member(message)
     if not target_user:
         return
-    
+
     user_id = target_user.id
 
     # EARLY CHECK: Skip if user has Mr. Weakness off (before any processing)

@@ -25,6 +25,8 @@ from utils.cache.cache_list import (
     _role_cache,
     market_alert_cache,
     market_value_cache,
+    processed_market_feed_message_ids,
+    processed_snipe_ids,
 )
 from utils.database.market_value_db import set_market_value
 from utils.function.webhook import send_webhook
@@ -137,8 +139,7 @@ PRE_MEGA_LIST = [
     "Baxcalibur",
 ]
 
-processed_market_feed_message_ids = set()
-processed_snipe_ids = set()
+
 # enable_debug(f"{__name__}.snipe_handler")
 # enable_debug(f"{__name__}.process_market_alert_message")
 

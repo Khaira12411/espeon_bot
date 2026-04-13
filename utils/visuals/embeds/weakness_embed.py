@@ -5,7 +5,7 @@ from config.emojis import TYPE_EMOJI
 from config.form_base_names import FORM_BASE_NAMES
 from config.weakness_chart import weakness_chart
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
+from utils.function.stats_and_abilities_functions import format_pokemon_abilities
 # -------------------- Constants --------------------
 type_emojis = {
     "grass": TYPE_EMOJI.grass,
@@ -313,4 +313,51 @@ def build_user_weakness_embed(
         description=description,
         color=embed_color,
     )
+    return embed
+
+
+def build_user_weakness_embed_w_o_cache(
+    pokemon_input: str,
+    raw_display_type: str,
+) -> discord.Embed | None:
+    variant_name, shiny_golden_tag, base_dex = get_pokemon_from_input(pokemon_input)
+    if not variant_name:
+        return None
+
+    weaknesses = weakness_chart.get(variant_name)
+    if not weaknesses:
+        espeon_log(
+            "warn",
+            f"No weaknesses found for {variant_name}",
+            context=EspeonContext.ESPEON,
+        )
+        return None
+
+    types = weaknesses.get("types", [])
+    type_emojis_str = "".join(type_emojis.get(t, "") for t in types)
+
+    title_name = f"{variant_name.title()}"
+    if shiny_golden_tag:
+        title_name = f"{shiny_golden_tag} {title_name}"
+    embed_title = f"{title_name} {type_emojis_str}"
+
+    embed_color = TYPE_COLOR.get(types[0], 0x74CEC0) if types else 0x74CEC0
+
+    # 🔹 Fetch from passed cache with safe fallback
+    raw_display_type = raw_display_type.lower()
+    display_type = (
+        raw_display_type if raw_display_type in ("truncated", "full") else "full"
+    )
+
+    description = format_weakness_description(weaknesses, mode=display_type)
+
+    embed = discord.Embed(
+        title=embed_title,
+        description=description,
+        color=embed_color,
+    )
+    footer_text = format_pokemon_abilities(variant_name)
+    if footer_text:
+        embed.set_footer(text=footer_text)
+
     return embed
