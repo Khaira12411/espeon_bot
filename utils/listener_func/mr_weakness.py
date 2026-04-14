@@ -4,9 +4,9 @@ import discord
 from discord.ext import commands
 
 from utils.cache.cache_list import mr_weakness_user_cache
+from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.weakness_embed import build_user_weakness_embed
-from utils.essentials.pokemon_reply import get_pokemeow_reply_member
 
 # ─────────────────────────────────────────────
 # Track last seen enemies per user
@@ -36,10 +36,17 @@ async def mr_weakness_chart(message: discord.Message, bot: commands.Bot):
     user_id = target_user.id
 
     # EARLY CHECK: Skip if user has Mr. Weakness off (before any processing)
-    display_type = mr_weakness_user_cache.get(
-        user_id, "off"
-    )  # Default to "off" if not in cache
-    if display_type.lower() == "off":
+    # Cache shape is {user_id: {"user_name": str, "display_type": str}}.
+    cached_setting = mr_weakness_user_cache.get(user_id)
+    if isinstance(cached_setting, dict):
+        display_type = cached_setting.get("display_type", "off")
+    elif isinstance(cached_setting, str):
+        display_type = cached_setting
+    else:
+        display_type = "off"
+
+    display_type = str(display_type or "off").strip().lower()
+    if display_type == "off":
         # Clean up any existing state for this user when it's turned off
         _user_states.pop(user_id, None)
         _user_active_enemy.pop(user_id, None)
