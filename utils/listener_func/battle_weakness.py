@@ -1,3 +1,4 @@
+import asyncio
 import re
 
 import discord
@@ -18,6 +19,26 @@ from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.weakness_embed import build_user_weakness_embed_w_o_cache
 
 # enable_debug(f"{__name__}.weakness_chart")
+
+
+async def _retry_discord_send(send_func, *, retries: int = 3, delay: float = 1.5):
+    """
+    Retry transient Discord send failures (5xx / 429) a few times.
+    """
+    last_error = None
+    for attempt in range(1, retries + 1):
+        try:
+            return await send_func()
+        except discord.HTTPException as e:
+            last_error = e
+            if e.status in {429, 500, 502, 503, 504}:
+                if attempt < retries:
+                    await asyncio.sleep(delay)
+                    continue
+            raise
+
+    if last_error:
+        raise last_error
 
 
 def extract_name_before_vs(title: str) -> tuple[str | None, str | None]:
@@ -253,7 +274,7 @@ async def weakness_chart(bot: discord.Client, message: discord.Message):
         embed_to_send = build_user_weakness_embed_w_o_cache(
             pokemon_input=enemy_pokemon, raw_display_type=display_type
         )
-        await message.channel.send(embed=embed_to_send)
+        await _retry_discord_send(lambda: message.channel.send(embed=embed_to_send))
         if different_name and member:
             await update_user_name(bot, member.id, user_name)
             debug_log(
