@@ -338,15 +338,16 @@ def build_user_weakness_embed_w_o_cache(
         cache_footer = cached_data.get("footer")
         cache_color = cached_data.get("color", 0x74CEC0)
         cache_note = (cached_data.get("note") or "").strip()
+        full_description = cached_description or ""
+        if cache_note:
+            full_description = f"{full_description}\n\nNotes:\n{cache_note}".strip()
         embed = discord.Embed(
             title=cache_title,
-            description=cached_description,
+            description=full_description,
             color=cache_color,
         )
         if cache_footer:
             embed.set_footer(text=cache_footer)
-        if cache_note:
-            embed.add_field(name="Notes:", value=cache_note, inline=False)
         return embed
     else:
 
@@ -381,20 +382,22 @@ def build_user_weakness_embed_w_o_cache(
 
         description = format_weakness_description(weaknesses, mode=display_type)
 
-        embed = discord.Embed(
-            title=embed_title,
-            description=description,
-            color=embed_color,
-        )
         footer_text = format_pokemon_abilities(variant_name)
-        if footer_text:
-            embed.set_footer(text=footer_text)
         notes = get_immunities_based_on_abilities(variant_name)
         note_text = ""
         if notes and len(notes) > 2 and notes[2]:
             note_text = str(notes[2]).strip()
+        full_description = description
         if note_text:
-            embed.add_field(name="Notes:", value=note_text, inline=False)
+            full_description = f"{description}\n\nNotes:\n{note_text}"
+
+        embed = discord.Embed(
+            title=embed_title,
+            description=full_description,
+            color=embed_color,
+        )
+        if footer_text:
+            embed.set_footer(text=footer_text)
         # Cache the result for future use
         upsert_weakness_data_cache(
             pokemon_name=pokemon_input,

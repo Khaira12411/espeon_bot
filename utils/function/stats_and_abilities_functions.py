@@ -1,7 +1,6 @@
 from config.new_abilities import abilities as abilities_dict
 from config.new_pokemons import pokemons
 
-
 immunity_abilities = {
     "dry-skin": ["fire"],
     "earth-eater": ["ground"],
@@ -33,6 +32,28 @@ immunity_ability_custom_desc = {
     "water-absorb": "Restores HP by 25% when hit by a Water move, but still immune to it.",
     "well-baked-body": "Immune to Fire; raises defenses by 2 stages when hit by a Fire move.",
     "wonder-guard": "Shedinja's Wonder Guard only allows super effective moves to hit it, making it immune to all non super effective types.",
+}
+abilities_to_watch_out_for = {
+    # Prevent stat drops
+    "Clear Body": "Prevents stat reduction caused by other Pokémon’s moves or abilities.",
+    "White Smoke": "Prevents stat reduction caused by other Pokémon’s moves or abilities.",
+    "Full Metal Body": "Prevents stat reduction caused by other Pokémon’s moves or abilities.",
+    "Hyper Cutter": "Prevents Attack stat reduction.",
+    "Keen Eye": "Prevents Accuracy stat reduction.",
+    "Big Pecks": "Prevents Defense stat reduction.",
+    "Flower Veil": "Prevents stat drops to Grass-type allies.",
+    "Mirror Armor": "Reflects stat-lowering effects back to the user.",
+    # Punish debuffs
+    "Competitive": "Raises Sp. Atk sharply when any stat is lowered.",
+    "Defiant": "Raises Attack sharply when any stat is lowered.",
+    "Contrary": "Inverts stat changes (so debuffs become buffs, and buffs become debuffs).",
+    # Status power-up
+    "Guts": "Increases Attack by 50% when the Pokémon has a major status condition (burn, paralysis, poison, sleep, freeze).",
+    "Quick Feet": "Increases Speed when statused (ignores Speed drop from paralysis).",
+    "Marvel Scale": "Increases Defense by 50% when statused.",
+    "Flare Boost": "Increases Special Attack by 50% when burned.",
+    "Toxic Boost": "Increases Attack by 50% when poisoned.",
+    "Poison Heal": "When poisoned, the Pokémon heals HP instead of taking damage each turn.",
 }
 
 
@@ -81,12 +102,37 @@ def get_immunities_based_on_abilities(pokemon_name):
                 ability_effects[ability] = clean_effect
             else:
                 ability_effects[ability] = None
+        watch_effect = abilities_to_watch_out_for.get(ability)
+        if not watch_effect:
+            watch_effect = abilities_to_watch_out_for.get(
+                ability.replace("-", " ").title()
+            )
+        if watch_effect:
+            effect = watch_effect
+            ability_effects[ability] = effect
 
     if not ability_effects:
         note = None
     else:
         note_lines = []
         for ability, desc in ability_effects.items():
+            ability_name = ability.replace("-", " ").title()
+            ability_label = f"**__{ability_name} Ability__**"
+
+            if ability not in immunity_abilities:
+                # Keep watch-out descriptions exactly as-is.
+                if multiple:
+                    if ability in hidden:
+                        note_lines.append(
+                            f"> - If {ability_label} (Hidden Ability) is active: {desc}"
+                        )
+                    else:
+                        note_lines.append(f"> - If {ability_label} is active: {desc}")
+                else:
+                    note_lines.append(f"> - {ability_label}: {desc}")
+
+                continue
+
             types = immunity_abilities[ability]
             formatted_types = [
                 f"{type_emojis.get(t, '')} {t.title()}".strip() for t in types
@@ -96,8 +142,6 @@ def get_immunities_based_on_abilities(pokemon_name):
                 if len(formatted_types) > 1
                 else formatted_types[0]
             )
-            ability_name = ability.replace("-", " ").title()
-            ability_label = f"**__{ability_name} Ability__**"
 
             if ability == "thick-fat":
                 # Special case: Thick Fat halves damage
