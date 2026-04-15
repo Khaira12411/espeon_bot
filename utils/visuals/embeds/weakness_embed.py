@@ -9,7 +9,7 @@ from utils.function.stats_and_abilities_functions import (
     get_immunities_based_on_abilities,
 )
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-
+from config.aesthetic import Espeon_Emoji
 # -------------------- Constants --------------------
 type_emojis = {
     "grass": TYPE_EMOJI.grass,
@@ -340,7 +340,7 @@ def build_user_weakness_embed_w_o_cache(
         cache_note = (cached_data.get("note") or "").strip()
         full_description = cached_description or ""
         if cache_note:
-            full_description = f"{full_description}\n\nNotes:\n{cache_note}".strip()
+            full_description = f"{full_description}\n\n {Espeon_Emoji.notes} Notes:\n{cache_note}".strip()
         embed = discord.Embed(
             title=cache_title,
             description=full_description,
@@ -389,7 +389,7 @@ def build_user_weakness_embed_w_o_cache(
             note_text = str(notes[2]).strip()
         full_description = description
         if note_text:
-            full_description = f"{description}\n\nNotes:\n{note_text}"
+            full_description = f"{description}\n\n**Notes:**\n{note_text}"
 
         embed = discord.Embed(
             title=embed_title,

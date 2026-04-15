@@ -57,6 +57,7 @@ class Espeon_Emoji:
     purple_candle = "<:purplecandle:1411900896912347239>"
     sun = "<:sun:1413116327987773501>"
     moon = "<:moon:1413116647744475319>"
+    notes = "<:notes:1493803673342709810>"
 
 
 class Espeon_Thumbnail:

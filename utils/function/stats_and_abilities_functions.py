@@ -124,12 +124,12 @@ def get_immunities_based_on_abilities(pokemon_name):
                 if multiple:
                     if ability in hidden:
                         note_lines.append(
-                            f"> - If {ability_label} (Hidden Ability) is active: {desc}"
+                            f"- If {ability_label} (Hidden Ability) is active: {desc}"
                         )
                     else:
-                        note_lines.append(f"> - If {ability_label} is active: {desc}")
+                        note_lines.append(f"- If {ability_label} is active: {desc}")
                 else:
-                    note_lines.append(f"> - {ability_label}: {desc}")
+                    note_lines.append(f"- {ability_label}: {desc}")
 
                 continue
 
@@ -148,15 +148,15 @@ def get_immunities_based_on_abilities(pokemon_name):
                 if multiple:
                     if ability in hidden:
                         note_lines.append(
-                            f"> - If {ability_label} (Hidden Ability) is active, {pokemon_name.title()} takes only half damage from {type_str} moves."
+                            f"- If {ability_label} (Hidden Ability) is active, {pokemon_name.title()} takes only half damage from {type_str} moves."
                         )
                     else:
                         note_lines.append(
-                            f"> - If {ability_label} is active, {pokemon_name.title()} takes only half damage from {type_str} moves."
+                            f"- If {ability_label} is active, {pokemon_name.title()} takes only half damage from {type_str} moves."
                         )
                 else:
                     note_lines.append(
-                        f"> - {pokemon_name.title()} takes only half damage from {type_str} moves."
+                        f"- {pokemon_name.title()} takes only half damage from {type_str} moves."
                     )
 
             elif ability == "wonder-guard":
@@ -164,15 +164,15 @@ def get_immunities_based_on_abilities(pokemon_name):
                 if multiple:
                     if ability in hidden:
                         note_lines.append(
-                            f"> - If {ability_label} (Hidden Ability) is active, only super effective moves can hit {pokemon_name.title()}."
+                            f"- If {ability_label} (Hidden Ability) is active, only super effective moves can hit {pokemon_name.title()}."
                         )
                     else:
                         note_lines.append(
-                            f"> - If {ability_label} is active, only super effective moves can hit {pokemon_name.title()}."
+                            f"- If {ability_label} is active, only super effective moves can hit {pokemon_name.title()}."
                         )
                 else:
                     note_lines.append(
-                        f"> - Only super effective moves can hit {pokemon_name.title()}, thanks to Wonder Guard."
+                        f"- Only super effective moves can hit {pokemon_name.title()}, thanks to Wonder Guard."
                     )
 
             else:
@@ -181,29 +181,29 @@ def get_immunities_based_on_abilities(pokemon_name):
                     if ability in hidden:
                         if desc:
                             note_lines.append(
-                                f"> - If {ability_label} (Hidden Ability) is active, {pokemon_name.title()} is immune to {type_str}, and {desc}"
+                                f"- If {ability_label} (Hidden Ability) is active, {pokemon_name.title()} is immune to {type_str}, and {desc}"
                             )
                         else:
                             note_lines.append(
-                                f"> - If {ability_label} (Hidden Ability) is active, {pokemon_name.title()} is immune to {type_str}."
+                                f"- If {ability_label} (Hidden Ability) is active, {pokemon_name.title()} is immune to {type_str}."
                             )
                     else:
                         if desc:
                             note_lines.append(
-                                f"> - If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}, and {desc}"
+                                f"- If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}, and {desc}"
                             )
                         else:
                             note_lines.append(
-                                f"> - If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}."
+                                f"- If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}."
                             )
                 else:
                     if desc:
                         note_lines.append(
-                            f"> - If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}, and {desc}"
+                            f"- If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}, and {desc}"
                         )
                     else:
                         note_lines.append(
-                            f"> - If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}."
+                            f"- If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}."
                         )
         note = "\n".join(note_lines)
 
