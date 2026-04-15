@@ -107620,7 +107620,7 @@ pokemons = {'abomasnow': {'abilities': {'hidden': ['soundproof'], 'standard': ['
                                           'special-defense': 85,
                                           'speed': 115,
                                           'weight': 33.5}},
- 'zygarde-50': {'abilities': {'hidden': [], 'standard': ['aura-break']},
+ 'zygarde': {'abilities': {'hidden': [], 'standard': ['aura-break']},
                 'moves': ['bind',
                           'body-slam',
                           'bite',
