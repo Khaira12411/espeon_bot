@@ -199,11 +199,11 @@ def get_immunities_based_on_abilities(pokemon_name):
                 else:
                     if desc:
                         note_lines.append(
-                            f"- If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}, and {desc}"
+                            f"- {ability_label}: {pokemon_name.title()} is immune to {type_str}, and {desc}"
                         )
                     else:
                         note_lines.append(
-                            f"- If {ability_label} is active, {pokemon_name.title()} is immune to {type_str}."
+                            f"- {ability_label}: {pokemon_name.title()} is immune to {type_str}."
                         )
         note = "\n".join(note_lines)
 
