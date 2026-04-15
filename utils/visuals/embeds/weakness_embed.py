@@ -336,6 +336,7 @@ def build_user_weakness_embed_w_o_cache(
         cache_title = cached_data.get("title")
         cached_description = cached_data.get("description")
         cache_footer = cached_data.get("footer")
+
         cache_color = cached_data.get("color", 0x74CEC0)
         cache_note = (cached_data.get("note") or "").strip()
         full_description = cached_description or ""
@@ -389,7 +390,9 @@ def build_user_weakness_embed_w_o_cache(
             note_text = str(notes[2]).strip()
         full_description = description
         if note_text:
-            full_description = f"{description}\n\n**Notes:**\n{note_text}"
+            full_description = (
+                f"{description}\n\n {Espeon_Emoji.notes} **Notes:**\n{note_text}"
+            )
 
         embed = discord.Embed(
             title=embed_title,
