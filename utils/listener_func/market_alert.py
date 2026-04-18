@@ -53,6 +53,9 @@ SNIPE_MAP = {
     "event_exclusive": {"role": STRAYMONS__ROLES.event_exclusive_snipe},
 }
 PRE_MEGA_LIST = [
+    "Dragalge",
+    "Hawlucha",
+    "Barbaracle",
     "Venusaur",
     "Charizard",
     "Blastoise",
