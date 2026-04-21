@@ -59,25 +59,30 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
         match.groups()
     )
 
-    emoji_tags = re.findall(r"<:[^:>]+:\d+>", emoji_block)
-    if not emoji_tags:
+    emoji_matches = re.findall(r"<:([^:>]+):(\d+)>", emoji_block)
+    if not emoji_matches:
         debug_log(
             f"Could not extract Pokémon emoji tag from: {emoji_block!r}. Exiting."
         )
         return
+    emoji_tags = [f"<:{name}:{emoji_id}>" for name, emoji_id in emoji_matches]
 
     # NOTE (embed title parsing rule):
-    # 1) If a pokeball emoji exists in the emoji block, use the emoji immediately after it.
-    # 2) Otherwise, use the last emoji before the Pokemon name.
-    # This avoids selecting the ball icon itself as the tracked Pokemon emoji.
-    pokeball_idx = next(
-        (i for i, tag in enumerate(emoji_tags) if re.match(r"<:pokeball:\d+>", tag)),
+    # 1) If a ball emoji exists in the emoji block, use the emoji immediately after it.
+    # 2) Otherwise, use the first emoji before the Pokemon name.
+    # This avoids selecting form/status emojis (for example, Golden) as the tracked Pokemon emoji.
+    ball_idx = next(
+        (
+            i
+            for i, (name, _emoji_id) in enumerate(emoji_matches)
+            if "ball" in name.lower()
+        ),
         None,
     )
-    if pokeball_idx is not None and pokeball_idx + 1 < len(emoji_tags):
-        pokemon_emoji_tag = emoji_tags[pokeball_idx + 1]
+    if ball_idx is not None and ball_idx + 1 < len(emoji_tags):
+        pokemon_emoji_tag = emoji_tags[ball_idx + 1]
     else:
-        pokemon_emoji_tag = emoji_tags[-1]
+        pokemon_emoji_tag = emoji_tags[0]
 
     pokemon_name = pokemon_name.strip() or None
     debug_log(
