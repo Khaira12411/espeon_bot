@@ -36,7 +36,11 @@ async def upsert_mr_user_setting(bot, user_id: int, user_name: str, display_type
         )
         # Upsert in cache as well
         from utils.cache.mr_weakness_cache import insert_mr_user
+        from utils.cache.cache_list import not_weakness_chart_user_names
+
         insert_mr_user(user_id, user_name, display_type)
+        if user_name in not_weakness_chart_user_names:
+            not_weakness_chart_user_names.remove(user_name)
 
 async def update_user_name(bot, user_id: int, new_user_name: str):
     """

@@ -18,7 +18,7 @@ from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.weakness_embed import build_user_weakness_embed_w_o_cache
 
-# enable_debug(f"{__name__}.weakness_chart")
+#enable_debug(f"{__name__}.weakness_chart")
 
 
 async def _retry_discord_send(send_func, *, retries: int = 3, delay: float = 1.5):

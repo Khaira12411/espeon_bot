@@ -26,6 +26,7 @@ from utils.listener_func.wb_sub import ping_wb_subscribers
 from utils.loggers.espeon_log import espeon_log
 from utils.quick_codes.petal_lace_event_post import post_news_func
 from utils.listener_func.battle_weakness import weakness_chart
+from utils.listener_func.message_listener_tester import test_message_listener
 MARKETFEED_CHANNELS = {
     STRAYMONS__TEXT_CHANNELS.ic_u_r_s_market_feed,
     STRAYMONS__TEXT_CHANNELS.iiishiny_market_feed,
@@ -129,6 +130,20 @@ class MessageCreateListener(commands.Cog):
             first_embed_title = (
                 first_embed.title if first_embed and first_embed.title else ""
             )
+
+            # 💜────────────────────────────────────────────
+            #          🧪 Message Test Listener
+            # 💜────────────────────────────────────────────
+            if (
+                message.content
+                and message.content.startswith("etest")
+                and message.author.id == KHY_USER_ID
+            ):
+                espeon_log(
+                    "info",
+                    f"Running message listener tests for message ID: {message.id}",
+                )
+                await test_message_listener(bot=self.bot, message=message)
             # ✨───────────────────────────────────────────────✨
             # 🪻 MARKET ALERT
             # ✨───────────────────────────────────────────────✨
