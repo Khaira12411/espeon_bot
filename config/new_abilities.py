@@ -175,9 +175,9 @@ abilities = {
         "effect": "",
         "pokemons": {"hidden": [], "standard": ["calyrex-ice"]},
     },
-    "as-one-spectrier": {
+    "as-one": {
         "effect": "",
-        "pokemons": {"hidden": [], "standard": ["calyrex-shadow"]},
+        "pokemons": {"hidden": [], "standard": ["calyrex-shadow", "calyrex-ice"]},
     },
     "aura-break": {
         "effect": "While this Pokémon is on the field, dark aura and fairy aura weaken moves of their "
@@ -905,7 +905,7 @@ abilities = {
         "This ability functions identically to solid rock.",
         "pokemons": {
             "hidden": ["revavroom"],
-            "standard": ["mr-mime", "mime-jr", "aggron-mega"],
+            "standard": ["mrmime", "mimejr", "aggron-mega"],
         },
     },
     "flame-body": {
@@ -1423,9 +1423,9 @@ abilities = {
             "hidden": [
                 "rattata",
                 "raticate",
-                "nidoran-f",
+                "nidoranf",
                 "nidorina",
-                "nidoran-m",
+                "nidoranm",
                 "nidorino",
                 "combee",
                 "rufflet",
@@ -1521,11 +1521,11 @@ abilities = {
                 "dewgong",
                 "regice",
                 "glaceon",
-                "mr-rime",
+                "mrrime",
                 "frigibax",
                 "arctibax",
                 "baxcalibur",
-                "mr-mime-galar",
+                "mrmime-galar",
             ],
             "standard": [
                 "snorunt",
@@ -2814,10 +2814,10 @@ abilities = {
         "pokemons": {
             "hidden": [],
             "standard": [
-                "nidoran-f",
+                "nidoranf",
                 "nidorina",
                 "nidoqueen",
-                "nidoran-m",
+                "nidoranm",
                 "nidorino",
                 "nidoking",
                 "seadra",
@@ -3254,10 +3254,10 @@ abilities = {
         "pokemons": {
             "hidden": ["beautifly", "pidove", "tranquill", "unfezant"],
             "standard": [
-                "nidoran-f",
+                "nidoranf",
                 "nidorina",
                 "nidoqueen",
-                "nidoran-m",
+                "nidoranm",
                 "nidorino",
                 "nidoking",
                 "shinx",
@@ -3559,7 +3559,7 @@ abilities = {
     "screen-cleaner": {
         "effect": "When the Pokémon enters a battle, the effects of Light Screen, Reflect, and Aurora Veil "
         "are nullified for both opposing and ally Pokémon.",
-        "pokemons": {"hidden": [], "standard": ["mr-rime", "mr-mime-galar"]},
+        "pokemons": {"hidden": [], "standard": ["mrrime", "mrmime-galar"]},
     },
     "seed-sower": {
         "effect": "Turns the ground into Grassy Terrain when the Pokémon is hit by an attack.",
@@ -3949,11 +3949,11 @@ abilities = {
             "standard": [
                 "voltorb",
                 "electrode",
-                "mr-mime",
+                "mrmime",
                 "whismur",
                 "loudred",
                 "exploud",
-                "mime-jr",
+                "mimejr",
                 "jangmo-o",
                 "hakamo-o",
                 "kommo-o",
@@ -4482,7 +4482,7 @@ abilities = {
                 "pidgeot",
                 "spinda",
                 "chatot",
-                "mr-rime",
+                "mrrime",
                 "flamigo",
             ],
         },
@@ -4500,11 +4500,11 @@ abilities = {
         "defense curl's power boost for rollout.",
         "pokemons": {
             "hidden": [
-                "mr-mime",
+                "mrmime",
                 "breloom",
                 "kricketune",
                 "roserade",
-                "mime-jr",
+                "mimejr",
                 "toxtricity-amped",
                 "clobbopus",
                 "grapploct",
@@ -4969,7 +4969,7 @@ abilities = {
                 "rockruff",
                 "annihilape",
                 "lycanroc-midnight",
-                "mr-mime-galar",
+                "mrmime-galar",
             ],
         },
     },
