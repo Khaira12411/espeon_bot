@@ -173,7 +173,7 @@ abilities = {
     },
     "as-one-glastrier": {
         "effect": "",
-        "pokemons": {"hidden": [], "standard": ["calyrex-ice"]},
+        "pokemons": {"hidden": [], "standard": [""]},
     },
     "as-one": {
         "effect": "",
@@ -182,7 +182,10 @@ abilities = {
     "aura-break": {
         "effect": "While this Pokémon is on the field, dark aura and fairy aura weaken moves of their "
         "respective types to 2/3 their power, rather than strengthening them.",
-        "pokemons": {"hidden": [], "standard": ["zygarde-50", "zygarde-10"]},
+        "pokemons": {
+            "hidden": [],
+            "standard": ["zygarde", "zygarde-10", "zygarde-complete"],
+        },
     },
     "bad-dreams": {
         "effect": "Opposing Pokémon take 1/8 of their maximum HP in damage after each turn while they are "
@@ -2865,11 +2868,7 @@ abilities = {
         "Zygarde.",
         "pokemons": {
             "hidden": [],
-            "standard": [
-                "zygarde-10-power-construct",
-                "zygarde-50-power-construct",
-                "zygarde-complete",
-            ],
+            "standard": [],
         },
     },
     "power-nap": {"effect": "", "pokemons": {"hidden": [], "standard": []}},

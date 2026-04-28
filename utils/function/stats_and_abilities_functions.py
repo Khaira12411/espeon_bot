@@ -54,6 +54,9 @@ abilities_to_watch_out_for = {
     "Flare Boost": "Increases Special Attack by 50% when burned.",
     "Toxic Boost": "Increases Attack by 50% when poisoned.",
     "Poison Heal": "When poisoned, the Pokémon heals HP instead of taking damage each turn.",
+    "Swift Swim": "Doubles Speed during rain.",
+    "Chlorophyll": "Doubles Speed during harsh sunlight.",
+    "Sand Rush": "Doubles Speed during a sandstorm.",
 }
 
 
