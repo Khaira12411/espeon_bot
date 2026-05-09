@@ -13,15 +13,13 @@ async def fetch_all_tracked_evs(bot):
     """
     try:
         async with bot.pg_pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
+            rows = await conn.fetch("""
                 SELECT user_id, user_name, pokemon, dex_number,
                        hp, atk, spa, def, spd, spe,
                        hp_goal, atk_goal, spa_goal, def_goal, spd_goal, spe_goal,
                        emoji_id
                 FROM ev_tracker
-                """
-            )
+                """)
         return rows
     except Exception as e:
         espeon_log(
@@ -64,18 +62,18 @@ async def add_or_update_ev(
                     user_name = EXCLUDED.user_name,
                     pokemon = EXCLUDED.pokemon,
                     dex_number = COALESCE(EXCLUDED.dex_number, ev_tracker.dex_number),
-                    hp = COALESCE(EXCLUDED.hp, ev_tracker.hp),
-                    atk = COALESCE(EXCLUDED.atk, ev_tracker.atk),
-                    spa = COALESCE(EXCLUDED.spa, ev_tracker.spa),
-                    def = COALESCE(EXCLUDED.def, ev_tracker.def),
-                    spd = COALESCE(EXCLUDED.spd, ev_tracker.spd),
-                    spe = COALESCE(EXCLUDED.spe, ev_tracker.spe),
-                    hp_goal = COALESCE(EXCLUDED.hp_goal, ev_tracker.hp_goal),
-                    atk_goal = COALESCE(EXCLUDED.atk_goal, ev_tracker.atk_goal),
-                    spa_goal = COALESCE(EXCLUDED.spa_goal, ev_tracker.spa_goal),
-                    def_goal = COALESCE(EXCLUDED.def_goal, ev_tracker.def_goal),
-                    spd_goal = COALESCE(EXCLUDED.spd_goal, ev_tracker.spd_goal),
-                    spe_goal = COALESCE(EXCLUDED.spe_goal, ev_tracker.spe_goal),
+                    hp = EXCLUDED.hp,
+                    atk = EXCLUDED.atk,
+                    spa = EXCLUDED.spa,
+                    def = EXCLUDED.def,
+                    spd = EXCLUDED.spd,
+                    spe = EXCLUDED.spe,
+                    hp_goal = EXCLUDED.hp_goal,
+                    atk_goal = EXCLUDED.atk_goal,
+                    spa_goal = EXCLUDED.spa_goal,
+                    def_goal = EXCLUDED.def_goal,
+                    spd_goal = EXCLUDED.spd_goal,
+                    spe_goal = EXCLUDED.spe_goal,
                     emoji_id = COALESCE(EXCLUDED.emoji_id, ev_tracker.emoji_id),
                     updated_at = CURRENT_TIMESTAMP
                 """,
@@ -130,6 +128,7 @@ async def update_emoji_id(bot, user_id: int, emoji_id: str):
         )
         # Update cache as well
         from utils.cache.ev_tracker_cache import update_emoji_id_cache
+
         update_emoji_id_cache(user_id, emoji_id)
     except Exception as e:
         espeon_log(
