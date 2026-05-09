@@ -14,12 +14,12 @@ from utils.visuals.embeds.ev_tracker_embed import build_ev_tracker_embed
 trainer_emoji = "<:trainer_brendan:1370001925092806706>"
 
 EV_MAP = {
-    "hp": {"trainer_name": "pie1_hp", "att_full": "HP"},
-    "atk": {"trainer_name": "pie10_attack", "att_full": "Attack"},
-    "spa": {"trainer_name": "pie2_specialattack", "att_full": "Sp. Attack"},
-    "def": {"trainer_name": "pie3_defense", "att_full": "Defense"},
-    "spd": {"trainer_name": "pie7_specialdefense", "att_full": "Sp. Defense"},
-    "spe": {"trainer_name": "pie4_speed", "att_full": "Speed"},
+    "hp": {"trainer_names": ["pie1_hp", "Ice"], "att_full": "HP"},
+    "atk": {"trainer_names": ["pie10_attack"], "att_full": "Attack"},
+    "spa": {"trainer_names": ["pie2_specialattack"], "att_full": "Sp. Attack"},
+    "def": {"trainer_names": ["pie3_defense"], "att_full": "Defense"},
+    "spd": {"trainer_names": ["pie7_specialdefense"], "att_full": "Sp. Defense"},
+    "spe": {"trainer_names": ["pie4_speed"], "att_full": "Speed"},
 }
 
 # ✨───────────────────────────────────────────────✨
@@ -109,7 +109,7 @@ async def handle_pokemeow_battle_message(bot, message: discord.Message):
     awarded_any = False
 
     for stat, info in EV_MAP.items():
-        if stat in tracked_evs and info["trainer_name"] in title:
+        if stat in tracked_evs and any(name in title for name in info["trainer_names"]):
             goal = tracked_goals.get(stat)
             current = updated_evs.get(stat, 0)
             # Only award if under goal or if no goal
