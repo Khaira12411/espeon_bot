@@ -2,11 +2,14 @@
 import discord
 
 from utils.cache.cache_list import ev_tracker_cache
-from utils.group_func.ev_tracker.ev_tracker_db_func import add_or_update_ev
+from utils.group_func.ev_tracker.ev_tracker_db_func import (
+    add_or_update_ev,
+    delete_tracked_ev,
+)
 from utils.loggers.debug_log import debug_log, enable_debug
 from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.visuals.embeds.ev_tracker_embed import build_ev_tracker_embed
-from utils.group_func.ev_tracker.ev_tracker_db_func import delete_tracked_ev
+
 # enable_debug(f"{__name__}.handle_pokemeow_battle_message")
 trainer_emoji = "<:trainer_brendan:1370001925092806706>"
 
@@ -132,6 +135,7 @@ async def handle_pokemeow_battle_message(bot, message: discord.Message):
             pokemon=tracked_data["pokemon"],
             dex_number=tracked_data.get("dex_number"),
             evs=updated_evs,
+            goals=tracked_goals,
         )
         ev_tracker_cache[user_id]["evs"] = updated_evs
 
