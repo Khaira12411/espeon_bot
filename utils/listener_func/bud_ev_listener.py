@@ -199,6 +199,7 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
 
     # Save to DB and cache
     try:
+        tracked_goals = tracked_data.get("goals", {})
         await add_or_update_ev(
             bot=bot,
             user_id=user_id,
@@ -206,6 +207,7 @@ async def handle_pokemeow_embed_sync(bot, message: discord.Message):
             pokemon=tracked_data["pokemon"],
             dex_number=tracked_data.get("dex_number"),
             evs=tracked_evs,
+            goals=tracked_goals,
         )
         ev_tracker_cache[user_id]["evs"] = tracked_evs
         debug_log(f"Successfully updated EVs for {user_name}: {tracked_evs}")
