@@ -1,15 +1,17 @@
 # -------------------- Imports --------------------
 import discord
 
+from config.aesthetic import Espeon_Emoji
 from config.emojis import TYPE_EMOJI
 from config.form_base_names import FORM_BASE_NAMES
 from config.weakness_chart import weakness_chart
+from utils.function.pokemon_func import get_dex_number_by_name
 from utils.function.stats_and_abilities_functions import (
     format_pokemon_abilities,
     get_immunities_based_on_abilities,
 )
 from utils.loggers.espeon_log import EspeonContext, espeon_log
-from config.aesthetic import Espeon_Emoji
+
 # -------------------- Constants --------------------
 type_emojis = {
     "grass": TYPE_EMOJI.grass,
@@ -153,11 +155,20 @@ def get_pokemon_from_input(pokemon_input: str):
             break
 
     normalized_name = pokemon.replace(" ", "-")
+    lookup_name = normalized_name
+
+    # Unown letter forms all use the same weakness chart as base Unown.
+    if normalized_name.startswith("unown-"):
+        lookup_name = "unown"
+        dex_val = get_dex_number_by_name(normalized_name)
+        if dex_val is None:
+            dex_val = int(weakness_chart[lookup_name]["dex"])
+        return normalized_name, shiny_golden_tag, dex_val, lookup_name
 
     # Name lookup
-    if normalized_name in weakness_chart:
-        dex_val = int(weakness_chart[normalized_name]["dex"])
-        return normalized_name, shiny_golden_tag, dex_val
+    if lookup_name in weakness_chart:
+        dex_val = int(weakness_chart[lookup_name]["dex"])
+        return normalized_name, shiny_golden_tag, dex_val, lookup_name
 
     # Dex input
     if pokemon.isdigit():
@@ -166,14 +177,17 @@ def get_pokemon_from_input(pokemon_input: str):
         dex_int = int(pokemon)
         dex_count = len(dex_str)
 
-        return parse_normal_pokemon(dex_int, first_index, dex_count)
+        variant_name, shiny_golden_tag, base_dex = parse_normal_pokemon(
+            dex_int, first_index, dex_count
+        )
+        return variant_name, shiny_golden_tag, base_dex, variant_name
 
     espeon_log(
         "error",
         f"Unresolved Pokemon input: '{pokemon_input}'",
         context=EspeonContext.ESPEON,
     )
-    return None, None, None
+    return None, None, None, None
 
 
 def clean_display_name(variant_name: str, shiny_golden_tag: str | None = None) -> str:
@@ -198,12 +212,14 @@ def clean_display_name(variant_name: str, shiny_golden_tag: str | None = None) -
 
 # -------------------- Embed Builder --------------------
 def build_weakness_embed_from_input(pokemon_input: str) -> discord.Embed | None:
-    variant_name, shiny_golden_tag, base_dex = get_pokemon_from_input(pokemon_input)
+    variant_name, shiny_golden_tag, base_dex, lookup_name = get_pokemon_from_input(
+        pokemon_input
+    )
 
     if not variant_name:
         return None
 
-    weaknesses = weakness_chart.get(variant_name)
+    weaknesses = weakness_chart.get(lookup_name)
     if not weaknesses:
         espeon_log(
             "warn",
@@ -282,11 +298,13 @@ def build_user_weakness_embed(
     user_cache: dict[int, str],  # <-- pass the cache here
 ) -> discord.Embed | None:
 
-    variant_name, shiny_golden_tag, base_dex = get_pokemon_from_input(pokemon_input)
+    variant_name, shiny_golden_tag, base_dex, lookup_name = get_pokemon_from_input(
+        pokemon_input
+    )
     if not variant_name:
         return None
 
-    weaknesses = weakness_chart.get(variant_name)
+    weaknesses = weakness_chart.get(lookup_name)
     if not weaknesses:
         espeon_log(
             "warn",
@@ -352,11 +370,13 @@ def build_user_weakness_embed_w_o_cache(
         return embed
     else:
 
-        variant_name, shiny_golden_tag, base_dex = get_pokemon_from_input(pokemon_input)
+        variant_name, shiny_golden_tag, base_dex, lookup_name = get_pokemon_from_input(
+            pokemon_input
+        )
         if not variant_name:
             return None
 
-        weaknesses = weakness_chart.get(variant_name)
+        weaknesses = weakness_chart.get(lookup_name)
         if not weaknesses:
             espeon_log(
                 "warn",
@@ -383,8 +403,8 @@ def build_user_weakness_embed_w_o_cache(
 
         description = format_weakness_description(weaknesses, mode=display_type)
 
-        footer_text = format_pokemon_abilities(variant_name)
-        notes = get_immunities_based_on_abilities(variant_name)
+        footer_text = format_pokemon_abilities(lookup_name)
+        notes = get_immunities_based_on_abilities(lookup_name)
         note_text = ""
         if notes and len(notes) > 2 and notes[2]:
             note_text = str(notes[2]).strip()
