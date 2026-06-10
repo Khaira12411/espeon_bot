@@ -11,6 +11,7 @@ from utils.cache.cache_list import WB_PING_CACHE
 #   ✨ Espeon Core Function › WB SUB PINGER ✨
 # 🤍━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+
 async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
     """
     Ping all users subscribed to a world boss based on the message content.
@@ -21,8 +22,8 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
     try:
         # Early exit if cache is empty
         if not WB_PING_CACHE:
-            return # no subscribers
-        
+            return  # no subscribers
+
         content = str(message.content).lower()
 
         # Extract boss_name after 'gigantamax-'
@@ -41,6 +42,7 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
 
         display_boss_name = f"{emoji} Gigantamax-{boss_name.title()}"
         pings_by_channel: Dict[int, list[int]] = {}
+        dm_user_ids: list[tuple[int, int | None]] = []  # (user_id, channel_id)
 
         for user_id, bosses in WB_PING_CACHE.items():
             if not isinstance(bosses, dict):
@@ -54,34 +56,47 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
                     sub_boss_name = str(sub_boss_name_raw).lower()
                     sub_variant = str(info.get("variant", "regular")).lower()
                     channel_id = info.get("channel_id")
-                    if not isinstance(channel_id, int):
-                        print(
-                            f"[ping_wb_subscribers] Skipping {user_id} {sub_boss_name}: invalid channel_id"
-                        )
-                        continue
+                    mode = str(info.get("mode", "channel")).lower()
 
                     # Boss & variant match
                     if sub_boss_name != boss_name:
                         continue
 
-                    if (variant == "shiny" and sub_variant in ("shiny", "both")) or (
-                        variant == "regular" and sub_variant in ("regular", "both")
+                    if not (
+                        (variant == "shiny" and sub_variant in ("shiny", "both"))
+                        or (variant == "regular" and sub_variant in ("regular", "both"))
                     ):
+                        continue
+
+                    if mode == "dm":
+                        dm_user_ids.append(
+                            (
+                                user_id,
+                                channel_id if isinstance(channel_id, int) else None,
+                            )
+                        )
+                    else:
+                        if not isinstance(channel_id, int):
+                            print(
+                                f"[ping_wb_subscribers] Skipping {user_id} {sub_boss_name}: invalid channel_id"
+                            )
+                            continue
                         pings_by_channel.setdefault(channel_id, []).append(user_id)
 
                 except Exception as inner_e:
                     print(
                         f"[ping_wb_subscribers] Skipping subscription for user {user_id}, boss '{sub_boss_name_raw}': {inner_e}\nEntry: {info}"
                     )
-        #
-        # Send pings
+
+        # Send channel pings
         for channel_id, user_ids in pings_by_channel.items():
             try:
                 mentions = " ".join(f"<@{uid}>" for uid in set(user_ids))
                 channel = bot.get_channel(channel_id)
                 if channel:
                     await channel.send(
-                        f"{Espeon_Emoji.purple_heart_message} {mentions} {display_boss_name} has spawned! Don't forget to register your team ~"
+                        f"{Espeon_Emoji.purple_heart_message} {mentions} {display_boss_name} has spawned! Don't forget to register your team ~",
+                        allowed_mentions=discord.AllowedMentions(users=True),
                     )
                 else:
                     for uid in set(user_ids):
@@ -97,6 +112,34 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
                 print(
                     f"[ping_wb_subscribers] Failed to send in channel {channel_id}: {send_e}"
                 )
+
+        # Send DMs for users with mode = "dm"
+        for uid, fallback_channel_id in set(dm_user_ids):
+            try:
+                user = await bot.fetch_user(uid)
+                await user.send(
+                    f"{Espeon_Emoji.purple_heart_message} {display_boss_name} has spawned! Don't forget to register your team ~"
+                )
+            except Exception as dm_e:
+                print(
+                    f"[ping_wb_subscribers] Failed to DM {uid}: {dm_e} — trying channel fallback"
+                )
+                if fallback_channel_id:
+                    try:
+                        channel = bot.get_channel(fallback_channel_id)
+                        if channel:
+                            await channel.send(
+                                f"{Espeon_Emoji.purple_heart_message} <@{uid}> {display_boss_name} has spawned! Don't forget to register your team ~",
+                                allowed_mentions=discord.AllowedMentions(users=True),
+                            )
+                        else:
+                            print(
+                                f"[ping_wb_subscribers] Fallback channel {fallback_channel_id} not found for {uid}"
+                            )
+                    except Exception as fallback_e:
+                        print(
+                            f"[ping_wb_subscribers] Fallback channel send failed for {uid}: {fallback_e}"
+                        )
 
     except Exception as e:
         print(f"[ping_wb_subscribers] General failure: {e}")

@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS
+from config.straymons_constants import STRAYMONS__ROLES, STRAYMONS__TEXT_CHANNELS, ERI_USER_ID, HANA_USER_ID
 from config.wb_constants import *
 from utils.database.personal_channel import *
 from utils.visuals.embeds.visual_helpers import design_embed, format_bulletin_desc
@@ -49,7 +49,11 @@ async def wb_sub_add_func(
             )
             if member_channel_id:
                 ping_channel_id = member_channel_id
-
+        if user.id == ERI_USER_ID:
+            ping_channel_id = STRAYMONS__TEXT_CHANNELS.play_2
+        elif user.id == HANA_USER_ID:
+            ping_channel_id = STRAYMONS__TEXT_CHANNELS.play_1
+            
         # Insert/update subscription
         await sync_upsert_wb_ping(
             bot=bot,
