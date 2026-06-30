@@ -511,6 +511,12 @@ async def process_market_alert_message(
 
                 if role:
                     content += role.mention + " "
+                else:
+                    # role_id set but role not found in either guild → fall back to user mention
+                    content += f"<@{alert['user_id']}> "
+            else:
+                # No role_id configured → use user mention
+                content += f"<@{alert['user_id']}> "
 
             content += f"{poke_name} on market for {PokeCoin} {listed_price:,}"
             # Send

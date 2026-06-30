@@ -226,3 +226,14 @@ def _log_cache_size(action: str):
         message=f"{action} — cache now has {len(market_alert_cache)} alerts (~{size_kb:.2f} KB)",
         context=EspeonContext.STRAYMONS,
     )
+
+def get_user_id_from_market_index(pokemon_name: str, channel_id: int) -> int | None:
+    """
+    Retrieve the user_id for a given pokemon and channel from the market alert index.
+    Returns None if not found.
+    """
+    key = (pokemon_name.lower(), channel_id)
+    for k in _market_alert_index.keys():
+        if k[0] == key[0] and k[1] == key[1]:
+            return k[2]  # Return user_id
+    return None
