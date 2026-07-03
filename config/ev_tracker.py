@@ -7,7 +7,7 @@ EV_MAP = {
         "trainer_name": f"{trainer_emoji}pie2_specialattack",
         "att_full": "Sp. Attack",
     },
-    "def": {"trainer_name": f"{trainer_emoji}pie3_defense", "att_full": "Defense"},
+    "def": {"trainer_name": f"{trainer_emoji}pie5_defense", "att_full": "Defense"},
     "spd": {
         "trainer_name": f"{trainer_emoji}pie7_specialdefense",
         "att_full": "Sp. Defense",
