@@ -14,10 +14,10 @@ from utils.visuals.embeds.ev_tracker_embed import build_ev_tracker_embed
 trainer_emoji = "<:trainer_brendan:1370001925092806706>"
 
 EV_MAP = {
-    "hp": {"trainer_names": ["pie1_hp", "Ice"], "att_full": "HP"},
+    "hp": {"trainer_names": ["pie1_hp", "Ice", "yki.on"], "att_full": "HP"},
     "atk": {"trainer_names": ["pie10_attack"], "att_full": "Attack"},
     "spa": {"trainer_names": ["pie2_specialattack"], "att_full": "Sp. Attack"},
-    "def": {"trainer_names": ["pie3_defense"], "att_full": "Defense"},
+    "def": {"trainer_names": ["pie5_defense"], "att_full": "Defense"},
     "spd": {"trainer_names": ["pie7_specialdefense"], "att_full": "Sp. Defense"},
     "spe": {"trainer_names": ["pie4_speed"], "att_full": "Speed"},
 }
