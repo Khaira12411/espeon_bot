@@ -1,6 +1,8 @@
 # 💫━━━━━━━━━━━━━━━━━━━━━━━━━
 #       🌸 Market Alert Cache 🌸
 # 💫━━━━━━━━━━━━━━━━━━━━━━━━━
+from typing import Any, Optional
+
 import discord
 
 
@@ -216,10 +218,60 @@ weakness_data_cache: dict[str, dict] = {}
 # "color": int,
 #   },
 
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━
+#       🌸 Clan Promo Cache 🌸
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━
+clan_promo_cache: dict[str, dict] = {}
+# Structure:
+# {
+#   promo_name: {
+#       "id": int,                  # primary key in DB
+#       "name": str,                # promo name
+#       "prize": str,               # prize description
+#       "image_url": str,           # image link
+#       "catch_rate": int,          # catch rate
+#       "battle_rate": int,         # battle rate
+#       "fish_rate": int,           # fish rate
+#       "whitelist_role_id": Optional[int],  # role restriction
+#       "number_before_claim": int, # attempts before claim
+#       "ends_on": Optional[int],   # unix seconds
+#       "updated_at": str,          # timestamp string
+#   }
+# }
 
 
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━
+#       🌸 Clan Promo Item Cache 🌸
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━
+clan_promo_item_cache: dict[tuple[str, int], dict] = {}
+# Structure:
+# {
+#   (promo_name, user_id): {
+#       "promo_name": str,
+#       "user_id": int,
+#       "user_name": str,
+#       "drops": int,
+#   },
+#   ...
+
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━
+#       🌸 Market Value Cache 🌸
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━
 market_value_cache: dict[str, dict] = {}
 
+
+# 🍩────────────────────────────────────────────
+#        💤 Pokemon List Cache
+# 🍩────────────────────────────────────────────
+pokemon_list_cache: dict[str, int] = {}
+# Structure:
+# pokemon_list_cache = {
+#     "pokemon_name": "dex_number",
+#     }
+
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━
+#      🌸 Processed Message IDs Cache 🌸
+# 💫━━━━━━━━━━━━━━━━━━━━━━━━━
 processed_weakness_messages: set[int] = set()
 processed_rare_catches = set()
 processed_market_feed_message_ids = set()

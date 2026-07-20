@@ -9,24 +9,26 @@ from utils.cache.cache_list import (
     WB_PING_CACHE,
     ev_tracker_cache,
     market_alert_cache,
+    market_value_cache,
     mr_weakness_user_cache,
     server_shop_cache,
-    user_balance_cache,
     straymon_member_cache,
+    user_balance_cache,
     webhook_url_cache,
-    market_value_cache
-
 )
+from utils.cache.clan_promo_cache import load_active_promo_cache
+from utils.cache.clan_promo_item_cache import load_member_promo_item_cache
 from utils.cache.ev_tracker_cache import load_ev_tracker_cache
 from utils.cache.market_alert_cache import load_market_alert_cache
 from utils.cache.mr_weakness_cache import load_mr_weakness_user_cache
-from utils.cache.wb_sub_cache import load_wb_ping_cache
-from utils.loggers.espeon_log import EspeonContext, espeon_log
 from utils.cache.server_shop_cache import load_server_shop_cache
-from utils.cache.user_balance_cache import load_user_balance_cache
 from utils.cache.straymons_members_cache import load_straymon_members_cache
+from utils.cache.user_balance_cache import load_user_balance_cache
+from utils.cache.wb_sub_cache import load_wb_ping_cache
 from utils.cache.webhook_url_cache import load_webhook_url_cache
 from utils.database.market_value_db import load_market_cache_from_db
+from utils.loggers.espeon_log import EspeonContext, espeon_log
+
 
 # 💜────────────────────────────────────────────
 #     🟣 Load Everything in One Go
@@ -66,6 +68,12 @@ async def load_all_caches(bot):
 
         # Load Market Value Cache from database
         await load_market_cache_from_db(bot)
+
+        # 🎀 Load Clan Promo Cache
+        await load_active_promo_cache(bot)
+
+        # 🎀 Load Clan Promo Item Cache
+        await load_member_promo_item_cache(bot)
 
         # 🎀 Unified summary log
         espeon_log(
@@ -120,13 +128,11 @@ async def fetch_all_caches_from_db(bot):
         async with bot.pg_pool.acquire() as conn:
             async with conn.transaction():
                 # 📌 Market Alerts
-                ma_rows = await conn.fetch(
-                    """
+                ma_rows = await conn.fetch("""
                     SELECT user_id, pokemon, dex_number, max_price, channel_id, role_id, notify
                     FROM market_alerts
                     WHERE notify = TRUE
-                    """
-                )
+                    """)
                 results["market_alerts"] = [dict(r) for r in ma_rows]
 
                 # 📌 Mr. Weakness
@@ -136,14 +142,12 @@ async def fetch_all_caches_from_db(bot):
                 results["mr_weakness"] = [dict(r) for r in mw_rows]
 
                 # 📌 EV Tracker
-                ev_rows = await conn.fetch(
-                    """
+                ev_rows = await conn.fetch("""
                     SELECT user_id, user_name, pokemon, dex_number,
                            hp, atk, spa, def, spd, spe,
                            hp_goal, atk_goal, spa_goal, def_goal, spd_goal, spe_goal
                     FROM ev_tracker
-                    """
-                )
+                    """)
                 results["ev_tracker"] = [dict(r) for r in ev_rows]
 
                 # 📌 WB Pings

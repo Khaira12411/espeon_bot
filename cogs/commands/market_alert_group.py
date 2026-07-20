@@ -9,7 +9,8 @@ from discord.ext import commands
 
 from utils.essentials.command_group_counter import *
 from utils.essentials.command_safe import run_command_safe
-from utils.essentials.pokemon_autocomplete import *
+from utils.essentials.pokemon_autocomplete import user_alerts_autocomplete
+from utils.database.market_value_db import pokemon_autocomplete
 from utils.group_func.market_alert import *
 
 
