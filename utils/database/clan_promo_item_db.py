@@ -7,7 +7,7 @@ from utils.loggers.espeon_log import EspeonContext, espeon_log
 # SQL Script
 """CREATE TABLE clan_promo_item (
     promo_name TEXT NOT NULL,
-    user_id INT NOT NULL,
+    user_id BIGINT NOT NULL,
     user_name TEXT,
     drops INT DEFAULT 0,
     updated_at TIMESTAMP DEFAULT NOW(),
@@ -66,6 +66,10 @@ async def upsert_member_promo_item(
                 user_name,
                 drops,
             )
+        from utils.cache.clan_promo_item_cache import \
+            upsert_member_promo_item_cache
+        upsert_member_promo_item_cache(promo_name, user_id, user_name, drops)
+
     except Exception as e:
         espeon_log(
             "error",

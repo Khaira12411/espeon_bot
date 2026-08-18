@@ -229,15 +229,17 @@ clan_promo_cache: dict[str, dict] = {}
 #       "name": str,                # promo name
 #       "prize": str,               # prize description
 #       "image_url": str,           # image link
-#       "catch_rate": int,          # catch rate
-#       "battle_rate": int,         # battle rate
-#       "fish_rate": int,           # fish rate
+#       "emoji": str,               # emoji
+#       "catch_rate": str,          # catch rate
+#       "battle_rate": str,         # battle rate
+#       "fish_rate": str,           # fish rate
 #       "whitelist_role_id": Optional[int],  # role restriction
 #       "number_before_claim": int, # attempts before claim
 #       "ends_on": Optional[int],   # unix seconds
 #       "updated_at": str,          # timestamp string
 #   }
 # }
+
 
 
 # 💫━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -277,6 +279,8 @@ processed_rare_catches = set()
 processed_market_feed_message_ids = set()
 processed_snipe_ids = set()
 not_weakness_chart_user_names = set()
+processed_promo_listener_messages = set()
+
 
 def clear_processed_message_ids():
     PROCESSED_MSG_LIST = [

@@ -7,6 +7,7 @@ from config.petal_lace_settings import CHERRY_PIN, COLOR, DIVIDER, SHOP_EVENT
 from utils.listener_func.dex_listener import dex_listener
 from utils.listener_func.event_checklist_caught import event_checklist_caught
 from utils.loggers.espeon_log import espeon_log
+from utils.listener_func.promo_caught import promo_listener
 
 from .message_create_listener import embed_has_field_name
 
@@ -60,7 +61,7 @@ class MessageEditListener(commands.Cog):
         # 💜────────────────────────────────────────────
         #           👂 Event Checklist Caught (Debug)
         # 💜────────────────────────────────────────────
-        if embed and embed_color not in LOW_RARITY_COLORS:
+        """if embed and embed_color not in LOW_RARITY_COLORS:
             if "You caught" in embed_desc:
                 espeon_log(
                     "info",
@@ -68,6 +69,21 @@ class MessageEditListener(commands.Cog):
                     source="Message Edit Listener",
                 )
                 await event_checklist_caught(
+                    bot=self.bot,
+                    before_message=before,
+                    after_message=after,
+                )"""
+
+        # 💜────────────────────────────────────────────
+        #           👂 Promo Caught Listener (Debug)
+        # 💜────────────────────────────────────────────
+        if "You caught" in embed_desc:
+                espeon_log(
+                    "info",
+                    f"Detected edited message with catch embed in {after.channel.name}, processing...",
+                    source="Message Edit Listener",
+                )
+                await promo_listener(
                     bot=self.bot,
                     before_message=before,
                     after_message=after,

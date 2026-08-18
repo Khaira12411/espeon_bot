@@ -58,7 +58,8 @@ class Espeon_Emoji:
     sun = "<:sun:1413116327987773501>"
     moon = "<:moon:1413116647744475319>"
     notes = "<:notes:1493803673342709810>"
-
+    purple_fishing = "<:purple_fishing:1536197009357144145>"
+    purple_ball = "<:purple_ball:1536195939914490026>"
 
 class Espeon_Thumbnail:
     afk_set = "https://media.discordapp.net/attachments/1394913073520967680/1419879436714770525/image.png?ex=68d35d45&is=68d20bc5&hm=c2615cf1e78f08d97d57927c17c41106220030c6fe4c10732fda1bba3f535c28&=&format=webp&quality=lossless&width=576&height=576"

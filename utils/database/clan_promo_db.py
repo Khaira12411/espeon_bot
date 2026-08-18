@@ -46,9 +46,10 @@ async def upsert_promo(
     name: str,
     prize: str,
     image_url: str,
-    catch_rate: int,
-    battle_rate: int,
-    fish_rate: int,
+    emoji: str,
+    catch_rate: str,
+    battle_rate: str,
+    fish_rate: str,
     whitelist_role_id: Optional[int] = None,
     number_before_claim: int = 0,
     ends_on: Optional[int] = None,
@@ -61,13 +62,14 @@ async def upsert_promo(
             await conn.execute(
                 """
                 INSERT INTO clan_promo_events (
-                    name, prize, image_url, catch_rate, battle_rate, fish_rate,
+                    name, prize, image_url, emoji, catch_rate, battle_rate, fish_rate,
                     whitelist_role_id, number_before_claim, ends_on
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                 ON CONFLICT (name) DO UPDATE SET
                     prize = EXCLUDED.prize,
                     image_url = EXCLUDED.image_url,
+                    emoji = EXCLUDED.emoji,
                     catch_rate = EXCLUDED.catch_rate,
                     battle_rate = EXCLUDED.battle_rate,
                     fish_rate = EXCLUDED.fish_rate,
@@ -79,6 +81,7 @@ async def upsert_promo(
                 name,
                 prize,
                 image_url,
+                emoji,
                 catch_rate,
                 battle_rate,
                 fish_rate,
