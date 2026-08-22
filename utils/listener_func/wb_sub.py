@@ -26,12 +26,16 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
 
         content = str(message.content).lower()
 
-        # Extract boss_name after 'gigantamax-'
-        boss_match = re.search(r"gigantamax-([a-z0-9\-]+)", content)
-        if boss_match:
-            boss_name = boss_match.group(1).lower()
+        # Extract boss_name after 'gigantamax-' or 'eternamax-'
+        gmax_match = re.search(r"gigantamax-([a-z0-9\-]+)", content)
+        emax_match = re.search(r"eternamax-([a-z0-9\-]+)", content)
+        if gmax_match:
+            boss_name = gmax_match.group(1).lower()
+            form_prefix = "Gigantamax"
+        elif emax_match:
+            boss_name = emax_match.group(1).lower()
+            form_prefix = "Eternamax"
         else:
-            # fallback if no GMAX found
             return
 
         # Determine variant
@@ -40,7 +44,7 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
         if variant == "shiny":
             emoji = WBEmojis.Sgmax
 
-        display_boss_name = f"{emoji} Gigantamax-{boss_name.title()}"
+        display_boss_name = f"{emoji} {form_prefix}-{boss_name.title()}"
         pings_by_channel: Dict[int, list[int]] = {}
         dm_user_ids: list[tuple[int, int | None]] = []  # (user_id, channel_id)
 
