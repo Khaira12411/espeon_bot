@@ -24,7 +24,19 @@ async def ping_wb_subscribers(bot: discord.Client, message: discord.Message):
         if not WB_PING_CACHE:
             return  # no subscribers
 
-        content = str(message.content).lower()
+        # Include embed text so the spawn embed fields are searchable
+        embed_text = ""
+        for embed in message.embeds:
+            parts = [embed.title or "", embed.description or ""]
+            for field in embed.fields:
+                parts.append(f"{field.name} {field.value}")
+            embed_text += " ".join(parts) + " "
+
+        content = (str(message.content) + " " + embed_text).lower()
+
+        # Only process actual spawn messages, not vote-count warnings
+        if "has spawned" not in content:
+            return
 
         # Extract boss_name after 'gigantamax-' or 'eternamax-'
         gmax_match = re.search(r"gigantamax-([a-z0-9\-]+)", content)
