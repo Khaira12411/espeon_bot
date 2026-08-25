@@ -9,25 +9,14 @@ from discord import Embed
 
 from config.current_setup import STAFF_SERVER_GUILD_ID, STRAYMONS_GUILD_ID
 from config.emojis import PokeCoin
-from config.paldea_galar_dict import (
-    Legendary_icon_url,
-    get_rarity_by_color,
-    icon_url_map,
-    paldean_mons,
-)
-from config.straymons_constants import (
-    STRAYMONS__EMOJIS,
-    STRAYMONS__ROLES,
-    STRAYMONS__TEXT_CHANNELS,
-)
-from utils.cache.cache_list import (
-    _market_alert_index,
-    _role_cache,
-    market_alert_cache,
-    market_value_cache,
-    processed_market_feed_message_ids,
-    processed_snipe_ids,
-)
+from config.paldea_galar_dict import (Legendary_icon_url, get_rarity_by_color,
+                                      icon_url_map, paldean_mons)
+from config.straymons_constants import (STRAYMONS__EMOJIS, STRAYMONS__ROLES,
+                                        STRAYMONS__TEXT_CHANNELS)
+from utils.cache.cache_list import (_market_alert_index, _role_cache,
+                                    market_alert_cache, market_value_cache,
+                                    processed_market_feed_message_ids,
+                                    processed_snipe_ids)
 from utils.database.market_value_db import set_market_value
 from utils.function.webhook import send_webhook
 from utils.loggers.debug_log import debug_log, enable_debug
@@ -350,6 +339,9 @@ async def process_market_alert_message(
         listed_price_str = re.sub(r"<a?:\w+:\d+>", "", fields.get("Listed Price", "0"))
         match_price = re.search(r"(\d[\d,]*)", listed_price_str)
         listed_price = int(match_price.group(1).replace(",", "")) if match_price else 0
+        if listed_price == 0:
+            debug_log(f"Skipping embed: listed_price is 0 for {poke_name}")
+            continue
         lowest_market_str = re.sub(
             r"<a?:\w+:\d+>", "", fields.get("Lowest Market", "0")
         )
@@ -359,6 +351,10 @@ async def process_market_alert_message(
             if lowest_market_match
             else 0
         )
+        # lowest_market_match is None means field is "?" (valid unknown); explicit 0 digit is invalid
+        if lowest_market_match and lowest_market == 0:
+            debug_log(f"Skipping embed: lowest_market is 0 for {poke_name}")
+            continue
         listing_seen = fields.get("Listing Seen", "N/A")
         amount = fields.get("Amount", "1")
         embed_color = embed.color.value
