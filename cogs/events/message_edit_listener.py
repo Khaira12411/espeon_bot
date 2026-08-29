@@ -77,7 +77,7 @@ class MessageEditListener(commands.Cog):
         # 💜────────────────────────────────────────────
         #           👂 Promo Caught Listener (Debug)
         # 💜────────────────────────────────────────────
-        if "You caught" in embed_desc:
+        """if "You caught" in embed_desc:
                 espeon_log(
                     "info",
                     f"Detected edited message with catch embed in {after.channel.name}, processing...",
@@ -87,7 +87,7 @@ class MessageEditListener(commands.Cog):
                     bot=self.bot,
                     before_message=before,
                     after_message=after,
-                )
+                )"""
         # ✨───────────────────────────────────────────────✨
         # 🪻 DEX LISTENER
         # ✨───────────────────────────────────────────────✨
