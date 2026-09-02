@@ -220,7 +220,7 @@ class MessageCreateListener(commands.Cog):
             # 🪻 Battle Weakness Chart
             # ✨───────────────────────────────────────────────✨
             if message.embeds and message.embeds[0]:
-                if ":crossed_swords" in first_embed_title and "sent out" in first_embed_description:
+                if (":crossed_swords" in first_embed_title or "⚔️" in first_embed_title) and "sent out" in first_embed_description:
                     try:
                         await weakness_chart(bot=self.bot, message=message)
                     except Exception as bw_e:
