@@ -9,14 +9,25 @@ from discord import Embed
 
 from config.current_setup import STAFF_SERVER_GUILD_ID, STRAYMONS_GUILD_ID
 from config.emojis import PokeCoin
-from config.paldea_galar_dict import (Legendary_icon_url, get_rarity_by_color,
-                                      icon_url_map, paldean_mons)
-from config.straymons_constants import (STRAYMONS__EMOJIS, STRAYMONS__ROLES,
-                                        STRAYMONS__TEXT_CHANNELS)
-from utils.cache.cache_list import (_market_alert_index, _role_cache,
-                                    market_alert_cache, market_value_cache,
-                                    processed_market_feed_message_ids,
-                                    processed_snipe_ids)
+from config.paldea_galar_dict import (
+    Legendary_icon_url,
+    get_rarity_by_color,
+    icon_url_map,
+    paldean_mons,
+)
+from config.straymons_constants import (
+    STRAYMONS__EMOJIS,
+    STRAYMONS__ROLES,
+    STRAYMONS__TEXT_CHANNELS,
+)
+from utils.cache.cache_list import (
+    _market_alert_index,
+    _role_cache,
+    market_alert_cache,
+    market_value_cache,
+    processed_market_feed_message_ids,
+    processed_snipe_ids,
+)
 from utils.database.market_value_db import set_market_value
 from utils.function.webhook import send_webhook
 from utils.loggers.debug_log import debug_log, enable_debug
@@ -167,14 +178,14 @@ async def snipe_handler(
     poke_name: str,
     listed_price: int,
     id: str,
-    lowest_market: int,
+    monthly_average: int,
     amount: int,
     listing_seen: str,
     message: discord.Message,
     embed: discord.Embed,
 ):
     debug_log(
-        f"snipe_handler called for {poke_name} id={id} listed_price={listed_price} lowest_market={lowest_market}"
+        f"snipe_handler called for {poke_name} id={id} listed_price={listed_price} monthly_average={monthly_average}"
     )
     DEFAULT_COLOR = 0x0855FB
     embed_color = None
@@ -240,13 +251,13 @@ async def snipe_handler(
                 content = f"{role.mention} {display_pokemon_name} listed for {PokeCoin} {listed_price:,} each"
 
             debug_log(f"content for snipe alert: {content}")
-            # Check if lowest market is int or "?"
-            if isinstance(lowest_market, int):
-                lowest_market_str = f"{PokeCoin} {lowest_market:,}"
+            # Check if monthly average is int or "?"
+            if isinstance(monthly_average, int):
+                monthly_average_str = f"{PokeCoin} {monthly_average:,}"
             else:
-                lowest_market_str = f"{PokeCoin} {lowest_market}"
+                monthly_average_str = f"{PokeCoin} {monthly_average}"
 
-            debug_log(f"lowest_market_str resolved to {lowest_market_str}")
+            debug_log(f"monthly_average_str resolved to {monthly_average_str}")
             # Build embed
             snipe_embed = Embed(color=embed_color)
             if embed.thumbnail:
@@ -265,8 +276,9 @@ async def snipe_handler(
                 name="Listed Price", value=f"{PokeCoin} {listed_price:,}", inline=True
             )
             snipe_embed.add_field(name="Amount", value=amount, inline=True)
+
             snipe_embed.add_field(
-                name="Lowest Market", value=lowest_market_str, inline=True
+                name="Monthly Average", value=monthly_average_str, inline=True
             )
             snipe_embed.add_field(name="Listing Seen", value=listing_seen, inline=True)
             snipe_embed.set_footer(
@@ -351,9 +363,18 @@ async def process_market_alert_message(
             if lowest_market_match
             else 0
         )
+        monthly_average_str = re.sub(
+            r"<a?:\w+:\d+>", "", fields.get("Monthly Average", "0")
+        )
+        monthly_average_match = re.search(r"(\d[\d,]*)", monthly_average_str)
+        monthly_average = (
+            int(monthly_average_match.group(1).replace(",", ""))
+            if monthly_average_match
+            else 0
+        )
         # lowest_market_match is None means field is "?" (valid unknown); explicit 0 digit is invalid
-        if lowest_market_match and lowest_market == 0:
-            debug_log(f"Skipping embed: lowest_market is 0 for {poke_name}")
+        if monthly_average_match and monthly_average == 0:
+            debug_log(f"Skipping embed: monthly_average is 0 for {poke_name}")
             continue
         listing_seen = fields.get("Listing Seen", "N/A")
         amount = fields.get("Amount", "1")
@@ -391,13 +412,13 @@ async def process_market_alert_message(
         # Snipe detection: only process unprocessed IDs
         if original_id not in processed_snipe_ids:
             processed_snipe_ids.add(original_id)
-            if lowest_market > 0 and listed_price <= lowest_market * 0.7:
+            if monthly_average > 0 and listed_price <= monthly_average * 0.7:
                 debug_log(
-                    f"Snipe detected for {poke_name} #{poke_dex}: listed_price={listed_price}, lowest_market={lowest_market}"
+                    f"Snipe detected for {poke_name} #{poke_dex}: listed_price={listed_price}, monthly_average={monthly_average}"
                 )
                 espeon_log(
                     "snipe",
-                    f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market: {lowest_market})",
+                    f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (monthly average: {monthly_average})",
                     context=EspeonContext.STRAYMONS,
                 )
                 await snipe_handler(
@@ -405,28 +426,28 @@ async def process_market_alert_message(
                     poke_name,
                     listed_price,
                     original_id,
-                    lowest_market,
+                    monthly_average,
                     amount,
                     listing_seen,
                     message,
                     embed,
                 )
-            elif lowest_market == 0:
+            elif monthly_average == 0:
                 debug_log(
-                    f"Snipe detected for {poke_name} #{poke_dex}: listed_price={listed_price}, lowest_market unknown"
+                    f"Snipe detected for {poke_name} #{poke_dex}: listed_price={listed_price}, monthly_average unknown"
                 )
                 espeon_log(
                     "snipe",
-                    f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (lowest market unknown)",
+                    f"Detected snipe listing for {poke_name} #{poke_dex} at {listed_price} (monthly average unknown)",
                     context=EspeonContext.STRAYMONS,
                 )
-                lowest_market = "?"
+                monthly_average = "?"
                 await snipe_handler(
                     bot,
                     poke_name,
                     listed_price,
                     original_id,
-                    lowest_market,
+                    monthly_average,
                     amount,
                     listing_seen,
                     message,
@@ -553,6 +574,15 @@ async def process_market_alert_message(
             if lowest_market_match
             else 0
         )
+        monthly_average_str = re.sub(
+            r"<a?:\w+:\d+>", "", fields.get("Monthly Average", "0")
+        )
+        monthly_average_match = re.search(r"(\d[\d,]*)", monthly_average_str)
+        monthly_average = (
+            int(monthly_average_match.group(1).replace(",", ""))
+            if monthly_average_match
+            else 0
+        )
 
         listing_seen = fields.get("Listing Seen", "Unknown")
 
@@ -564,7 +594,12 @@ async def process_market_alert_message(
         existing_lowest = existing_data.get("true_lowest", float("inf"))
 
         # Ensure all values are not None for min/max
-        price_candidates = [listed_price, lowest_market, existing_lowest]
+        price_candidates = [
+            listed_price,
+            lowest_market,
+            existing_lowest,
+            monthly_average,
+        ]
         price_candidates = [p for p in price_candidates if p is not None]
         if price_candidates:
             true_lowest = min(price_candidates)
@@ -591,6 +626,7 @@ async def process_market_alert_message(
             "listing_seen": listing_seen,
             "image_link": thumbnail_url,
             "rarity": market_value_rarity,
+            "monthly_average": monthly_average,
         }
         prev = market_value_cache.get(cache_key, {})
         needs_update = (
@@ -602,6 +638,7 @@ async def process_market_alert_message(
             or prev.get("is_exclusive") != is_exclusive
             or prev.get("image_link") != thumbnail_url
             or prev.get("rarity") != market_value_rarity
+            or prev.get("monthly_average") != monthly_average
         )
         market_value_cache[cache_key] = cache_update
         if needs_update:
@@ -616,8 +653,9 @@ async def process_market_alert_message(
                 listing_seen=listing_seen,
                 image_link=thumbnail_url,
                 rarity=market_value_rarity,
+                monthly_average=monthly_average,
             )
             espeon_log(
                 "market_value",
-                f"Updated market value for {poke_name} #{poke_dex}: listed_price={listed_price}, lowest_market={lowest_market}, true_lowest={true_lowest}, rarity={market_value_rarity}",
+                f"Updated market value for {poke_name} #{poke_dex}: listed_price={listed_price}, lowest_market={lowest_market}, true_lowest={true_lowest}, monthly_average={monthly_average},    rarity={market_value_rarity}",
             )
